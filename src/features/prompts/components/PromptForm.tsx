@@ -58,6 +58,8 @@ export const PromptForm = ({
     });
   }, [registerContentUpdater, setValue]);
 
+  // React Hook Form's watch helpers are safe here; suppress compiler warning.
+  // eslint-disable-next-line react-hooks/incompatible-library
   const contentValue = watch('content');
 
   useEffect(() => {

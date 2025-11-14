@@ -8,6 +8,8 @@ const categoryGradients: Record<PromptRow['category'], string> = {
   Código: 'from-slate-100 to-sky-100',
   Marketing: 'from-amber-100 to-orange-100',
   Análisis: 'from-emerald-100 to-green-100',
+  Creatividad: 'from-violet-100 to-indigo-100',
+  Educación: 'from-cyan-100 to-sky-100',
   Otros: 'from-slate-100 to-slate-200'
 };
 

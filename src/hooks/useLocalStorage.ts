@@ -16,11 +16,12 @@ export const useLocalStorage = <T,>(key: string, initialValue: T) => {
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
+    // Reading from localStorage is side-effectful; updating state once keeps cache consistent.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setStoredValue((current) => {
       const item = window.localStorage.getItem(key);
       return item ? (JSON.parse(item) as T) : current;
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key]);
 
   const setValue = (value: T) => {

@@ -4,6 +4,7 @@ create table if not exists public.profiles (
   plan text default 'free',
   prompt_quota_used integer default 0,
   improvements_used_today integer default 0,
+  improvements_reset_at timestamptz default now(),
   created_at timestamptz default now(),
   updated_at timestamptz
 );
@@ -56,3 +57,44 @@ create policy "Improvements view" on public.prompt_improvements
   for select using (auth.uid() = user_id);
 create policy "Improvements insert" on public.prompt_improvements
   for insert with check (auth.uid() = user_id);
+
+create or replace function public.get_user_tags(target_user_id uuid)
+returns text[]
+language sql
+stable
+as $$
+  select coalesce(array_agg(tag order by tag), '{}')
+  from (
+    select distinct unnest(tags) as tag
+    from public.prompts
+    where user_id = target_user_id
+      and array_length(tags, 1) > 0
+  ) as distinct_tags;
+$$;
+
+create or replace function public.increment_prompt_use_count(target_prompt_id uuid)
+returns integer
+language sql
+as $$
+  update public.prompts
+  set use_count = coalesce(use_count, 0) + 1
+  where id = target_prompt_id
+    and auth.uid() = user_id
+  returning use_count;
+$$;
+
+create or replace function public.reset_daily_improvements(target_user_id uuid)
+returns public.profiles
+language sql
+volatile
+as $$
+  update public.profiles
+  set improvements_used_today = 0,
+      improvements_reset_at = now()
+  where id = target_user_id
+    and (
+      improvements_reset_at is null
+      or improvements_reset_at::date < now()::date
+    )
+  returning *;
+$$;

@@ -19,6 +19,8 @@ export const UsePromptClient = ({ prompt }: Props) => {
   const form = useForm<VariableForm>({
     defaultValues: variables.reduce<VariableForm>((acc, variable) => ({ ...acc, [variable]: '' }), {})
   });
+  // React Hook Form's watch helper is required to render live previews; suppress compiler warning.
+  // eslint-disable-next-line react-hooks/incompatible-library
   const values = form.watch();
   const preview = useMemo(() => replaceVariables(prompt.content, values), [prompt.content, values]);
   const [debouncedPreview, setDebouncedPreview] = useState(preview);

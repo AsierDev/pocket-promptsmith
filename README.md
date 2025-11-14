@@ -1,146 +1,564 @@
 # Pocket Promptsmith
 
-Pocket Promptsmith es una PWA construida con **Next.js 16 (App Router + React 19)** que permite guardar, organizar y mejorar prompts reutilizables con variables dinámicas y ayuda de IA usando OpenRouter.
+[![Next.js](https://img.shields.io/badge/Next.js-16.0.1-black?style=flat-square&logo=next.js)](https://nextjs.org/)
+[![React](https://img.shields.io/badge/React-19.2-61DAFB?style=flat-square&logo=react)](https://reactjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178C6?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
+[![Supabase](https://img.shields.io/badge/Supabase-Latest-3ECF8E?style=flat-square&logo=supabase)](https://supabase.com/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4-38B2AC?style=flat-square&logo=tailwind-css)](https://tailwindcss.com/)
+[![OpenRouter](https://img.shields.io/badge/OpenRouter-API-FF6B35?style=flat-square&logo=openai)](https://openrouter.ai/)
 
-## Tabla de contenido
-1. [Stack y dependencias clave](#stack-y-dependencias-clave)
-2. [Estructura de carpetas](#estructura-de-carpetas)
-3. [Variables de entorno](#variables-de-entorno)
-4. [Setup inicial](#setup-inicial)
-5. [Scripts disponibles](#scripts-disponibles)
-6. [Guía de uso funcional](#guía-de-uso-funcional)
-7. [Decisiones técnicas](#decisiones-técnicas)
-8. [Testing](#testing)
-9. [PWA y modo offline](#pwa-y-modo-offline)
+> **A modern Progressive Web App for managing, organizing, and AI-improving reusable prompts with dynamic variables using OpenRouter API.**
 
----
+Pocket Promptsmith is a feature-rich PWA built with **Next.js 16 (App Router + React 19)** that allows users to save, organize, and enhance reusable prompts with dynamic variables and AI assistance powered by OpenRouter.
 
-## Stack y dependencias clave
-- **Next.js 16.0.1** con App Router, Server Actions y Turbopack
-- **React 19.2** + acciones concurrentes
-- **TypeScript 5.8** en modo `strict`
-- **Tailwind CSS 3.4** para estilos utilitarios
-- **Supabase** (`@supabase/ssr` + `@supabase/supabase-js`) para auth y base de datos
-- **React Hook Form + Zod** para formularios con validación
-- **Zustand 5** únicamente para estado de UI (modales/banners)
-- **sonner** para toasts accesibles
-- **OpenRouter API** (modelos gratuitos: `llama-3.1-8b-instruct` / `gemma-2-9b-it`) con fallback
-- **Playwright + Vitest** para pruebas
+## 🚀 Features
 
-## Estructura de carpetas
+- **🔐 Magic Link Authentication** - Secure login with Supabase Auth
+- **📝 Prompt Management** - Create, edit, and organize prompts with categories and tags
+- **🤖 AI-Powered Improvements** - Enhance prompts using OpenRouter API with free models
+- **🔢 Dynamic Variables** - Extract and replace variables like `{{variable}}` in prompts
+- **📱 Progressive Web App** - Installable app with offline capabilities
+- **♿ Freemium Model** - 10 prompts limit, 5 AI improvements per day
+- **⚡ Server-Side Rendering** - Optimized with Next.js 16 and Turbopack
+- **🎨 Modern UI** - Clean interface with Tailwind CSS and accessibility features
+
+## 📋 Table of Contents
+
+- [Features](#-features)
+- [Tech Stack](#-tech-stack)
+- [Project Structure](#-project-structure)
+- [Prerequisites](#-prerequisites)
+- [Quick Start](#-quick-start)
+- [Environment Configuration](#-environment-configuration)
+- [Database Setup](#-database-setup)
+- [Development](#-development)
+- [API Documentation](#-api-documentation)
+- [Testing](#-testing)
+- [Deployment](#-deployment)
+- [Security & Performance](#-security--performance)
+- [Troubleshooting](#-troubleshooting)
+- [Contributing](#-contributing)
+- [License](#-license)
+
+## 🛠️ Tech Stack
+
+| Category             | Technology      | Version |
+| -------------------- | --------------- | ------- |
+| **Frontend**         | Next.js         | 16.0.1  |
+|                      | React           | 19.2    |
+|                      | TypeScript      | 5.8     |
+|                      | Tailwind CSS    | 3.4     |
+| **Backend**          | Supabase        | Latest  |
+|                      | PostgreSQL      | Latest  |
+| **State Management** | Zustand         | 5.x     |
+| **Forms**            | React Hook Form | Latest  |
+|                      | Zod             | Latest  |
+| **AI Integration**   | OpenRouter API  | Latest  |
+| **Testing**          | Playwright      | Latest  |
+|                      | Vitest          | Latest  |
+| **PWA**              | Service Worker  | Native  |
+
+## 📁 Project Structure
+
 ```
-app/
-  layout.tsx               # Metadata global + providers
-  page.tsx                 # Landing pública
-  login/                   # Formulario magic link
-  auth/callback/route.ts   # Intercambio de sesión Supabase
-  prompts/                 # Dashboard protegido (listado, CRUD, use modal)
-middleware.ts              # Guard de rutas / redirects
-public/                    # Manifest, íconos, service worker
-src/
-  components/common/       # UI genérica (Button, Modal, Providers...)
-  features/
-    auth/                  # Server actions de login/logout
-    prompts/               # Formularios, grid, servicios Supabase
-    ai-improvements/       # Cliente OpenRouter + modal diff
-    variables/             # extractVariables + modal “Use Prompt”
-    limits/                # Banner freemium + helpers
-    pwa/                   # Banner de instalación / SW hook
-  lib/                     # Supabase helpers, env, limits
-  store/                   # Zustand para estado UI
-  styles/                  # Tailwind globals
-  types/                   # Tipos generados (Supabase)
-tests/                     # Playwright + Vitest suites
+Pocket-Promptsmith/
+├── app/                          # Next.js 16 App Router
+│   ├── layout.tsx               # Global metadata + providers
+│   ├── page.tsx                 # Public landing page
+│   ├── login/                   # Magic link authentication
+│   ├── auth/callback/           # Supabase session exchange
+│   ├── prompts/                 # Protected dashboard
+│   │   ├── layout.tsx           # Protected layout with daily reset
+│   │   ├── page.tsx             # Prompts listing
+│   │   ├── new/                 # Create new prompt
+│   │   ├── [id]/                # Prompt details
+│   │   │   ├── page.tsx         # Edit prompt
+│   │   │   └── use/             # Use prompt modal
+│   └── api/                     # API routes
+│       └── ai-improve/          # OpenRouter AI integration
+├── public/                      # Static assets
+│   ├── manifest.json           # PWA manifest
+│   ├── sw.js                   # Service worker
+│   └── icons/                  # App icons
+├── src/
+│   ├── components/             # Reusable UI components
+│   │   └── common/             # Generic UI components
+│   ├── features/               # Feature-based architecture
+│   │   ├── auth/               # Authentication logic
+│   │   ├── prompts/            # Prompt CRUD operations
+│   │   ├── ai-improvements/    # AI integration
+│   │   ├── variables/          # Variable extraction/replacement
+│   │   ├── limits/             # Freemium limits
+│   │   └── pwa/                # PWA functionality
+│   ├── lib/                    # Core utilities
+│   │   ├── supabaseServer.ts   # Server-side Supabase client
+│   │   ├── limits.ts           # Business logic limits
+│   │   └── env.ts              # Environment validation
+│   ├── store/                  # Zustand state management
+│   ├── types/                  # TypeScript definitions
+│   └── styles/                 # Global styles
+├── supabase/                   # Database schema & migrations
+│   └── schema.sql              # Complete database schema
+├── tests/                      # Test suites
+│   ├── unit/                   # Vitest unit tests
+│   └── integration/            # Playwright E2E tests
+├── proxy.ts                    # Next.js middleware replacement
+├── next.config.ts              # Next.js configuration
+├── tailwind.config.ts          # Tailwind CSS configuration
+├── vitest.config.ts            # Vitest configuration
+└── playwright.config.ts        # Playwright configuration
 ```
 
-## Variables de entorno
-Configura un archivo `.env.local` con:
-```
-NEXT_PUBLIC_SUPABASE_URL=...
-NEXT_PUBLIC_SUPABASE_ANON_KEY=...
-NEXT_PUBLIC_SITE_URL=https://tudominio.com (o http://localhost:3000)
-OPENROUTER_API_KEY=...
-OPENROUTER_BASE_URL=https://openrouter.ai/api/v1 (opcional)
-```
-> **Nota:** OpenRouter solo es necesario para la funcionalidad "Improve with AI". Supabase es obligatorio para auth y CRUD.
+## 📋 Prerequisites
 
-## Setup inicial
+Before you begin, ensure you have the following installed:
+
+- **Node.js** (v18 or higher)
+- **npm** or **yarn**
+- **Git**
+- **Supabase CLI** (optional but recommended)
+
+### Supabase Account Setup
+
+1. Create a [Supabase account](https://supabase.com/)
+2. Create a new project
+3. Note your project reference ID
+
+## 🚀 Quick Start
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/your-username/pocket-promptsmith.git
+cd pocket-promptsmith
+```
+
+### 2. Install Dependencies
+
 ```bash
 npm install
-npx playwright install   # instala los navegadores necesarios para tests E2E
 ```
 
-### Configuración de Supabase (Auth)
-1. En el dashboard de Supabase ve a **Project Settings → API** y copia:
-   - `Project URL` → `NEXT_PUBLIC_SUPABASE_URL`
-   - `anon public API key` → `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-2. En **Authentication → URL Configuration** define:
-   - `Site URL`: `http://localhost:3000`
-   - `Redirect URLs`: `http://localhost:3000/auth/callback`
-3. Guarda los cambios y vuelve a solicitar el magic link: al hacer clic en el correo, Supabase redirigirá a `/auth/callback` y la sesión quedará activa en `/prompts`.
-4. Crea las tablas y RLS ejecutando el contenido de `supabase/schema.sql` desde el SQL Editor de Supabase (o `supabase db push`). Esto crea `profiles`, `prompts` y `prompt_improvements` con las políticas necesarias.
+### 3. Environment Setup
 
-## Scripts disponibles
-| Comando | Descripción |
-| --- | --- |
-| `npm run dev` | Levanta Next.js 16 con Turbopack en modo desarrollo |
-| `npm run build` + `npm run start` | Build optimizado y server en modo producción |
-| `npm run lint` | Ejecuta ESLint con la configuración de Next.js |
-| `npm run test` | Corre Vitest (unit tests como `extractVariables`) |
-| `npm run test:watch` | Vitest en modo watch |
-| `npm run test:integration` | Ejecuta Playwright (requiere backend y Supabase configurado) |
-
-## Guía de uso funcional
-1. **Autenticación Magic Link**
-   - Accede a `/login`, introduce tu email y se enviará un enlace mágico vía Supabase.
-   - El callback `/auth/callback` intercambia el código y redirige automáticamente a `/prompts`.
-2. **Dashboard protegido (`/prompts`)**
-   - Lista tus prompts en una cuadrícula cacheada (`'use cache'`) con filtros de búsqueda, categorías, tags, favoritos y ordenamientos.
-   - Paginación de 20 ítems con enlaces accesibles (Prev/Next deshabilitados con `aria-disabled`).
-   - Banner superior muestra progreso del plan free (prompts usados y mejoras diarias) y abre un modal informativo “Upgrade to Pro”.
-3. **Crear y editar prompts**
-   - Formulario (`react-hook-form` + `zod`) con título, contenido (soporta variables `{{variable}}`), categoría predefinida, tags (input chips) e imagen opcional.
-   - Al alcanzar el límite gratis (10 prompts) se bloquea el submit con un aviso.
-   - En edición aparece botón **“Improve with AI”** si todavía no alcanzas las 5 mejoras diarias.
-4. **Mejoras con IA**
-   - Abre un modal que envía la versión actual del prompt a OpenRouter, muestra split view original/mejorado, lista de cambios y un diff textual.
-   - “Aplicar cambios” reemplaza el contenido, registra la mejora en Supabase y consume 1 uso diario.
-5. **Modal “Use Prompt”**
-   - El botón “Usar prompt” abre `/prompts/[id]/use` como overlay.
-   - Detecta automáticamente las variables (`extractVariables`) y genera inputs por cada una.
-   - Preview en tiempo real (con debounce 300 ms) muestra el texto final; el botón “Copy to Clipboard” se habilita solo cuando todas las variables tienen valor y, al copiar, incrementa `use_count` con feedback toast.
-6. **Favoritos y filtros**
-   - El ícono de estrella hace toggle optimista (`useOptimistic` + server action) y se sincroniza tras revalidation.
-   - El filtro de tags ofrece sugerencias rápidas a partir de tus tags existentes.
-7. **Freemium limits**
-   - Si intentas crear un prompt fuera de límite o aplicar IA sin cuota restante, verás mensajes “Upgrade a Pro”.
-
-## Decisiones técnicas
-- **Arquitectura por features**: cada dominio vive en `src/features/<feature>` con componentes, hooks y servicios propios. Lo transversal (UI base, helpers, stores) vive en `src/components/common`, `src/lib`, `src/store`.
-- **Separación de responsabilidades**: Server Components/Actions hacen data fetching y mutaciones; Client Components manejan interacción (formularios, modales, Zustand, toasts).
-- **Estado y formularios**: solo estado de UI en Zustand (`useUiStore`); formularios usan `react-hook-form` + `zodResolver` para tipado estricto y reuso de esquemas.
-- **Fetching**: Supabase se consume directamente en Server Actions (`getSupabaseServerClient`) y servicios (`fetchPrompts`). La lista de prompts usa `'use cache'` para aprovechar caché de Next.js 16.
-- **Accesibilidad**: inputs con labels, modales con roles/aria, botones de paginación con `aria-disabled`, toasts para feedback.
-
-## Testing
-- **Unit**: `tests/unit/extractVariables.test.ts` cubre detección y reemplazo de variables.
-- **Integración (Playwright)**:
-  - `tests/integration/auth.spec.ts`: Form login y validaciones básicas.
-  - `tests/integration/prompts.spec.ts`: Garantiza que `/prompts` redirige a `/login` sin sesión. Amplía con casos CRUD cuando haya mocks de Supabase.
-  - `tests/integration/ai.spec.ts` y `variables.spec.ts` están preparados (skip) para entornos con datos seed y APIs disponibles.
-
-Ejecuta:
 ```bash
-npm run test            # Vitest
-npm run test:integration
+cp .env.example .env.local
 ```
-> Playwright requiere que la app esté corriendo y Supabase tenga datos de prueba o mocks.
 
-## PWA y modo offline
-- `public/manifest.json` configura íconos, colores y `display: standalone`.
-- `public/sw.js` registra un Service Worker que precachea `/`, `/prompts` y `manifest.json`, con estrategia runtime cache para peticiones GET.
-- `src/features/pwa/PwaProvider.tsx` registra el SW en el cliente y muestra un banner personalizado cuando el navegador dispara `beforeinstallprompt`. El banner usa Zustand para mostrarse/ocultarse.
-- Al instalarla como PWA, la app funciona offline con los prompts cacheados (según los datos visitados previamente).
+Edit `.env.local` with your configuration (see [Environment Configuration](#-environment-configuration)).
+
+### 4. Supabase Setup
+
+```bash
+# Install Supabase CLI (if not installed)
+npm install -g supabase
+
+# Login to Supabase
+supabase login
+
+# Link your project
+supabase link --project-ref YOUR_PROJECT_REF
+
+# Apply database schema
+supabase db push
+```
+
+### 5. Start Development Server
+
+```bash
+npm run dev
+```
+
+Visit [http://localhost:3000](http://localhost:3000) to see the application.
+
+## 🔧 Environment Configuration
+
+Create a `.env.local` file in the root directory:
+
+```bash
+# Supabase Configuration (Required)
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+
+# OpenRouter AI Configuration (Optional)
+OPENROUTER_API_KEY=your-openrouter-api-key
+OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
+
+# Application Configuration
+NODE_ENV=development
+```
+
+> **Security Note**: OpenRouter API key is only required for AI improvement features. Supabase is mandatory for authentication and CRUD operations. The service role key is used only from CLI for schema migrations - never share it publicly.
+
+## 🗄️ Database Setup
+
+### Automatic Setup (Recommended)
+
+```bash
+supabase db push
+```
+
+This command will create all necessary tables, RLS policies, and PostgreSQL functions:
+
+- `profiles` - User profiles and limits tracking
+- `prompts` - Prompt storage with metadata
+- `prompt_improvements` - AI improvement history
+- **PostgreSQL Functions:**
+  - `get_user_tags()` - Fetch user tags efficiently
+  - `increment_prompt_use_count()` - Atomic counter updates
+  - `reset_daily_improvements()` - Daily quota reset (marked as `volatile`)
+
+### Manual Setup
+
+If you prefer manual setup, execute the SQL commands from `supabase/schema.sql` in your Supabase SQL Editor.
+
+> **Important**: Ensure all SQL functions are applied correctly. If you encounter errors like "UPDATE is not allowed in a non-volatile function", verify that functions modifying data are marked as `volatile` (not `stable`) in PostgreSQL.
+
+## 🏃‍♂️ Development
+
+### Available Scripts
+
+| Command                    | Description                             |
+| -------------------------- | --------------------------------------- |
+| `npm run dev`              | Start development server with Turbopack |
+| `npm run build`            | Create production build                 |
+| `npm run start`            | Start production server                 |
+| `npm run lint`             | Run ESLint with Next.js configuration   |
+| `npm run test`             | Run Vitest unit tests                   |
+| `npm run test:watch`       | Run Vitest in watch mode                |
+| `npm run test:integration` | Run Playwright E2E tests                |
+| `npm run type-check`       | Run TypeScript type checking            |
+
+### Development Workflow
+
+1. **Code Quality**: `npm run lint` ensures clean code with flat config
+2. **Testing**: `npm run test` runs unit tests, ignores Playwright specs
+3. **Type Safety**: TypeScript strict mode ensures type safety
+4. **Hot Reloading**: Turbopack provides fast development experience
+
+## 📚 API Documentation
+
+### OpenRouter AI Integration
+
+**Endpoint**: `POST /api/ai-improve`
+
+**Authentication**: Requires valid Supabase session
+
+**Request**:
+
+```typescript
+{
+  promptId: string;
+  content: string;
+  category: "Escritura" |
+    "Código" |
+    "Marketing" |
+    "Análisis" |
+    "Creatividad" |
+    "Educación" |
+    "Otros";
+}
+```
+
+**Response**:
+
+```typescript
+{
+  improvedContent: string;
+  changes: string[];
+  diff: any;
+  improvementsUsed: number;
+}
+```
+
+**Error Responses**:
+
+- `401 Unauthorized` - Invalid or missing session
+- `429 Too Many Requests` - Daily improvement limit exceeded
+- `400 Bad Request` - Invalid input data
+
+### Supabase Database Schema
+
+#### Tables
+
+**`profiles`**
+
+- `id` (uuid, primary key)
+- `email` (text)
+- `plan` ('free' | 'pro')
+- `prompt_quota_used` (integer)
+- `improvements_used_today` (integer)
+- `improvements_reset_at` (timestamptz)
+- `created_at` (timestamptz)
+- `updated_at` (timestamptz)
+
+**`prompts`**
+
+- `id` (uuid, primary key)
+- `user_id` (uuid, foreign key)
+- `title` (text)
+- `content` (text)
+- `category` (enum)
+- `tags` (text[])
+- `is_favorite` (boolean)
+- `use_count` (integer)
+- `created_at` (timestamptz)
+- `updated_at` (timestamptz)
+
+**`prompt_improvements`**
+
+- `id` (uuid, primary key)
+- `prompt_id` (uuid, foreign key)
+- `user_id` (uuid, foreign key)
+- `original_content` (text)
+- `improved_content` (text)
+- `diff_json` (jsonb)
+- `created_at` (timestamptz)
+
+## 🧪 Testing
+
+### Unit Tests (Vitest)
+
+```bash
+# Run all unit tests
+npm run test
+
+# Run specific test file
+npm run test extractVariables
+
+# Watch mode for development
+npm run test:watch
+```
+
+**Test Coverage**:
+
+- Variable extraction logic (`extractVariables`)
+- Business logic limits (`tests/limits.test.ts`)
+- Component behavior
+- Utility functions
+
+### Integration Tests (Playwright)
+
+```bash
+# Install Playwright browsers
+npx playwright install
+
+# Run E2E tests (requires running app)
+npm run dev  # In one terminal
+npm run test:integration  # In another terminal
+```
+
+**Test Suites**:
+
+- `auth.spec.ts` - Authentication flow testing
+- `prompts.spec.ts` - CRUD operations testing
+- `ai.spec.ts` - AI integration testing (requires API keys)
+- `variables.spec.ts` - Variable handling testing
+
+## 🚀 Deployment
+
+### Vercel (Recommended)
+
+1. **Connect Repository**:
+
+   ```bash
+   npx vercel --prod
+   ```
+
+2. **Environment Variables**:
+   Add all environment variables in Vercel dashboard
+
+3. **Database**:
+   Ensure `supabase db push` is run on production
+
+### Other Platforms
+
+**Netlify**:
+
+- Build command: `npm run build`
+- Publish directory: `.next`
+- Environment variables required
+
+**Railway**:
+
+- Connect GitHub repository
+- Auto-deploys on push
+- Environment variables in dashboard
+
+### Production Checklist
+
+- [ ] Environment variables configured
+- [ ] Database schema applied with `supabase db push`
+- [ ] SSL certificate configured
+- [ ] Error monitoring (Sentry) setup
+- [ ] Performance monitoring configured
+- [ ] Database backups enabled
+
+## 🔒 Security & Performance
+
+### Security Measures
+
+- **Row Level Security (RLS)**: All Supabase tables protected
+- **Session Validation**: API routes validate Supabase sessions
+- **CSP Headers**: Content Security Policy implementation
+- **Input Validation**: Zod schema validation on all inputs
+- **Rate Limiting**: API endpoints protected from abuse
+
+### Performance Optimizations
+
+- **Server Components**: Leveraging Next.js 16 Server Components
+- **Caching**: `use cache` directive for optimal data fetching
+- **Bundle Optimization**: Turbopack for fast builds
+- **Image Optimization**: Next.js Image component
+- **Service Worker**: PWA caching strategies
+
+### Data Privacy
+
+- **Local Storage**: Minimal data stored locally
+- **Session Management**: Secure cookie-based sessions
+- **API Key Protection**: OpenRouter keys never exposed to client
+- **GDPR Compliance**: User data deletion capabilities
+
+## 🔧 Troubleshooting
+
+### Common Issues
+
+#### 1. "UPDATE is not allowed in a non-volatile function"
+
+**Problem**: PostgreSQL function volatility issue
+**Solution**:
+
+```sql
+-- Ensure functions modifying data are marked as volatile
+CREATE OR REPLACE FUNCTION reset_daily_improvements(target_user_id uuid)
+RETURNS public.profiles
+LANGUAGE sql
+VOLATILE  -- Not STABLE
+AS $$
+  -- function body
+$$;
+```
+
+#### 2. Build Fails with Turbopack
+
+**Problem**: Development environment restrictions
+**Solution**: Run build outside restricted sandbox environment
+
+#### 3. Authentication Not Working
+
+**Problem**: Incorrect Supabase URL configuration
+**Solution**:
+
+- Verify `NEXT_PUBLIC_SUPABASE_URL` format: `https://project-id.supabase.co`
+- Check redirect URLs in Supabase dashboard
+- Ensure `NEXT_PUBLIC_SITE_URL` matches your domain
+
+#### 4. AI Improvements Not Working
+
+**Problem**: OpenRouter API issues
+**Solution**:
+
+- Verify `OPENROUTER_API_KEY` is valid
+- Check API quotas and limits
+- Ensure network connectivity to OpenRouter
+
+#### 5. PWA Not Installing
+
+**Problem**: Service Worker registration issues
+**Solution**:
+
+- Check browser console for SW errors
+- Verify `manifest.json` is accessible
+- Ensure HTTPS in production
+
+### Debug Mode
+
+Enable debug logging:
+
+```bash
+NODE_ENV=development npm run dev
+```
+
+### Logs
+
+- **Server logs**: Terminal output during development
+- **Browser logs**: Developer console for client-side debugging
+- **Supabase logs**: Dashboard > Logs section
+
+## 🤝 Contributing
+
+We welcome contributions! Please follow these guidelines:
+
+### Development Process
+
+1. **Fork the repository**
+2. **Create a feature branch**: `git checkout -b feature/amazing-feature`
+3. **Make your changes**
+4. **Run tests**: `npm run test && npm run lint`
+5. **Commit changes**: `git commit -m 'Add amazing feature'`
+6. **Push to branch**: `git push origin feature/amazing-feature`
+7. **Open a Pull Request**
+
+### Code Style
+
+- **TypeScript**: Strict mode enabled
+- **ESLint**: Flat config with Next.js recommended rules
+- **Prettier**: Code formatting (run `npm run format`)
+- **Conventional Commits**: Use semantic commit messages
+
+### Pull Request Guidelines
+
+- **Title**: Clear and descriptive
+- **Description**: Explain what, why, and how
+- **Tests**: Include tests for new functionality
+- **Documentation**: Update README if needed
+- **Breaking Changes**: Clearly document and justify
+
+### Issue Reporting
+
+When reporting issues, include:
+
+- **Environment**: OS, Node version, browser
+- **Reproduction steps**: Clear steps to reproduce
+- **Expected vs actual behavior**
+- **Screenshots**: If relevant
+- **Error logs**: Console output and stack traces
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+### MIT License Summary
+
+- ✅ **Commercial use** - You can use this project commercially
+- ✅ **Modification** - You can modify the project
+- ✅ **Distribution** - You can distribute the project
+- ✅ **Private use** - You can use the project privately
+- ❌ **Liability** - Liability is not granted
+- ❌ **Warranty** - Warranty is not granted
+
+## 🙏 Acknowledgments
+
+- **Next.js Team** - For the amazing React framework
+- **Supabase Team** - For the fantastic Backend-as-a-Service
+- **OpenRouter** - For providing accessible AI models
+- **Tailwind CSS** - For the utility-first CSS framework
+- **Open Source Community** - For all the amazing tools and libraries
+
+## 📞 Support
+
+- **Issues**: [GitHub Issues](https://github.com/your-username/pocket-promptsmith/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/your-username/pocket-promptsmith/discussions)
+- **Email**: support@example.com
 
 ---
-¿Dudas o sugerencias? Abre una issue o comenta en la sesión para seguir iterando 🚀
+
+<div align="center">
+
+**Built with ❤️ using Next.js, Supabase, and OpenRouter**
+
+[Star on GitHub](https://github.com/your-username/pocket-promptsmith) · [Follow on Twitter](https://twitter.com/your-username)
+
+</div>

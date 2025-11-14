@@ -83,15 +83,12 @@ export const fetchUserTags = async () => {
     data: { user }
   } = await supabase.auth.getUser();
   if (!user) return [];
-  const { data, error } = await supabase.from('prompts').select('tags').eq('user_id', user.id);
-  if (error || !data) return [];
-  const tagSet = new Set<string>();
-  (data as { tags: string[] }[]).forEach((row) =>
-    row.tags?.forEach((tag) => {
-      tagSet.add(tag);
-    })
-  );
-  return Array.from(tagSet.values());
+  const { data, error } = await supabase.rpc('get_user_tags', { target_user_id: user.id });
+  if (error || !data) {
+    console.error('Error fetching tags', error);
+    return [];
+  }
+  return data;
 };
 export const toggleFavorite = async (promptId: string, nextValue: boolean) => {
   const supabase = await getSupabaseServerClient();
@@ -103,11 +100,9 @@ export const toggleFavorite = async (promptId: string, nextValue: boolean) => {
 
 export const incrementUseCount = async (promptId: string) => {
   const supabase = await getSupabaseServerClient();
-  const { data, error } = await supabase.from('prompts').select('use_count').eq('id', promptId).single();
-  if (error) {
-    throw new Error(error.message);
+  const { data, error } = await supabase.rpc('increment_prompt_use_count', { target_prompt_id: promptId });
+  if (error || data === null) {
+    throw new Error(error?.message ?? 'No se pudo actualizar el uso del prompt.');
   }
-  const nextValue = (((data as { use_count: number } | null)?.use_count ?? 0) + 1);
-  await supabase.from('prompts').update({ use_count: nextValue }).eq('id', promptId);
-  return nextValue;
+  return data;
 };

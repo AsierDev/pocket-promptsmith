@@ -3,10 +3,10 @@ import type { PromptRow } from "@/types/supabase";
 
 const MODELS = [
   // 1️⃣ Primario: Más barato y potente
-  "deepseek/deepseek-chat-v3-0324",
+  "google/gemini-2.5-flash-lite",
 
   // 2️⃣ Backup ultra-económico
-  "amazon/nova-lite-v1",
+  "google/gemini-2.0-flash-lite-001",
 
   // 3️⃣ Fallback gratis (si tienes créditos, los modelos :free siguen siendo $0)
   "google/gemini-2.0-flash-exp:free",

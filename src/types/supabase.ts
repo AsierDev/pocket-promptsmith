@@ -16,6 +16,7 @@ export type Database = {
           plan: 'free' | 'pro';
           prompt_quota_used: number;
           improvements_used_today: number;
+          improvements_reset_at: string | null;
           created_at: string;
           updated_at: string | null;
         };
@@ -25,6 +26,7 @@ export type Database = {
           plan?: 'free' | 'pro';
           prompt_quota_used?: number;
           improvements_used_today?: number;
+          improvements_reset_at?: string | null;
           created_at?: string;
           updated_at?: string | null;
         };
@@ -82,7 +84,26 @@ export type Database = {
       };
     };
     Views: Record<string, never>;
-    Functions: Record<string, never>;
+    Functions: {
+      get_user_tags: {
+        Args: {
+          target_user_id: string;
+        };
+        Returns: string[];
+      };
+      increment_prompt_use_count: {
+        Args: {
+          target_prompt_id: string;
+        };
+        Returns: number;
+      };
+      reset_daily_improvements: {
+        Args: {
+          target_user_id: string;
+        };
+        Returns: Database['public']['Tables']['profiles']['Row'];
+      };
+    };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;
   };
