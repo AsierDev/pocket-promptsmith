@@ -1,5 +1,4 @@
 declare global {
-  // eslint-disable-next-line no-var
   var __PPS_ENV_WARNED__: boolean | undefined;
 }
 

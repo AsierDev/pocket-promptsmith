@@ -3,7 +3,6 @@ import type { NextConfig } from 'next';
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   typedRoutes: true,
-  cacheComponents: true,
   experimental: {
     serverActions: {
       bodySizeLimit: '2mb'
