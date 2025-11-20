@@ -1,12 +1,19 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState, useTransition } from 'react';
+import { useTransition } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { promptFormSchema, PROMPT_CATEGORIES, PromptFormValues } from '@/features/prompts/schemas';
+import clsx from 'clsx';
+import type { Route } from 'next';
+import {
+  promptFormSchema,
+  PROMPT_CATEGORIES,
+  PromptFormValues,
+  PROMPT_CONTENT_MAX_LENGTH
+} from '@/features/prompts/schemas';
 import { Button } from '@/components/common/Button';
 import { FormField } from '@/components/common/FormField';
 import { TagInput } from './TagInput';
@@ -17,9 +24,9 @@ interface PromptFormProps {
   defaultValues?: Partial<PromptFormValues> & { id?: string };
   mode: 'create' | 'edit';
   disableSubmit?: boolean;
-  improveDisabledCopy?: string;
-  cancelHref?: string;
+  cancelHref?: Route;
   autoFocusAiPanel?: boolean;
+  premiumImprovementsUsedToday?: number;
 }
 
 const quickTags = ['Código', 'Educación', 'Marketing', 'UX', 'Ventas', 'Producto'];
@@ -28,13 +35,12 @@ export const PromptForm = ({
   defaultValues,
   mode,
   disableSubmit,
-  improveDisabledCopy,
   cancelHref = '/prompts',
-  autoFocusAiPanel
+  autoFocusAiPanel,
+  premiumImprovementsUsedToday
 }: PromptFormProps) => {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
-  const [promptGoal, setPromptGoal] = useState('');
   const {
     control,
     register,
@@ -47,19 +53,13 @@ export const PromptForm = ({
     resolver: zodResolver(promptFormSchema),
     defaultValues: defaultValues ?? {
       title: '',
+      summary: '',
       content: '',
       category: 'Escritura',
       tags: [],
       thumbnail_url: ''
     }
   });
-
-  useEffect(() => {
-    if (defaultValues?.content) {
-      const firstLine = defaultValues.content.split('\n').find((line) => line.trim());
-      setPromptGoal(firstLine ?? '');
-    }
-  }, [defaultValues?.content]);
 
   // eslint-disable-next-line react-hooks/incompatible-library
   const contentValue = watch('content');
@@ -73,6 +73,7 @@ export const PromptForm = ({
     }
     const formData = new FormData();
     formData.append('title', values.title);
+    formData.append('summary', values.summary ?? '');
     formData.append('content', values.content);
     formData.append('category', values.category);
     formData.append('thumbnail_url', values.thumbnail_url ?? '');
@@ -103,6 +104,11 @@ export const PromptForm = ({
   };
 
   const charCount = contentValue?.length ?? 0;
+  const isApproachingLimit = charCount >= PROMPT_CONTENT_MAX_LENGTH * 0.9 && charCount <= PROMPT_CONTENT_MAX_LENGTH;
+  const isOverLimit = charCount > PROMPT_CONTENT_MAX_LENGTH;
+  const contentError = isOverLimit
+    ? `Has superado el límite de ${PROMPT_CONTENT_MAX_LENGTH} caracteres. Simplifica el prompt o divídelo en varios.`
+    : errors.content?.message;
 
   return (
     <form onSubmit={submitHandler} className="space-y-6" aria-live="polite">
@@ -114,7 +120,7 @@ export const PromptForm = ({
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr),320px]">
         <div className="space-y-8">
           <section className="rounded-3xl border border-slate-200 bg-white/90 p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Información básica</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-300">Información básica</p>
             <div className="mt-4 space-y-4">
               <FormField label="Título" htmlFor="title" error={errors.title?.message}>
                 <input
@@ -140,16 +146,17 @@ export const PromptForm = ({
               </FormField>
               <FormField
                 label="Objetivo del prompt"
-                htmlFor="prompt_goal"
-                description="Describe en una frase lo que quieres lograr (referencia rápida)"
+                htmlFor="summary"
+                description="Describe en pocas frases el propósito para tenerlo siempre a la vista."
+                error={errors.summary?.message}
               >
-                <input
-                  id="prompt_goal"
-                  type="text"
-                  value={promptGoal}
-                  onChange={(event) => setPromptGoal(event.target.value)}
+                <textarea
+                  id="summary"
+                  {...register('summary')}
                   placeholder="Generar ideas de negocio para developers..."
-                  className="w-full rounded-2xl border border-slate-200 px-4 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700"
+                  rows={3}
+                  maxLength={260}
+                  className="w-full min-h-[96px] resize-y rounded-2xl border border-slate-200 px-4 py-2 text-sm leading-relaxed focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700"
                 />
               </FormField>
             </div>
@@ -157,27 +164,41 @@ export const PromptForm = ({
 
           <section className="rounded-3xl border border-slate-200 bg-white/90 p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
             <div className="flex items-center justify-between">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Contenido</p>
-              <span className="text-xs text-slate-400">{charCount} caracteres</span>
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-300">Contenido</p>
+              <span
+                className={clsx('text-xs font-medium', {
+                  'text-rose-500': isOverLimit,
+                  'text-amber-500': !isOverLimit && isApproachingLimit,
+                  'text-slate-400': !isApproachingLimit && !isOverLimit
+                })}
+              >
+                {charCount} / {PROMPT_CONTENT_MAX_LENGTH}
+              </span>
             </div>
             <FormField
               label="Instrucciones completas"
               htmlFor="content"
               description="Usa variables como {{nombre}} o {{industria}} para personalizar luego."
-              error={errors.content?.message}
+              error={contentError}
             >
               <textarea
                 id="content"
                 {...register('content')}
                 rows={12}
-                className="w-full rounded-3xl border border-slate-200 px-4 py-3 font-mono text-sm leading-relaxed focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700"
+                maxLength={PROMPT_CONTENT_MAX_LENGTH}
+                className={clsx(
+                  'w-full rounded-3xl border px-4 py-3 font-mono text-sm leading-relaxed focus:outline-none focus:ring-1',
+                  isOverLimit
+                    ? 'border-rose-500 focus:border-rose-500 focus:ring-rose-500'
+                    : 'border-slate-200 focus:border-primary focus:ring-primary dark:border-slate-700'
+                )}
                 placeholder="Actúa como..."
               />
             </FormField>
           </section>
 
           <section className="rounded-3xl border border-slate-200 bg-white/90 p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Organización</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-300">Organización</p>
             <div className="mt-4 space-y-4">
               <Controller
                 control={control}
@@ -252,9 +273,9 @@ export const PromptForm = ({
           promptId={defaultValues?.id}
           content={contentValue ?? ''}
           category={categoryValue ?? 'Escritura'}
-          disabledCopy={improveDisabledCopy}
           onApply={handleApplyImprovement}
           autoFocus={autoFocusAiPanel}
+          initialPremiumUsed={premiumImprovementsUsedToday ?? 0}
         />
       </div>
     </form>

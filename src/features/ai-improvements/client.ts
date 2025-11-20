@@ -1,19 +1,6 @@
 import { env } from "@/lib/env";
 import type { PromptRow } from "@/types/supabase";
-
-const MODELS = [
-  // 1️⃣ Primario: Más barato y potente
-  "google/gemini-2.5-flash-lite",
-
-  // 2️⃣ Backup ultra-económico
-  "google/gemini-2.0-flash-lite-001",
-
-  // 3️⃣ Fallback gratis (si tienes créditos, los modelos :free siguen siendo $0)
-  "google/gemini-2.0-flash-exp:free",
-
-  // 4️⃣ Última opción gratis
-  "meta-llama/llama-4-maverick:free",
-];
+import { getModelsForImprovement } from "@/features/ai-improvements/models";
 
 const CATEGORY_PROMPTS: Record<PromptRow["category"], string> = {
   Código: `You are a senior prompt engineer specializing in AI coding assistants.
@@ -365,12 +352,46 @@ Preserve {{variables}} exactly. Add value concisely.`,
 };
 
 export type PromptCategory = PromptRow["category"];
+export type PromptLengthSetting = "short" | "medium" | "long";
+
+export type AiImprovementOptions = {
+  goal?: string;
+  temperature?: number;
+  length?: PromptLengthSetting;
+  premiumUsedToday?: number;
+};
+
+const LENGTH_TOKEN_MAP: Record<PromptLengthSetting, number> = {
+  short: 512,
+  medium: 3000,
+  long: 4096,
+};
+
+const DEFAULT_TEMPERATURE = 0.2;
+
+export const resolveAiRequestOptions = (options: AiImprovementOptions = {}) => {
+  const temperatureValue =
+    typeof options.temperature === "number"
+      ? Math.min(Math.max(options.temperature, 0), 1)
+      : DEFAULT_TEMPERATURE;
+
+  const lengthKey = options.length ?? "medium";
+  const maxTokens = LENGTH_TOKEN_MAP[lengthKey] ?? LENGTH_TOKEN_MAP.medium;
+  const trimmedGoal = options.goal?.trim();
+
+  return {
+    goal: trimmedGoal && trimmedGoal.length > 0 ? trimmedGoal : undefined,
+    temperature: Number(temperatureValue.toFixed(2)),
+    maxTokens,
+  };
+};
 
 export type AiImprovementResult = {
   improved_prompt: string;
   changes: string[];
   diff: string;
   modelUsed?: string;
+  premiumImprovementsUsedToday?: number;
 };
 
 const stripCodeFences = (value: string) => {
@@ -411,20 +432,23 @@ const parseResponse = (text: string): AiImprovementResult => {
 export const improvePromptWithAI = async (
   content: string,
   category: PromptCategory,
-  goal?: string
+  options: AiImprovementOptions = {}
 ): Promise<AiImprovementResult> => {
   if (!env.openRouterKey) {
     throw new Error("OPENROUTER_API_KEY no configurada.");
   }
 
   const systemPrompt = CATEGORY_PROMPTS[category] ?? CATEGORY_PROMPTS.Otros;
+  const { goal, temperature, maxTokens } = resolveAiRequestOptions(options);
+  const premiumUsage = options.premiumUsedToday ?? 0;
+  const modelCandidates = getModelsForImprovement(premiumUsage);
   const userMessage = goal
-    ? `Original prompt:\n${content}\n\nAdditional goal: ${goal}`
+    ? `Original prompt:\n${content}\n\nObjetivo de mejora:\n${goal}`
     : `Original prompt:\n${content}`;
 
   let lastError: unknown;
 
-  for (const model of MODELS) {
+  for (const model of modelCandidates) {
     try {
       const response = await fetch(`${env.openRouterUrl}/chat/completions`, {
         method: "POST",
@@ -436,8 +460,8 @@ export const improvePromptWithAI = async (
         },
         body: JSON.stringify({
           model,
-          temperature: 0.2,
-          max_tokens: 3000,
+          temperature,
+          max_tokens: maxTokens,
           top_p: 0.85,
           presence_penalty: 0.2,
           frequency_penalty: 0.1,

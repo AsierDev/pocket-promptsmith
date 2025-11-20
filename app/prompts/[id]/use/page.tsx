@@ -8,11 +8,11 @@ export default async function UsePromptPage({ params }: { params: Promise<{ id: 
   if (!prompt) return notFound();
 
   return (
-    <div className="fixed inset-0 z-40 flex justify-end bg-slate-950/70 backdrop-blur">
+    <div className="fixed inset-0 z-40 flex justify-end bg-slate-950/60 backdrop-blur-sm">
       <div
         role="dialog"
         aria-modal="true"
-        className="flex h-full w-full max-w-xl flex-col bg-white px-6 py-6 shadow-2xl dark:bg-slate-900"
+        className="flex h-full w-full max-w-full flex-col bg-white/95 px-6 py-6 shadow-2xl backdrop-blur dark:bg-slate-900/95 sm:max-w-[520px] lg:max-w-[40vw]"
       >
         <UsePromptClient prompt={prompt} closeHref="/prompts" />
       </div>

@@ -6,15 +6,18 @@ import { Button } from '@/components/common/Button';
 import type { PromptFormValues } from '@/features/prompts/schemas';
 import { PromptDiffModal } from './PromptDiffModal';
 import { logImprovement } from '@/features/prompts/actions';
+import clsx from 'clsx';
+import { FREEMIUM_LIMITS } from '@/lib/limits';
+import { isPremiumModel } from '@/features/ai-improvements/models';
 
 interface PromptAIHelperPanelProps {
   promptId?: string;
   mode: 'create' | 'edit';
   content: string;
   category: PromptFormValues['category'];
-  disabledCopy?: string;
   onApply: (value: string) => void;
   autoFocus?: boolean;
+  initialPremiumUsed?: number;
 }
 
 interface AiResult {
@@ -22,9 +25,27 @@ interface AiResult {
   changes: string[];
   diff: string;
   modelUsed?: string;
+  premiumImprovementsUsedToday?: number;
 }
 
-const goalPresets = ['Hazlo más claro', 'Más estructurado', 'Optimiza para código', 'Más conciso'];
+const goalPresets = [
+  {
+    label: 'Hazlo más claro',
+    value: 'Haz que el prompt sea más claro y directo sin perder el tono original.'
+  },
+  {
+    label: 'Más estructurado',
+    value: 'Convierte el prompt en pasos bien organizados con bullets o secciones numeradas.'
+  },
+  {
+    label: 'Optimiza para código',
+    value: 'Pide ejemplos de código y estándares técnicos concretos para desarrolladores.'
+  },
+  {
+    label: 'Más conciso',
+    value: 'Reduce repeticiones y resume en menos palabras manteniendo las instrucciones clave.'
+  }
+];
 
 const lengthOptions: Array<{ value: 'short' | 'medium' | 'long'; label: string }> = [
   { value: 'short', label: 'Corto' },
@@ -37,9 +58,9 @@ export const PromptAIHelperPanel = ({
   mode,
   content,
   category,
-  disabledCopy,
   onApply,
-  autoFocus
+  autoFocus,
+  initialPremiumUsed = 0
 }: PromptAIHelperPanelProps) => {
   const [goal, setGoal] = useState('Hazlo más claro y accionable');
   const [temperature, setTemperature] = useState(40);
@@ -51,21 +72,32 @@ export const PromptAIHelperPanel = ({
   const [loading, setLoading] = useState(false);
   const [diffOpen, setDiffOpen] = useState(false);
   const [applyPending, startApplyTransition] = useTransition();
-  const goalInputRef = useRef<HTMLInputElement>(null);
+  const [premiumUsedToday, setPremiumUsedToday] = useState(initialPremiumUsed);
+  const goalInputRef = useRef<HTMLTextAreaElement>(null);
+  const premiumLimit = FREEMIUM_LIMITS.improvementsPerDay;
+  const hasPremiumLeft = premiumUsedToday < premiumLimit;
+  const premiumInfoMessage = hasPremiumLeft
+    ? 'Todavía cuentas con modelos premium antes de agotar las 5 mejoras diarias.'
+    : 'Has agotado las 5 mejoras premium de hoy. A partir de ahora usaremos modelos gratuitos (pueden ser algo menos consistentes).';
+
+  useEffect(() => {
+    setPremiumUsedToday(initialPremiumUsed);
+  }, [initialPremiumUsed]);
 
   useEffect(() => {
     if (autoFocus) {
       goalInputRef.current?.focus();
     }
   }, [autoFocus]);
+  useEffect(() => {
+    if (typeof result?.premiumImprovementsUsedToday === 'number') {
+      setPremiumUsedToday(result.premiumImprovementsUsedToday);
+    }
+  }, [result?.premiumImprovementsUsedToday]);
 
   const requestImprovement = async () => {
     if (!content || content.trim().length < 20) {
       toast.error('Agrega más contenido antes de mejorar con IA');
-      return;
-    }
-    if (disabledCopy) {
-      toast.error(disabledCopy);
       return;
     }
     setLoading(true);
@@ -89,6 +121,15 @@ export const PromptAIHelperPanel = ({
       const data = (await response.json()) as AiResult;
       setResult(data);
       setProposalDraft(data.improved_prompt);
+      setPremiumUsedToday((prev) => {
+        if (typeof data.premiumImprovementsUsedToday === 'number') {
+          return data.premiumImprovementsUsedToday;
+        }
+        if (isPremiumModel(data.modelUsed)) {
+          return Math.min(prev + 1, premiumLimit);
+        }
+        return prev;
+      });
       toast.success('Propuesta lista para revisar');
     } catch (error) {
       toast.error((error as Error).message);
@@ -131,33 +172,55 @@ export const PromptAIHelperPanel = ({
   return (
     <aside className="rounded-3xl border border-slate-200 bg-white/90 p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
       <div className="space-y-1">
-        <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Ayuda con IA</p>
+        <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-300">Ayuda con IA</p>
         <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Mejorar este prompt</h3>
-        <p className="text-sm text-slate-500">Describe qué necesitas y recibe una versión lista para comparar.</p>
+        <p className="text-sm text-slate-500 dark:text-slate-300">
+          Describe qué necesitas y recibe una versión lista para comparar.
+        </p>
+      </div>
+      <div className="mt-3 rounded-2xl border border-slate-100 bg-slate-50/80 p-3 text-xs text-slate-600 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-300">
+        <div className="flex items-center justify-between font-semibold text-slate-700 dark:text-slate-100">
+          <span>Mejoras premium hoy</span>
+          <span className="font-mono text-sm">
+            {Math.min(premiumUsedToday, premiumLimit)} / {premiumLimit}
+          </span>
+        </div>
+        <p className="mt-1 text-[11px] leading-snug text-slate-500 dark:text-slate-400">{premiumInfoMessage}</p>
       </div>
       <div className="mt-4 space-y-3">
         <label className="space-y-2 text-sm">
-          <span className="font-medium text-slate-700 dark:text-slate-200">Objetivo de mejora (opcional)</span>
-          <input
+          <span className="font-medium text-slate-700 dark:text-slate-200">¿Cómo quieres que la IA mejore este prompt?</span>
+          <p className="text-xs text-slate-500 dark:text-slate-300">
+            Opcional. Ejemplos: hazlo más conciso, más estructurado, añade ejemplos, etc.
+          </p>
+          <textarea
             ref={goalInputRef}
-            type="text"
             value={goal}
             onChange={(event) => setGoal(event.target.value)}
             placeholder="Hazlo más claro y accionable"
-            className="w-full rounded-2xl border border-slate-200 px-4 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700"
+            rows={3}
+            className="w-full min-h-[90px] resize-y rounded-2xl border border-slate-200 px-4 py-2 text-sm leading-relaxed focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700"
           />
         </label>
         <div className="flex flex-wrap gap-2">
-          {goalPresets.map((preset) => (
-            <button
-              key={preset}
-              type="button"
-              onClick={() => setGoal(preset)}
-              className="rounded-full border border-slate-200 px-3 py-1 text-xs font-medium text-slate-600 transition hover:border-primary hover:text-primary dark:border-slate-700"
-            >
-              {preset}
-            </button>
-          ))}
+          {goalPresets.map((preset) => {
+            const isSelected = goal === preset.value;
+            return (
+              <button
+                key={preset.label}
+                type="button"
+                onClick={() => setGoal(preset.value)}
+                className={clsx(
+                  'rounded-full border px-3 py-1 text-xs font-medium transition',
+                  isSelected
+                    ? 'border-primary bg-primary/10 text-primary'
+                    : 'border-slate-200 text-slate-600 hover:border-primary hover:text-primary dark:border-slate-700'
+                )}
+              >
+                {preset.label}
+              </button>
+            );
+          })}
         </div>
         <button
           type="button"
@@ -207,19 +270,30 @@ export const PromptAIHelperPanel = ({
             </div>
           </div>
         )}
-        {disabledCopy && (
-          <p className="rounded-2xl bg-amber-50 px-3 py-2 text-xs text-amber-700">{disabledCopy}</p>
-        )}
         <Button type="button" onClick={requestImprovement} loading={loading} className="w-full">
           Generar mejora
         </Button>
         {result && (
           <div className="space-y-3 rounded-2xl border border-slate-200 bg-white/70 p-4 text-sm dark:border-slate-700 dark:bg-slate-900/70">
-            <div className="flex items-center justify-between text-xs text-slate-400">
+            <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-300">
               <span>Versión propuesta</span>
-              {result.modelUsed && <span>Modelo: {result.modelUsed}</span>}
+              {result.modelUsed && (
+                <span className="flex items-center gap-2">
+                  Modelo: {result.modelUsed}
+                  <span
+                    className={clsx(
+                      'rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide',
+                      isPremiumModel(result.modelUsed)
+                        ? 'bg-purple-100 text-purple-700'
+                        : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-200'
+                    )}
+                  >
+                    {isPremiumModel(result.modelUsed) ? 'premium' : 'gratis'}
+                  </span>
+                </span>
+              )}
             </div>
-            <pre className="max-h-48 overflow-auto rounded-xl bg-slate-50 p-3 text-xs leading-relaxed dark:bg-slate-800">
+            <pre className="min-h-[240px] max-h-[420px] overflow-y-auto overflow-x-hidden whitespace-pre-wrap break-words rounded-2xl border border-slate-100 bg-slate-50 p-4 font-mono text-xs leading-relaxed text-slate-800 dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-100">
               {result.improved_prompt}
             </pre>
             <div className="flex flex-wrap gap-2">
@@ -246,7 +320,6 @@ export const PromptAIHelperPanel = ({
         original={sourceContent}
         proposal={proposalDraft}
         changes={result?.changes ?? []}
-        diff={result?.diff}
         modelName={result?.modelUsed}
         onApply={handleApply}
         loading={applyPending}

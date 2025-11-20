@@ -13,6 +13,8 @@ interface Props {
 export const LimitsBanner = ({ promptCount, improvementsUsed }: Props) => {
   const [open, setOpen] = useState(false);
   const promptsCopy = getPromptUsageCopy(promptCount);
+  const premiumLimit = FREEMIUM_LIMITS.improvementsPerDay;
+  const hasPremiumLeft = improvementsUsed < premiumLimit;
 
   return (
     <>
@@ -21,9 +23,14 @@ export const LimitsBanner = ({ promptCount, improvementsUsed }: Props) => {
           <p className="text-xs uppercase tracking-wide text-slate-400">Plan Free</p>
           <p className="text-sm font-semibold text-slate-900 dark:text-white">{promptsCopy}</p>
         </div>
-        <p className="text-xs text-slate-500 dark:text-slate-400">
-          Mejoras hoy: {improvementsUsed}/{FREEMIUM_LIMITS.improvementsPerDay}
-        </p>
+        <div className="text-right text-xs text-slate-500 dark:text-slate-400">
+          <p className="font-semibold text-slate-700 dark:text-slate-200">
+            Mejoras premium hoy: {Math.min(improvementsUsed, premiumLimit)}/{premiumLimit}
+          </p>
+          <p className="text-[11px]">
+            {hasPremiumLeft ? 'Usa IA con modelos premium.' : 'Ahora usamos modelos gratuitos hasta mañana.'}
+          </p>
+        </div>
         <div className="flex gap-2">
           <Button variant="secondary" onClick={() => setOpen(true)}>
             Ver detalles del plan
@@ -53,7 +60,6 @@ export const LimitsBanner = ({ promptCount, improvementsUsed }: Props) => {
           </li>
           <li>Historial de mejoras, colecciones y colaboración llegarán pronto.</li>
         </ul>
-        <p className="mt-4 text-xs text-slate-500">¿Quieres probar Pro antes que nadie? únete a la lista de espera.</p>
       </Modal>
     </>
   );

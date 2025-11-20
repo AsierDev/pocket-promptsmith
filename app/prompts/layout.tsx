@@ -73,16 +73,6 @@ export default async function PromptsLayout({ children }: { children: React.Reac
               <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Mi biblioteca</p>
               <DashboardNav />
             </div>
-            <div className="rounded-3xl border border-dashed border-slate-200 bg-white/60 p-4 text-sm text-slate-600 dark:border-slate-700 dark:text-slate-300">
-              <p className="font-semibold text-slate-900 dark:text-white">Colecciones</p>
-              <p className="mt-1 text-xs text-slate-500">
-                Agrupa prompts por equipos o flujos. Estará disponible pronto.
-              </p>
-            </div>
-            <div className="rounded-3xl border border-dashed border-slate-200 bg-white/60 p-4 text-sm text-slate-600 dark:border-slate-700 dark:text-slate-300">
-              <p className="font-semibold text-slate-900 dark:text-white">Historial de mejoras</p>
-              <p className="mt-1 text-xs text-slate-500">Consulta el diff de cada mejora. Próximamente.</p>
-            </div>
           </aside>
           <section className="space-y-6">{children}</section>
         </div>

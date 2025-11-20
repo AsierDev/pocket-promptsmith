@@ -9,10 +9,12 @@ import { Button } from '@/components/common/Button';
 import { trackPromptUsage } from '@/features/prompts/actions';
 import { toast } from 'sonner';
 import { FavoriteToggle } from '@/features/prompts/components/FavoriteToggle';
+import { hasIncompleteVariables } from '@/features/variables/utils';
+import type { Route } from 'next';
 
 interface Props {
   prompt: PromptRow;
-  closeHref: string;
+  closeHref: Route;
 }
 
 type VariableForm = Record<string, string>;
@@ -33,12 +35,7 @@ export const UsePromptClient = ({ prompt, closeHref }: Props) => {
     return () => clearTimeout(timer);
   }, [preview]);
 
-  const hasMissing = variables.some((variable) => !values[variable]);
-
-  const handleApplyValues = () => {
-    setDebouncedPreview(preview);
-    toast.success('Vista actualizada con tus variables');
-  };
+  const hasMissing = hasIncompleteVariables(variables, values);
 
   const handleCopy = async (text: string) => {
     try {
@@ -52,11 +49,11 @@ export const UsePromptClient = ({ prompt, closeHref }: Props) => {
 
   return (
     <div className="flex h-full flex-col">
-      <header className="flex items-start justify-between gap-4 border-b border-slate-200 pb-4">
+      <header className="flex items-start justify-between gap-4 border-b border-slate-200/70 pb-4">
         <div>
-          <p className="text-xs uppercase text-slate-400">Usar prompt</p>
+          <p className="text-xs uppercase tracking-wide text-slate-400 dark:text-slate-300">Usar prompt</p>
           <h1 className="text-2xl font-semibold text-slate-900 dark:text-white">{prompt.title}</h1>
-          <p className="text-sm text-slate-500">Completa variables, revisa y copia con un clic.</p>
+          <p className="text-sm text-slate-700 dark:text-slate-200">Completa variables, revisa y copia con un clic.</p>
         </div>
         <div className="flex items-center gap-2">
           <FavoriteToggle promptId={prompt.id} initialFavorite={prompt.is_favorite} />
@@ -70,16 +67,16 @@ export const UsePromptClient = ({ prompt, closeHref }: Props) => {
       </header>
       <div className="flex-1 space-y-6 overflow-y-auto py-6">
         <section className="space-y-3">
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-slate-800">Completa variables</h2>
+          <div>
+            <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-50">Completa variables</h2>
             {variables.length > 0 && (
-              <Button type="button" variant="secondary" onClick={handleApplyValues}>
-                Actualizar vista
-              </Button>
+              <p className="text-xs text-slate-500 dark:text-slate-300">
+                La vista previa se actualiza automáticamente mientras escribes.
+              </p>
             )}
           </div>
           {variables.length === 0 ? (
-            <p className="rounded-2xl border border-dashed border-slate-200 px-4 py-3 text-sm text-slate-500">
+            <p className="rounded-2xl border border-dashed border-slate-200 px-4 py-3 text-sm text-slate-600 dark:text-slate-200">
               Este prompt no tiene variables. Puedes copiarlo directamente.
             </p>
           ) : (
@@ -101,17 +98,20 @@ export const UsePromptClient = ({ prompt, closeHref }: Props) => {
 
         <section className="space-y-2">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-slate-800">Prompt listo para usar</h2>
-            <span className="text-xs text-slate-400">
+            <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-50">Prompt listo para usar</h2>
+            <span className="text-xs text-slate-500 dark:text-slate-300">
               {debouncedPreview.length} caracteres · {debouncedPreview.split('\n').length} líneas
             </span>
           </div>
-          <pre className="max-h-[360px] overflow-auto rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm leading-relaxed dark:border-slate-800 dark:bg-slate-900/50">
-            {debouncedPreview}
-          </pre>
+          <textarea
+            value={debouncedPreview}
+            readOnly
+            className="h-72 w-full resize-none rounded-2xl border border-slate-200 bg-slate-50 p-4 font-mono text-sm leading-relaxed text-slate-900 outline-none focus:border-primary focus:ring-1 focus:ring-primary dark:border-slate-800 dark:bg-slate-900/70 dark:text-slate-50"
+            style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowX: 'hidden' }}
+          />
         </section>
       </div>
-      <footer className="border-t border-slate-200 pt-4">
+      <footer className="border-t border-slate-200/70 pt-4">
         <div className="flex flex-col gap-3">
           <Button
             type="button"
@@ -124,9 +124,9 @@ export const UsePromptClient = ({ prompt, closeHref }: Props) => {
           <button
             type="button"
             onClick={() => handleCopy(prompt.content)}
-            className="text-sm font-semibold text-slate-500 underline-offset-4 hover:text-primary hover:underline"
+            className="text-sm font-semibold text-slate-600 underline-offset-4 hover:text-primary hover:underline dark:text-slate-200"
           >
-            Copiar solo el contenido original
+            Copiar solo instrucciones originales
           </button>
           <button type="button" className="text-xs text-slate-400 underline-offset-4 hover:text-primary hover:underline">
             Ver historial de mejoras (próximamente)

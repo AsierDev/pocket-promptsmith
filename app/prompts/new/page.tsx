@@ -12,6 +12,7 @@ export default async function NewPromptPage({
   const params = await searchParams;
   const reachedLimit = profile ? hasReachedPromptLimit(profile.prompt_quota_used) : false;
   const focusAiPanel = params?.ai === '1';
+  const premiumUsed = profile?.improvements_used_today ?? 0;
 
   return (
     <div className="space-y-6 rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-card dark:border-slate-800 dark:bg-slate-900">
@@ -28,7 +29,12 @@ export default async function NewPromptPage({
           Cerrar
         </Link>
       </div>
-      <PromptForm mode="create" disableSubmit={reachedLimit} autoFocusAiPanel={focusAiPanel} />
+      <PromptForm
+        mode="create"
+        disableSubmit={reachedLimit}
+        autoFocusAiPanel={focusAiPanel}
+        premiumImprovementsUsedToday={premiumUsed}
+      />
     </div>
   );
 }

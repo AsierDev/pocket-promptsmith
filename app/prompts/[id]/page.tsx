@@ -2,7 +2,6 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { fetchPromptById } from '@/features/prompts/services';
 import { getProfile } from '@/lib/supabaseServer';
-import { hasReachedImproveLimit } from '@/lib/limits';
 import { DeletePromptButton } from '@/features/prompts/components/DeletePromptButton';
 import { PromptForm } from '@/features/prompts/components/PromptForm';
 
@@ -11,7 +10,7 @@ export default async function PromptDetailPage({ params }: { params: Promise<{ i
   const prompt = await fetchPromptById(id).catch(() => null);
   if (!prompt) return notFound();
   const profile = await getProfile();
-  const improveDisabled = profile && hasReachedImproveLimit(profile.improvements_used_today);
+  const premiumUsed = profile?.improvements_used_today ?? 0;
 
   return (
     <div className="space-y-6 rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-card dark:border-slate-800 dark:bg-slate-900">
@@ -36,14 +35,13 @@ export default async function PromptDetailPage({ params }: { params: Promise<{ i
         defaultValues={{
           id: prompt.id,
           title: prompt.title,
+          summary: prompt.summary ?? '',
           content: prompt.content,
           category: prompt.category,
           tags: prompt.tags ?? [],
           thumbnail_url: prompt.thumbnail_url ?? ''
         }}
-        improveDisabledCopy={
-          improveDisabled ? 'Has usado 5/5 mejoras hoy. Upgrade a Pro para desbloquear más.' : undefined
-        }
+        premiumImprovementsUsedToday={premiumUsed}
       />
     </div>
   );

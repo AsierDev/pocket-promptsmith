@@ -1,7 +1,12 @@
 import { NextResponse } from 'next/server';
-import { improvePromptWithAI, type PromptCategory } from '@/features/ai-improvements/client';
+import {
+  improvePromptWithAI,
+  type PromptCategory,
+  type PromptLengthSetting
+} from '@/features/ai-improvements/client';
 import { getSupabaseServerClient, getProfile } from '@/lib/supabaseServer';
-import { hasReachedImproveLimit } from '@/lib/limits';
+import { FREEMIUM_LIMITS } from '@/lib/limits';
+import { isPremiumModel } from '@/features/ai-improvements/models';
 
 export async function POST(request: Request) {
   try {
@@ -21,21 +26,41 @@ export async function POST(request: Request) {
     }
 
     const profile = await getProfile();
-    if (profile && hasReachedImproveLimit(profile.improvements_used_today)) {
-      return NextResponse.json({ error: 'Has utilizado todas tus mejoras hoy.' }, { status: 429 });
-    }
 
-    const { content, goal, category } = (await request.json()) as {
+    const { content, goal, category, temperature, length } = (await request.json()) as {
       content: string;
       goal?: string;
       category: PromptCategory;
+      temperature?: number;
+      length?: PromptLengthSetting;
     };
     if (!content) {
       return NextResponse.json({ error: 'Contenido requerido' }, { status: 400 });
     }
 
-    const result = await improvePromptWithAI(content, category ?? 'Otros', goal);
-    return NextResponse.json(result);
+    const premiumUsedToday = profile?.improvements_used_today ?? 0;
+    const result = await improvePromptWithAI(content, category ?? 'Otros', {
+      goal,
+      temperature,
+      length,
+      premiumUsedToday
+    });
+    const usedPremiumModel = isPremiumModel(result.modelUsed);
+    const nextPremiumCount = usedPremiumModel
+      ? Math.min(premiumUsedToday + 1, FREEMIUM_LIMITS.improvementsPerDay)
+      : premiumUsedToday;
+
+    if (usedPremiumModel && profile) {
+      await supabase
+        .from('profiles')
+        .update({ improvements_used_today: nextPremiumCount })
+        .eq('id', profile.id);
+    }
+
+    return NextResponse.json({
+      ...result,
+      premiumImprovementsUsedToday: nextPremiumCount
+    });
   } catch (error) {
     return NextResponse.json({ error: (error as Error).message }, { status: 500 });
   }

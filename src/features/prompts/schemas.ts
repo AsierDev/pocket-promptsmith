@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+export const PROMPT_CONTENT_MAX_LENGTH = 4000;
+
 export const PROMPT_CATEGORIES = [
   'Escritura',
   'Código',
@@ -12,7 +14,15 @@ export const PROMPT_CATEGORIES = [
 
 export const promptFormSchema = z.object({
   title: z.string().min(3, 'El título debe tener al menos 3 caracteres'),
-  content: z.string().min(20, 'Comparte más contexto para sacar mejor provecho'),
+  summary: z
+    .string()
+    .max(260, 'Usa una descripción breve (260 caracteres máx.)')
+    .optional()
+    .transform((value) => value?.trim() ?? ''),
+  content: z
+    .string()
+    .min(20, 'Comparte más contexto para sacar mejor provecho')
+    .max(PROMPT_CONTENT_MAX_LENGTH, `Has superado el límite de ${PROMPT_CONTENT_MAX_LENGTH} caracteres. Simplifica el prompt o divídelo en varios.`),
   category: z.enum(PROMPT_CATEGORIES, {
     errorMap: () => ({ message: 'Selecciona una categoría' })
   }),

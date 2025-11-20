@@ -2,17 +2,64 @@ import Link from 'next/link';
 import { FavoriteToggle } from './FavoriteToggle';
 import type { PromptRow } from '@/types/supabase';
 
-const categoryTokens: Record<
-  PromptRow['category'],
-  { dot: string; bg: string; text: string; icon: string }
-> = {
-  Escritura: { dot: 'bg-rose-500', bg: 'bg-rose-50', text: 'text-rose-700', icon: '✍️' },
-  Código: { dot: 'bg-sky-500', bg: 'bg-sky-50', text: 'text-sky-700', icon: '</>' },
-  Marketing: { dot: 'bg-amber-500', bg: 'bg-amber-50', text: 'text-amber-700', icon: '📣' },
-  Análisis: { dot: 'bg-emerald-500', bg: 'bg-emerald-50', text: 'text-emerald-700', icon: '📊' },
-  Creatividad: { dot: 'bg-violet-500', bg: 'bg-violet-50', text: 'text-violet-700', icon: '✨' },
-  Educación: { dot: 'bg-cyan-500', bg: 'bg-cyan-50', text: 'text-cyan-700', icon: '📚' },
-  Otros: { dot: 'bg-slate-400', bg: 'bg-slate-100', text: 'text-slate-700', icon: '🧩' }
+type CategoryToken = {
+  dot: string;
+  bg: string;
+  text: string;
+  icon: string;
+  iconColor: string;
+};
+
+const categoryTokens: Record<PromptRow['category'], CategoryToken> = {
+  Escritura: {
+    dot: 'bg-rose-500',
+    bg: 'bg-rose-50',
+    text: 'text-rose-700',
+    icon: '✍️',
+    iconColor: 'text-rose-600 dark:text-rose-300'
+  },
+  Código: {
+    dot: 'bg-sky-500',
+    bg: 'bg-sky-50',
+    text: 'text-sky-700',
+    icon: '</>',
+    iconColor: 'text-sky-600 dark:text-sky-300'
+  },
+  Marketing: {
+    dot: 'bg-amber-500',
+    bg: 'bg-amber-50',
+    text: 'text-amber-700',
+    icon: '📣',
+    iconColor: 'text-amber-600 dark:text-amber-300'
+  },
+  Análisis: {
+    dot: 'bg-emerald-500',
+    bg: 'bg-emerald-50',
+    text: 'text-emerald-700',
+    icon: '📊',
+    iconColor: 'text-emerald-600 dark:text-emerald-300'
+  },
+  Creatividad: {
+    dot: 'bg-violet-500',
+    bg: 'bg-violet-50',
+    text: 'text-violet-700',
+    icon: '✨',
+    iconColor: 'text-violet-600 dark:text-violet-300'
+  },
+  Educación: {
+    dot: 'bg-cyan-500',
+    bg: 'bg-cyan-50',
+    text: 'text-cyan-700',
+    icon: '📚',
+    iconColor: 'text-cyan-600 dark:text-cyan-300'
+  },
+  Otros: {
+    dot: 'bg-slate-400',
+    bg: 'bg-slate-100',
+    text: 'text-slate-700',
+    icon: '🧩',
+    iconColor: 'text-slate-600 dark:text-slate-300'
+  }
 };
 
 const summarize = (content: string) => {
@@ -37,7 +84,9 @@ interface PromptCardProps {
 
 export const PromptCard = ({ prompt }: PromptCardProps) => {
   const category = categoryTokens[prompt.category];
-  const summary = summarize(prompt.content || '');
+  const summary = prompt.summary?.trim().length
+    ? prompt.summary.trim()
+    : summarize(prompt.content || '');
   const tags = prompt.tags?.slice(0, 2) ?? [];
   const lastUpdated = prompt.updated_at ?? prompt.created_at;
 
@@ -45,7 +94,9 @@ export const PromptCard = ({ prompt }: PromptCardProps) => {
     <article className="flex gap-4 rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-sm transition hover:border-primary/40 hover:shadow-md dark:border-slate-800 dark:bg-slate-900/90">
       <div className="flex flex-1 gap-4">
         <div className="flex h-12 w-12 items-center justify-center rounded-2xl" aria-hidden>
-          <span className={`flex h-10 w-10 items-center justify-center rounded-2xl ${category.bg} text-lg`}>
+          <span
+            className={`flex h-10 w-10 items-center justify-center rounded-2xl text-lg ${category.bg} ${category.iconColor}`}
+          >
             {category.icon}
           </span>
         </div>

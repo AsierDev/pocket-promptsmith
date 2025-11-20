@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { getSupabaseServerClient, getProfile } from '@/lib/supabaseServer';
 import { promptFormSchema } from '@/features/prompts/schemas';
-import { hasReachedPromptLimit, hasReachedImproveLimit } from '@/lib/limits';
+import { hasReachedPromptLimit } from '@/lib/limits';
 import { incrementUseCount, toggleFavorite } from '@/features/prompts/services';
 
 const parseTags = (raw: FormDataEntryValue | null): string[] => {
@@ -36,6 +36,7 @@ export const createPromptAction = async (formData: FormData) => {
 
   const parsed = promptFormSchema.parse({
     title: formData.get('title'),
+    summary: formData.get('summary'),
     content: formData.get('content'),
     category: formData.get('category'),
     tags: parseTags(formData.get('tags')),
@@ -45,6 +46,7 @@ export const createPromptAction = async (formData: FormData) => {
   const { error } = await supabase.from('prompts').insert({
     user_id: user.id,
     title: parsed.title,
+    summary: parsed.summary ?? '',
     content: parsed.content,
     category: parsed.category,
     tags: parsed.tags,
@@ -70,6 +72,7 @@ export const updatePromptAction = async (promptId: string, formData: FormData) =
   const supabase = await getSupabaseServerClient();
   const parsed = promptFormSchema.parse({
     title: formData.get('title'),
+    summary: formData.get('summary'),
     content: formData.get('content'),
     category: formData.get('category'),
     tags: parseTags(formData.get('tags')),
@@ -80,6 +83,7 @@ export const updatePromptAction = async (promptId: string, formData: FormData) =
     .from('prompts')
     .update({
       title: parsed.title,
+      summary: parsed.summary ?? '',
       content: parsed.content,
       category: parsed.category,
       tags: parsed.tags,
@@ -126,10 +130,6 @@ export const logImprovement = async (
   diffJson: unknown
 ) => {
   const supabase = await getSupabaseServerClient();
-  const profile = await getProfile();
-  if (profile && hasReachedImproveLimit(profile.improvements_used_today)) {
-    throw new Error('Has usado 5/5 mejoras hoy. Upgrade a Pro');
-  }
   const {
     data: { user }
   } = await supabase.auth.getUser();
@@ -145,13 +145,6 @@ export const logImprovement = async (
   });
 
   if (error) throw new Error(error.message);
-
-  if (profile) {
-    await supabase
-      .from('profiles')
-      .update({ improvements_used_today: profile.improvements_used_today + 1 })
-      .eq('id', profile.id);
-  }
 
   revalidatePath('/prompts');
 };
