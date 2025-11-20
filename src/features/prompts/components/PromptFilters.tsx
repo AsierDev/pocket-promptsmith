@@ -16,6 +16,13 @@ interface PromptFiltersProps {
   suggestedTags?: string[];
 }
 
+const sortCopy: Record<'recent' | 'usage' | 'az' | 'favorites', string> = {
+  recent: 'Recientes',
+  usage: 'Más usados',
+  az: 'A-Z',
+  favorites: 'Solo favoritos'
+};
+
 export const PromptFilters = ({ initialFilters, suggestedTags = [] }: PromptFiltersProps) => {
   const router = useRouter();
   const [query, setQuery] = useState(initialFilters.q ?? '');
@@ -49,20 +56,20 @@ export const PromptFilters = ({ initialFilters, suggestedTags = [] }: PromptFilt
   };
 
   return (
-    <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-card dark:border-slate-800 dark:bg-slate-900">
-      <div className="grid gap-4 md:grid-cols-2">
-        <label className="space-y-2 text-sm">
-          <span className="font-semibold text-slate-700 dark:text-slate-200">Buscar</span>
+    <section className="rounded-3xl border border-slate-200 bg-white/90 p-5 shadow-sm ring-1 ring-slate-100 dark:border-slate-800 dark:bg-slate-900">
+      <div className="grid gap-4 lg:grid-cols-[2fr,1fr,1fr]">
+        <label className="space-y-1 text-sm">
+          <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Buscar</span>
           <input
             type="search"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Título o contenido"
-            className="w-full rounded-2xl border border-slate-200 px-4 py-2 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700"
+            placeholder="Título, contenido o palabra clave"
+            className="w-full rounded-2xl border border-slate-200 px-4 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700"
           />
         </label>
-        <label className="space-y-2 text-sm">
-          <span className="font-semibold text-slate-700 dark:text-slate-200">Categoría</span>
+        <label className="space-y-1 text-sm">
+          <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Categoría</span>
           <select
             className="w-full rounded-2xl border border-slate-200 px-4 py-2 text-sm dark:border-slate-700"
             value={category}
@@ -76,63 +83,76 @@ export const PromptFilters = ({ initialFilters, suggestedTags = [] }: PromptFilt
             ))}
           </select>
         </label>
-      </div>
-      <div className="mt-4 grid gap-4 md:grid-cols-2">
-        <div className="space-y-2 text-sm">
-          <span className="font-semibold text-slate-700 dark:text-slate-200">Tags</span>
-          <TagInput value={tags} onChange={setTags} placeholder="Presiona Enter para agregar" />
-          {suggestedTags.length > 0 && (
-            <div className="flex flex-wrap gap-2 text-xs text-slate-500">
-              {suggestedTags.slice(0, 6).map((tag) => (
-                <button
-                  type="button"
-                  key={tag}
-                  onClick={() => {
-                    if (!tags.includes(tag)) setTags([...tags, tag]);
-                  }}
-                  className="rounded-full border border-slate-200 px-3 py-1 hover:bg-slate-100 dark:border-slate-700 dark:text-slate-300"
-                >
-                  #{tag}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-        <label className="space-y-2 text-sm">
-          <span className="font-semibold text-slate-700 dark:text-slate-200">Ordenar por</span>
+        <label className="space-y-1 text-sm">
+          <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Ordenar por</span>
           <select
             value={sort}
             onChange={(event) => setSort(event.target.value as typeof sort)}
             className="w-full rounded-2xl border border-slate-200 px-4 py-2 text-sm dark:border-slate-700"
           >
-            <option value="recent">Fecha (reciente)</option>
-            <option value="usage">Más usados</option>
-            <option value="az">A-Z</option>
-            <option value="favorites">Solo favoritos</option>
+            {Object.entries(sortCopy).map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
           </select>
         </label>
       </div>
-      <div className="mt-4 flex items-center justify-between">
-        <label className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
+      <div className="mt-4 space-y-2 text-sm">
+        <div className="flex items-baseline justify-between">
+          <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Tags</span>
+          <span className="text-xs text-slate-400">
+            {tags.length > 0 ? `${tags.length} seleccionados` : 'Sugerencias rápidas abajo'}
+          </span>
+        </div>
+        <TagInput value={tags} onChange={setTags} placeholder="Presiona Enter para agregar" />
+        {suggestedTags.length > 0 && (
+          <div className="flex flex-wrap gap-2 text-xs text-slate-500">
+            {suggestedTags.slice(0, 6).map((tag) => {
+              const isActive = tags.includes(tag);
+              return (
+                <button
+                  type="button"
+                  key={tag}
+                  onClick={() => {
+                    if (isActive) return;
+                    setTags([...tags, tag]);
+                  }}
+                  className={`rounded-full border px-3 py-1 transition ${
+                    isActive
+                      ? 'border-primary bg-primary/10 text-primary'
+                      : 'border-slate-200 hover:border-primary hover:text-primary dark:border-slate-700'
+                  }`}
+                >
+                  #{tag}
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
+      <div className="mt-6 flex flex-wrap items-center justify-between gap-4 text-sm">
+        <label className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-3 py-1.5 text-slate-600 transition dark:border-slate-700 dark:text-slate-300">
           <input
             type="checkbox"
             checked={favoritesOnly}
             onChange={(event) => setFavoritesOnly(event.target.checked)}
+            className="h-4 w-4 rounded border-slate-300 text-primary focus:ring-primary"
           />
           Solo favoritos
         </label>
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-3">
           <button
             type="button"
             onClick={clearFilters}
-            className="rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-500 dark:border-slate-700"
+            className="rounded-full border border-slate-200 px-4 py-2 font-medium text-slate-500 transition hover:border-slate-300 hover:text-slate-900 dark:border-slate-700 dark:text-slate-300"
           >
             Limpiar
           </button>
           <button
             type="button"
             onClick={applyFilters}
-            className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-white"
+            className="rounded-full bg-primary px-5 py-2 font-semibold text-white shadow-sm transition hover:bg-violet-600"
           >
             Aplicar filtros
           </button>

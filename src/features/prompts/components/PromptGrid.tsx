@@ -37,12 +37,12 @@ export const PromptGrid = ({ prompts, total, pageSize, currentPage, searchParams
 
   return (
     <section className="space-y-6">
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="space-y-3">
         {prompts.map((prompt) => (
           <PromptCard key={prompt.id} prompt={prompt} />
         ))}
       </div>
-      <div className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm dark:border-slate-800 dark:bg-slate-900">
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 text-sm shadow-sm dark:border-slate-800 dark:bg-slate-900">
         <span>
           Página {currentPage} de {totalPages}
         </span>
@@ -50,22 +50,26 @@ export const PromptGrid = ({ prompts, total, pageSize, currentPage, searchParams
           {canPrev ? (
             <Link
               href={prevHref}
-              className="rounded-full border px-4 py-2 text-slate-700 hover:bg-slate-100"
+              className="rounded-full border border-slate-200 px-4 py-2 text-slate-700 transition hover:bg-slate-100 dark:border-slate-700"
             >
               Anterior
             </Link>
           ) : (
-            <span className="rounded-full border px-4 py-2 text-slate-400">Anterior</span>
+            <span className="rounded-full border border-slate-100 px-4 py-2 text-slate-400 dark:border-slate-800">
+              Anterior
+            </span>
           )}
           {canNext ? (
             <Link
               href={nextHref}
-              className="rounded-full border px-4 py-2 text-slate-700 hover:bg-slate-100"
+              className="rounded-full border border-slate-200 px-4 py-2 text-slate-700 transition hover:bg-slate-100 dark:border-slate-700"
             >
               Siguiente
             </Link>
           ) : (
-            <span className="rounded-full border px-4 py-2 text-slate-400">Siguiente</span>
+            <span className="rounded-full border border-slate-100 px-4 py-2 text-slate-400 dark:border-slate-800">
+              Siguiente
+            </span>
           )}
         </div>
       </div>
