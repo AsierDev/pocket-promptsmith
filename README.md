@@ -14,8 +14,8 @@ Pocket Promptsmith is a feature-rich PWA built with **Next.js 16 (App Router + R
 ## 🚀 Features
 
 - **🔐 Magic Link Authentication** - Secure login with Supabase Auth
-- **📝 Prompt Management** - Create, edit, and organize prompts with categories and tags
-- **🤖 AI-Powered Improvements** - Enhance prompts using OpenRouter API with free models
+- **📝 Prompt Management** - Create, edit, and organize prompts with categories, tags, and a short “Objetivo” summary
+- **🤖 AI-Powered Improvements** - Enhance prompts using OpenRouter API with a premium (5/día) + free fallback model chain
 - **🔢 Dynamic Variables** - Extract and replace variables like `{{variable}}` in prompts
 - **📱 Progressive Web App** - Installable app with offline capabilities
 - **♿ Freemium Model** - 10 prompts limit, 5 AI improvements per day
@@ -250,15 +250,11 @@ If you prefer manual setup, execute the SQL commands from `supabase/schema.sql` 
 
 ```typescript
 {
-  promptId: string;
   content: string;
-  category: "Escritura" |
-    "Código" |
-    "Marketing" |
-    "Análisis" |
-    "Creatividad" |
-    "Educación" |
-    "Otros";
+  goal?: string;
+  category: "Escritura" | "Código" | "Marketing" | "Análisis" | "Creatividad" | "Educación" | "Otros";
+  temperature?: number; // 0..1
+  length?: "short" | "medium" | "long";
 }
 ```
 
@@ -266,17 +262,20 @@ If you prefer manual setup, execute the SQL commands from `supabase/schema.sql` 
 
 ```typescript
 {
-  improvedContent: string;
+  improved_prompt: string;
   changes: string[];
-  diff: any;
-  improvementsUsed: number;
+  diff: string;
+  modelUsed?: string;
+  premiumImprovementsUsedToday: number;
 }
 ```
+
+The backend automatically selects the appropriate model using the `getModelsForImprovement` helper. The first five daily improvement attempts use premium models (`google/gemini-2.5-flash-lite`, `google/gemini-2.0-flash-lite-001`); once those are exhausted the flow falls back to free models (`google/gemini-2.0-flash-exp:free`, `meta-llama/llama-4-maverick:free`).
 
 **Error Responses**:
 
 - `401 Unauthorized` - Invalid or missing session
-- `429 Too Many Requests` - Daily improvement limit exceeded
+- `429 Too Many Requests` - Daily premium improvement limit exceeded
 - `400 Bad Request` - Invalid input data
 
 ### Supabase Database Schema
@@ -299,6 +298,7 @@ If you prefer manual setup, execute the SQL commands from `supabase/schema.sql` 
 - `id` (uuid, primary key)
 - `user_id` (uuid, foreign key)
 - `title` (text)
+- `summary` (text)
 - `content` (text)
 - `category` (enum)
 - `tags` (text[])

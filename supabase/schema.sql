@@ -13,6 +13,7 @@ create table if not exists public.prompts (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references public.profiles(id) on delete cascade,
   title text not null,
+  summary text,
   content text not null,
   category text not null,
   tags text[] default '{}',

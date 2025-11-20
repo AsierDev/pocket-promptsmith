@@ -37,6 +37,7 @@ export type Database = {
           id: string;
           user_id: string;
           title: string;
+          summary: string | null;
           content: string;
           category: 'Escritura' | 'Código' | 'Marketing' | 'Análisis' | 'Creatividad' | 'Educación' | 'Otros';
           tags: string[];
@@ -50,6 +51,7 @@ export type Database = {
           id?: string;
           user_id: string;
           title: string;
+          summary?: string | null;
           content: string;
           category: Database['public']['Tables']['prompts']['Row']['category'];
           tags?: string[];
