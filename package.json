@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint . --max-warnings=0",
     "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "test:watch": "vitest",
     "test:integration": "playwright test"
   },
@@ -33,6 +34,7 @@
     "@types/node": "20.12.12",
     "@types/react": "19.0.1",
     "@types/react-dom": "19.0.1",
+    "@vitest/coverage-v8": "^1.6.1",
     "autoprefixer": "10.4.20",
     "eslint": "^9.39.1",
     "eslint-config-next": "16.0.1",

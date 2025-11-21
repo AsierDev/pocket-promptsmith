@@ -335,32 +335,42 @@ npm run test extractVariables
 
 # Watch mode for development
 npm run test:watch
+
+# Generate coverage reports (~66% statements)
+npm run test:coverage
 ```
 
-**Test Coverage**:
+**Cobertura y entorno**:
 
-- Variable extraction logic (`extractVariables`)
-- Business logic limits (`tests/limits.test.ts`)
-- Component behavior
-- Utility functions
+- `vitest.config.ts` inyecta valores dummy para `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `OPENROUTER_API_KEY` y `OPENROUTER_BASE_URL`, por lo que no necesitas secretos reales para ejecutar pruebas.
+- `npm run test:coverage` usa `@vitest/coverage-v8` y limita el target a `src/**/*` (excluyendo UI pesada/PWA) para tener un informe accionable. El resultado se guarda en `coverage/index.html` y actualmente ronda el **66 % de statements cubiertos**.
+- Los nuevos suites cubren lógica de prompts (`tests/unit/promptServices.test.ts`), stores (`premiumUsageStore`, `uiStore`), helpers de IA y validadores de entorno, además de los tests existentes de formularios, límites, etc.
 
 ### Integration Tests (Playwright)
 
 ```bash
-# Install Playwright browsers
-npx playwright install
+# Install Playwright browsers once (local only)
+npx playwright install --with-deps
 
-# Run E2E tests (requires running app)
-npm run dev  # In one terminal
-npm run test:integration  # In another terminal
+# Run E2E tests (Playwright arranca Next.js automáticamente)
+npm run test:integration
 ```
 
 **Test Suites**:
 
-- `auth.spec.ts` - Authentication flow testing
-- `prompts.spec.ts` - CRUD operations testing
-- `ai.spec.ts` - AI integration testing (requires API keys)
-- `variables.spec.ts` - Variable handling testing
+- `auth.spec.ts` - Renderiza el formulario de magic link y valida errores
+- `prompts.spec.ts` - Asegura que el dashboard redirige a `/login` sin sesión
+- `ai.spec.ts` - Golpea `POST /api/ai-improve` sin sesión y visita `/prompts/new` para comprobar el guard
+- `variables.spec.ts` - Smoke test de la landing y contenido de variables
+
+> `playwright.config.ts` define `webServer` con `npm run dev -- --hostname 127.0.0.1 --port 3000`, por lo que la suite levanta y derriba Next.js automáticamente durante la tubería (no hace falta un `npm run dev` paralelo). También fija los mismos valores dummy de entorno que usa Vitest.
+
+## 🔁 Continuous Integration
+
+- La acción [`ci.yml`](.github/workflows/ci.yml) se ejecuta en cada push a `main/master` y en todos los Pull Requests.
+- Pasos clave: `npm ci`, `npm run lint`, `npm run test`, `npm run test:coverage`, instalación de navegadores Playwright (`npx playwright install --with-deps`) y `npm run test:integration`.
+- Todas las tareas se ejecutan con Node 20 sobre Ubuntu y reutilizan los valores dummy para Supabase/OpenRouter, así los workflows no dependen de secretos sensibles.
+- Si necesitas inspeccionar los reportes de cobertura generados en CI, puedes añadir `actions/upload-artifact` apuntando a `coverage/` (el flujo está preparado para ello).
 
 ## 🚀 Deployment
 

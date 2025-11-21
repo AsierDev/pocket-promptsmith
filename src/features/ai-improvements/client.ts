@@ -3,10 +3,10 @@ import type { PromptRow } from "@/types/supabase";
 import { getModelsForImprovement } from "@/features/ai-improvements/models";
 import { extractVariables } from "@/features/variables/extractVariables";
 
-const normalizeVariableName = (variable: string) =>
+export const normalizeVariableName = (variable: string) =>
   variable.trim().replace(/[{}]/g, "").replace(/\s+/g, "_");
 
-const sanitizeImprovedVariables = (
+export const sanitizeImprovedVariables = (
   improved: string,
   allowedVariables: Set<string>
 ) => {
@@ -422,7 +422,7 @@ export type AiImprovementResult = {
   premiumImprovementsUsedToday?: number;
 };
 
-const stripCodeFences = (value: string) => {
+export const stripCodeFences = (value: string) => {
   let clean = value.trim();
   if (clean.startsWith("```")) {
     clean = clean.replace(/^```(?:json)?\n?/i, "").replace(/\n?```$/, "");
@@ -430,7 +430,7 @@ const stripCodeFences = (value: string) => {
   return clean;
 };
 
-const parseResponse = (text: string): AiImprovementResult => {
+export const parseResponse = (text: string): AiImprovementResult => {
   try {
     const cleanPayload = stripCodeFences(text);
     const parsed = JSON.parse(cleanPayload) as Partial<AiImprovementResult>;

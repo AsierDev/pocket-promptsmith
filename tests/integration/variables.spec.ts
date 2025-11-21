@@ -1,7 +1,9 @@
-import { test } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
-test.describe.skip('Uso de variables', () => {
-  test('requiere sesión autenticada para validar flujo end-to-end', () => {
-    // Implementar con datos seed cuando Supabase esté disponible.
+test.describe('Uso de variables', () => {
+  test('muestra funcionalidad de variables en la landing', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByText('Variables inteligentes')).toBeVisible();
+    await expect(page.getByText('Detectamos {{variables}} automáticamente')).toBeVisible();
   });
 });
