@@ -3,12 +3,12 @@
 import { useEffect, useRef, useState, useTransition } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/common/Button';
-import type { PromptFormValues } from '@/features/prompts/schemas';
+import { AI_IMPROVEMENT_SOURCE_MAX_LENGTH, type PromptFormValues } from '@/features/prompts/schemas';
 import { PromptDiffModal } from './PromptDiffModal';
 import { logImprovement } from '@/features/prompts/actions';
 import clsx from 'clsx';
-import { FREEMIUM_LIMITS } from '@/lib/limits';
 import { isPremiumModel } from '@/features/ai-improvements/models';
+import { usePremiumUsageStore } from '@/features/ai-improvements/premiumUsageStore';
 
 interface PromptAIHelperPanelProps {
   promptId?: string;
@@ -17,7 +17,10 @@ interface PromptAIHelperPanelProps {
   category: PromptFormValues['category'];
   onApply: (value: string) => void;
   autoFocus?: boolean;
-  initialPremiumUsed?: number;
+  aiImprovementSource: string;
+  onChangeAiImprovementSource: (value: string) => void;
+  aiImprovementLimit?: number;
+  aiImprovementError?: string;
 }
 
 interface AiResult {
@@ -60,7 +63,10 @@ export const PromptAIHelperPanel = ({
   category,
   onApply,
   autoFocus,
-  initialPremiumUsed = 0
+  aiImprovementSource,
+  onChangeAiImprovementSource,
+  aiImprovementLimit = AI_IMPROVEMENT_SOURCE_MAX_LENGTH,
+  aiImprovementError
 }: PromptAIHelperPanelProps) => {
   const [goal, setGoal] = useState('Hazlo más claro y accionable');
   const [temperature, setTemperature] = useState(40);
@@ -72,42 +78,71 @@ export const PromptAIHelperPanel = ({
   const [loading, setLoading] = useState(false);
   const [diffOpen, setDiffOpen] = useState(false);
   const [applyPending, startApplyTransition] = useTransition();
-  const [premiumUsedToday, setPremiumUsedToday] = useState(initialPremiumUsed);
+  const premiumUsedToday = usePremiumUsageStore((state) => state.usedToday);
+  const premiumLimit = usePremiumUsageStore((state) => state.limit);
+  const setPremiumUsedToday = usePremiumUsageStore((state) => state.setUsedToday);
+  const incrementPremiumUsed = usePremiumUsageStore((state) => state.increment);
+  const resetPremiumUsageIfNeeded = usePremiumUsageStore((state) => state.resetIfNeeded);
   const goalInputRef = useRef<HTMLTextAreaElement>(null);
-  const premiumLimit = FREEMIUM_LIMITS.improvementsPerDay;
   const hasPremiumLeft = premiumUsedToday < premiumLimit;
   const premiumInfoMessage = hasPremiumLeft
-    ? 'Todavía cuentas con modelos premium antes de agotar las 5 mejoras diarias.'
-    : 'Has agotado las 5 mejoras premium de hoy. A partir de ahora usaremos modelos gratuitos (pueden ser algo menos consistentes).';
+    ? `Todavía cuentas con modelos premium antes de agotar las ${premiumLimit} mejoras diarias.`
+    : `Has agotado las ${premiumLimit} mejoras premium de hoy. A partir de ahora usaremos modelos gratuitos (pueden ser algo menos consistentes).`;
+  const trimmedAiSource = aiImprovementSource?.trim() ?? '';
+  const aiImprovementLength = aiImprovementSource?.length ?? 0;
+  const aiImprovementOverLimit = aiImprovementLength > aiImprovementLimit;
+  const improvementFieldError =
+    aiImprovementError || (aiImprovementOverLimit ? `Máximo ${aiImprovementLimit} caracteres` : undefined);
+  const fullContentLength = content.trim().length;
+  const cannotImproveWithFullPrompt = !trimmedAiSource && fullContentLength > aiImprovementLimit;
+  const disableGenerate = loading || Boolean(improvementFieldError) || cannotImproveWithFullPrompt;
 
   useEffect(() => {
-    setPremiumUsedToday(initialPremiumUsed);
-  }, [initialPremiumUsed]);
+    resetPremiumUsageIfNeeded();
+  }, [resetPremiumUsageIfNeeded]);
 
   useEffect(() => {
     if (autoFocus) {
       goalInputRef.current?.focus();
     }
   }, [autoFocus]);
-  useEffect(() => {
-    if (typeof result?.premiumImprovementsUsedToday === 'number') {
-      setPremiumUsedToday(result.premiumImprovementsUsedToday);
+
+  const updatePremiumUsage = (modelUsed?: string, premiumImprovementsUsedToday?: number) => {
+    if (typeof premiumImprovementsUsedToday === 'number') {
+      setPremiumUsedToday(premiumImprovementsUsedToday);
+      return;
     }
-  }, [result?.premiumImprovementsUsedToday]);
+    if (isPremiumModel(modelUsed)) {
+      incrementPremiumUsed();
+    }
+  };
 
   const requestImprovement = async () => {
-    if (!content || content.trim().length < 20) {
+    const textForImprovement = trimmedAiSource || content;
+    const normalizedText = textForImprovement.trim();
+
+    if (!normalizedText || normalizedText.length < 20) {
       toast.error('Agrega más contenido antes de mejorar con IA');
       return;
     }
+    if (trimmedAiSource && aiImprovementLength > aiImprovementLimit) {
+      toast.error(improvementFieldError ?? 'Has superado el límite para mejorar con IA');
+      return;
+    }
+    if (!trimmedAiSource && normalizedText.length > aiImprovementLimit) {
+      toast.error(
+        'Este prompt es demasiado largo para mejorarlo de una vez. Usa el campo Texto a mejorar para trabajar por partes.'
+      );
+      return;
+    }
     setLoading(true);
-    setSourceContent(content);
+    setSourceContent(normalizedText);
     try {
       const response = await fetch('/api/ai-improve', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          content,
+          content: normalizedText,
           goal,
           category,
           temperature: temperature / 100,
@@ -121,15 +156,7 @@ export const PromptAIHelperPanel = ({
       const data = (await response.json()) as AiResult;
       setResult(data);
       setProposalDraft(data.improved_prompt);
-      setPremiumUsedToday((prev) => {
-        if (typeof data.premiumImprovementsUsedToday === 'number') {
-          return data.premiumImprovementsUsedToday;
-        }
-        if (isPremiumModel(data.modelUsed)) {
-          return Math.min(prev + 1, premiumLimit);
-        }
-        return prev;
-      });
+      updatePremiumUsage(data.modelUsed, data.premiumImprovementsUsedToday);
       toast.success('Propuesta lista para revisar');
     } catch (error) {
       toast.error((error as Error).message);
@@ -189,6 +216,43 @@ export const PromptAIHelperPanel = ({
       </div>
       <div className="mt-4 space-y-3">
         <label className="space-y-2 text-sm">
+          <div className="flex items-start justify-between gap-3">
+            <div className="space-y-1">
+              <span className="font-medium text-slate-700 dark:text-slate-200">Texto a mejorar (opcional)</span>
+              <p className="text-xs text-slate-500 dark:text-slate-300">
+                Si tu prompt completo es muy largo, pega aquí solo la parte que quieras que la IA mejore.
+              </p>
+            </div>
+            <span
+              className={clsx('text-[11px] font-mono', {
+                'text-rose-500': aiImprovementOverLimit,
+                'text-slate-400': !aiImprovementOverLimit
+              })}
+            >
+              {aiImprovementLength} / {aiImprovementLimit}
+            </span>
+          </div>
+          <textarea
+            value={aiImprovementSource}
+            onChange={(event) => onChangeAiImprovementSource(event.target.value)}
+            placeholder="Pega aquí solo el fragmento que quieras mejorar"
+            rows={4}
+            maxLength={aiImprovementLimit}
+            className={clsx(
+              'w-full min-h-[96px] resize-y rounded-2xl border px-4 py-2 text-sm leading-relaxed text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-1 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-400',
+              improvementFieldError
+                ? 'border-rose-500 focus:border-rose-500 focus:ring-rose-500'
+                : 'border-slate-200 focus:border-primary focus:ring-primary dark:border-slate-700'
+            )}
+          />
+          {improvementFieldError && <p className="text-xs text-rose-500">{improvementFieldError}</p>}
+          {cannotImproveWithFullPrompt && (
+            <p className="text-xs font-semibold text-amber-600 dark:text-amber-400">
+              Este prompt es demasiado largo para mejorarlo de una vez. Usa el campo Texto a mejorar para trabajar por partes.
+            </p>
+          )}
+        </label>
+        <label className="space-y-2 text-sm">
           <span className="font-medium text-slate-700 dark:text-slate-200">¿Cómo quieres que la IA mejore este prompt?</span>
           <p className="text-xs text-slate-500 dark:text-slate-300">
             Opcional. Ejemplos: hazlo más conciso, más estructurado, añade ejemplos, etc.
@@ -199,7 +263,7 @@ export const PromptAIHelperPanel = ({
             onChange={(event) => setGoal(event.target.value)}
             placeholder="Hazlo más claro y accionable"
             rows={3}
-            className="w-full min-h-[90px] resize-y rounded-2xl border border-slate-200 px-4 py-2 text-sm leading-relaxed focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700"
+            className="w-full min-h-[90px] resize-y rounded-2xl border border-slate-200 px-4 py-2 text-sm leading-relaxed text-slate-900 placeholder:text-slate-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-400"
           />
         </label>
         <div className="flex flex-wrap gap-2">
@@ -214,7 +278,7 @@ export const PromptAIHelperPanel = ({
                   'rounded-full border px-3 py-1 text-xs font-medium transition',
                   isSelected
                     ? 'border-primary bg-primary/10 text-primary'
-                    : 'border-slate-200 text-slate-600 hover:border-primary hover:text-primary dark:border-slate-700'
+                    : 'border-slate-200 text-slate-600 hover:border-primary hover:text-primary dark:border-slate-700 dark:text-slate-200'
                 )}
               >
                 {preset.label}
@@ -225,7 +289,7 @@ export const PromptAIHelperPanel = ({
         <button
           type="button"
           onClick={() => setAdvancedOpen((prev) => !prev)}
-          className="flex w-full items-center justify-between rounded-2xl border border-slate-200 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-slate-500 transition hover:border-primary dark:border-slate-700"
+          className="flex w-full items-center justify-between rounded-2xl border border-slate-200 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-slate-500 transition hover:border-primary dark:border-slate-700 dark:text-slate-200"
         >
           Opciones avanzadas
           <span aria-hidden>{advancedOpen ? '−' : '+'}</span>
@@ -270,7 +334,7 @@ export const PromptAIHelperPanel = ({
             </div>
           </div>
         )}
-        <Button type="button" onClick={requestImprovement} loading={loading} className="w-full">
+        <Button type="button" onClick={requestImprovement} loading={loading} disabled={disableGenerate} className="w-full">
           Generar mejora
         </Button>
         {result && (
@@ -278,18 +342,15 @@ export const PromptAIHelperPanel = ({
             <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-300">
               <span>Versión propuesta</span>
               {result.modelUsed && (
-                <span className="flex items-center gap-2">
-                  Modelo: {result.modelUsed}
-                  <span
-                    className={clsx(
-                      'rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide',
-                      isPremiumModel(result.modelUsed)
-                        ? 'bg-purple-100 text-purple-700'
-                        : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-200'
-                    )}
-                  >
-                    {isPremiumModel(result.modelUsed) ? 'premium' : 'gratis'}
-                  </span>
+                <span
+                  className={clsx(
+                    'rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide',
+                    isPremiumModel(result.modelUsed)
+                      ? 'bg-purple-100 text-purple-700'
+                      : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-200'
+                  )}
+                >
+                  {isPremiumModel(result.modelUsed) ? 'Premium' : 'Free'}
                 </span>
               )}
             </div>

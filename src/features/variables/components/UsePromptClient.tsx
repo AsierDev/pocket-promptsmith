@@ -48,8 +48,8 @@ export const UsePromptClient = ({ prompt, closeHref }: Props) => {
   };
 
   return (
-    <div className="flex h-full flex-col">
-      <header className="flex items-start justify-between gap-4 border-b border-slate-200/70 pb-4">
+    <div className="flex h-full flex-col text-slate-900 dark:text-slate-100">
+      <header className="flex items-start justify-between gap-4 border-b border-slate-200/70 pb-4 dark:border-slate-800">
         <div>
           <p
             id="use-prompt-title"
@@ -58,10 +58,7 @@ export const UsePromptClient = ({ prompt, closeHref }: Props) => {
             Usar prompt
           </p>
           <h1 className="text-2xl font-semibold text-slate-900 dark:text-white">{prompt.title}</h1>
-          <p
-            id="use-prompt-description"
-            className="text-sm text-slate-700 dark:text-slate-200"
-          >
+          <p id="use-prompt-description" className="text-sm text-slate-700 dark:text-slate-200">
             Completa variables, revisa y copia con un clic.
           </p>
         </div>
@@ -69,7 +66,7 @@ export const UsePromptClient = ({ prompt, closeHref }: Props) => {
           <FavoriteToggle promptId={prompt.id} initialFavorite={prompt.is_favorite} />
           <Link
             href={closeHref}
-            className="rounded-full border border-slate-200 px-3 py-1 text-sm font-semibold text-slate-500 transition hover:border-slate-300 hover:text-slate-900"
+            className="rounded-full border border-slate-200 px-3 py-1 text-sm font-semibold text-slate-600 transition hover:border-slate-300 hover:text-slate-900 dark:border-slate-700 dark:text-slate-200 dark:hover:text-white"
           >
             ✕
           </Link>
@@ -80,24 +77,22 @@ export const UsePromptClient = ({ prompt, closeHref }: Props) => {
           <div>
             <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-50">Completa variables</h2>
             {variables.length > 0 && (
-              <p className="text-xs text-slate-500 dark:text-slate-300">
-                La vista previa se actualiza automáticamente mientras escribes.
-              </p>
+              <p className="text-xs text-slate-500 dark:text-slate-300">La vista previa se actualiza automáticamente mientras escribes.</p>
             )}
           </div>
           {variables.length === 0 ? (
-            <p className="rounded-2xl border border-dashed border-slate-200 px-4 py-3 text-sm text-slate-600 dark:text-slate-200">
+            <p className="rounded-2xl border border-dashed border-slate-200 px-4 py-3 text-sm text-slate-700 dark:border-slate-700 dark:text-slate-200">
               Este prompt no tiene variables. Puedes copiarlo directamente.
             </p>
           ) : (
             <form className="space-y-3" aria-live="polite">
               {variables.map((variable) => (
-                <label key={variable} className="space-y-1 text-sm font-medium text-slate-700">
+                <label key={variable} className="space-y-1 text-sm font-medium text-slate-800 dark:text-slate-100">
                   {variable}
                   <input
                     type="text"
                     {...form.register(variable, { required: true })}
-                    className="w-full rounded-2xl border border-slate-200 px-4 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-400"
                     placeholder={`Valor para ${variable}`}
                   />
                 </label>
@@ -116,12 +111,12 @@ export const UsePromptClient = ({ prompt, closeHref }: Props) => {
           <textarea
             value={debouncedPreview}
             readOnly
-            className="h-72 w-full resize-none rounded-2xl border border-slate-200 bg-slate-50 p-4 font-mono text-sm leading-relaxed text-slate-900 outline-none focus:border-primary focus:ring-1 focus:ring-primary dark:border-slate-800 dark:bg-slate-900/70 dark:text-slate-50"
+            className="h-80 w-full resize-none rounded-2xl border border-slate-200 bg-slate-50 p-4 font-mono text-sm leading-relaxed text-slate-900 outline-none focus:border-primary focus:ring-1 focus:ring-primary dark:border-slate-800 dark:bg-slate-900/70 dark:text-slate-50"
             style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowX: 'hidden' }}
           />
         </section>
       </div>
-      <footer className="border-t border-slate-200/70 pt-4">
+      <footer className="border-t border-slate-200/70 pt-4 dark:border-slate-800">
         <div className="flex flex-col gap-3">
           <Button
             type="button"

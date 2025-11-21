@@ -40,8 +40,11 @@ export const createPromptAction = async (formData: FormData) => {
     content: formData.get('content'),
     category: formData.get('category'),
     tags: parseTags(formData.get('tags')),
-    thumbnail_url: formData.get('thumbnail_url')
+    thumbnail_url: formData.get('thumbnail_url'),
+    ai_improvement_source: formData.get('ai_improvement_source')
   });
+
+  const aiImprovementSource = parsed.ai_improvement_source ? parsed.ai_improvement_source : '';
 
   const { error } = await supabase.from('prompts').insert({
     user_id: user.id,
@@ -50,7 +53,8 @@ export const createPromptAction = async (formData: FormData) => {
     content: parsed.content,
     category: parsed.category,
     tags: parsed.tags,
-    thumbnail_url: parsed.thumbnail_url ?? null
+    thumbnail_url: parsed.thumbnail_url ?? null,
+    ai_improvement_source: aiImprovementSource ? aiImprovementSource : null
   });
 
   if (error) {
@@ -76,8 +80,11 @@ export const updatePromptAction = async (promptId: string, formData: FormData) =
     content: formData.get('content'),
     category: formData.get('category'),
     tags: parseTags(formData.get('tags')),
-    thumbnail_url: formData.get('thumbnail_url')
+    thumbnail_url: formData.get('thumbnail_url'),
+    ai_improvement_source: formData.get('ai_improvement_source')
   });
+
+  const aiImprovementSource = parsed.ai_improvement_source ? parsed.ai_improvement_source : '';
 
   const { error } = await supabase
     .from('prompts')
@@ -88,6 +95,7 @@ export const updatePromptAction = async (promptId: string, formData: FormData) =
       category: parsed.category,
       tags: parsed.tags,
       thumbnail_url: parsed.thumbnail_url ?? null,
+      ai_improvement_source: aiImprovementSource ? aiImprovementSource : null,
       updated_at: new Date().toISOString()
     })
     .eq('id', promptId);

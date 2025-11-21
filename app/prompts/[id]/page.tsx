@@ -10,7 +10,6 @@ export default async function PromptDetailPage({ params }: { params: Promise<{ i
   const prompt = await fetchPromptById(id).catch(() => null);
   if (!prompt) return notFound();
   const profile = await getProfile();
-  const premiumUsed = profile?.improvements_used_today ?? 0;
 
   return (
     <div className="space-y-6 rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-card dark:border-slate-800 dark:bg-slate-900">
@@ -23,7 +22,7 @@ export default async function PromptDetailPage({ params }: { params: Promise<{ i
         <div className="flex flex-wrap gap-2">
           <Link
             href="/prompts"
-            className="rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-600 transition hover:border-slate-300 hover:text-slate-900 dark:border-slate-700"
+            className="rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-600 transition hover:border-slate-300 hover:text-slate-900 dark:border-slate-700 dark:text-slate-200 dark:hover:text-white"
           >
             Cerrar
           </Link>
@@ -39,9 +38,9 @@ export default async function PromptDetailPage({ params }: { params: Promise<{ i
           content: prompt.content,
           category: prompt.category,
           tags: prompt.tags ?? [],
-          thumbnail_url: prompt.thumbnail_url ?? ''
+          thumbnail_url: prompt.thumbnail_url ?? '',
+          ai_improvement_source: prompt.ai_improvement_source ?? ''
         }}
-        premiumImprovementsUsedToday={premiumUsed}
       />
     </div>
   );

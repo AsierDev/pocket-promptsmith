@@ -4,16 +4,17 @@ import { useState } from 'react';
 import { FREEMIUM_LIMITS, getPromptUsageCopy } from '@/lib/limits';
 import { Button } from '@/components/common/Button';
 import { Modal } from '@/components/common/Modal';
+import { usePremiumUsageStore } from '@/features/ai-improvements/premiumUsageStore';
 
 interface Props {
   promptCount: number;
-  improvementsUsed: number;
 }
 
-export const LimitsBanner = ({ promptCount, improvementsUsed }: Props) => {
+export const LimitsBanner = ({ promptCount }: Props) => {
   const [open, setOpen] = useState(false);
+  const improvementsUsed = usePremiumUsageStore((state) => state.usedToday);
+  const premiumLimit = usePremiumUsageStore((state) => state.limit);
   const promptsCopy = getPromptUsageCopy(promptCount);
-  const premiumLimit = FREEMIUM_LIMITS.improvementsPerDay;
   const hasPremiumLeft = improvementsUsed < premiumLimit;
 
   return (

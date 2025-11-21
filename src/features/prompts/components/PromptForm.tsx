@@ -12,7 +12,8 @@ import {
   promptFormSchema,
   PROMPT_CATEGORIES,
   PromptFormValues,
-  PROMPT_CONTENT_MAX_LENGTH
+  PROMPT_CONTENT_MAX_LENGTH,
+  AI_IMPROVEMENT_SOURCE_MAX_LENGTH
 } from '@/features/prompts/schemas';
 import { Button } from '@/components/common/Button';
 import { FormField } from '@/components/common/FormField';
@@ -26,7 +27,6 @@ interface PromptFormProps {
   disableSubmit?: boolean;
   cancelHref?: Route;
   autoFocusAiPanel?: boolean;
-  premiumImprovementsUsedToday?: number;
 }
 
 const quickTags = ['Código', 'Educación', 'Marketing', 'UX', 'Ventas', 'Producto'];
@@ -36,8 +36,7 @@ export const PromptForm = ({
   mode,
   disableSubmit,
   cancelHref = '/prompts',
-  autoFocusAiPanel,
-  premiumImprovementsUsedToday
+  autoFocusAiPanel
 }: PromptFormProps) => {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -51,18 +50,21 @@ export const PromptForm = ({
     watch
   } = useForm<PromptFormValues>({
     resolver: zodResolver(promptFormSchema),
-    defaultValues: defaultValues ?? {
+    defaultValues: {
       title: '',
       summary: '',
       content: '',
       category: 'Escritura',
       tags: [],
-      thumbnail_url: ''
+      thumbnail_url: '',
+      ai_improvement_source: '',
+      ...(defaultValues ?? {})
     }
   });
 
   // eslint-disable-next-line react-hooks/incompatible-library
   const contentValue = watch('content');
+  const aiImprovementSource = watch('ai_improvement_source');
   const categoryValue = watch('category');
   const tagsValue = watch('tags') ?? [];
 
@@ -78,6 +80,7 @@ export const PromptForm = ({
     formData.append('category', values.category);
     formData.append('thumbnail_url', values.thumbnail_url ?? '');
     formData.append('tags', JSON.stringify(values.tags ?? []));
+    formData.append('ai_improvement_source', values.ai_improvement_source ?? '');
 
     startTransition(async () => {
       try {
@@ -127,7 +130,7 @@ export const PromptForm = ({
                   id="title"
                   type="text"
                   {...register('title')}
-                  className="w-full rounded-2xl border border-slate-200 px-4 py-2 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700"
+                  className="w-full rounded-2xl border border-slate-200 px-4 py-2 text-slate-900 placeholder:text-slate-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-400"
                   placeholder="Prompt para brainstorming creativo"
                 />
               </FormField>
@@ -135,7 +138,7 @@ export const PromptForm = ({
                 <select
                   id="category"
                   {...register('category')}
-                  className="w-full rounded-2xl border border-slate-200 px-4 py-2 dark:border-slate-700"
+                  className="w-full rounded-2xl border border-slate-200 px-4 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
                 >
                   {PROMPT_CATEGORIES.map((category) => (
                     <option key={category} value={category}>
@@ -151,13 +154,13 @@ export const PromptForm = ({
                 error={errors.summary?.message}
               >
                 <textarea
-                  id="summary"
-                  {...register('summary')}
-                  placeholder="Generar ideas de negocio para developers..."
-                  rows={3}
-                  maxLength={260}
-                  className="w-full min-h-[96px] resize-y rounded-2xl border border-slate-200 px-4 py-2 text-sm leading-relaxed focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700"
-                />
+                id="summary"
+                {...register('summary')}
+                placeholder="Generar ideas de negocio para developers..."
+                rows={3}
+                maxLength={260}
+                className="w-full min-h-[96px] resize-y rounded-2xl border border-slate-200 px-4 py-2 text-sm leading-relaxed text-slate-900 placeholder:text-slate-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-400"
+              />
               </FormField>
             </div>
           </section>
@@ -187,7 +190,7 @@ export const PromptForm = ({
                 rows={12}
                 maxLength={PROMPT_CONTENT_MAX_LENGTH}
                 className={clsx(
-                  'w-full rounded-3xl border px-4 py-3 font-mono text-sm leading-relaxed focus:outline-none focus:ring-1',
+                  'w-full rounded-3xl border px-4 py-3 font-mono text-sm leading-relaxed text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-1 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-400',
                   isOverLimit
                     ? 'border-rose-500 focus:border-rose-500 focus:ring-rose-500'
                     : 'border-slate-200 focus:border-primary focus:ring-primary dark:border-slate-700'
@@ -249,7 +252,7 @@ export const PromptForm = ({
                   type="url"
                   placeholder="https://"
                   {...register('thumbnail_url')}
-                  className="w-full rounded-2xl border border-slate-200 px-4 py-2 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700"
+                  className="w-full rounded-2xl border border-slate-200 px-4 py-2 text-slate-900 placeholder:text-slate-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-400"
                 />
               </FormField>
             </div>
@@ -275,7 +278,12 @@ export const PromptForm = ({
           category={categoryValue ?? 'Escritura'}
           onApply={handleApplyImprovement}
           autoFocus={autoFocusAiPanel}
-          initialPremiumUsed={premiumImprovementsUsedToday ?? 0}
+          aiImprovementSource={aiImprovementSource ?? ''}
+          onChangeAiImprovementSource={(value) =>
+            setValue('ai_improvement_source', value, { shouldDirty: true, shouldValidate: true })
+          }
+          aiImprovementLimit={AI_IMPROVEMENT_SOURCE_MAX_LENGTH}
+          aiImprovementError={errors.ai_improvement_source?.message}
         />
       </div>
     </form>

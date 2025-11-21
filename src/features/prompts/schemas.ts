@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
-export const PROMPT_CONTENT_MAX_LENGTH = 4000;
+export const PROMPT_CONTENT_MAX_LENGTH = 20000;
+export const AI_IMPROVEMENT_SOURCE_MAX_LENGTH = 4000;
 
 export const PROMPT_CATEGORIES = [
   'Escritura',
@@ -27,7 +28,15 @@ export const promptFormSchema = z.object({
     errorMap: () => ({ message: 'Selecciona una categoría' })
   }),
   tags: z.array(z.string().min(2)).max(8).default([]),
-  thumbnail_url: z.string().url().optional().or(z.literal(''))
+  thumbnail_url: z.string().url().optional().or(z.literal('')),
+  ai_improvement_source: z
+    .string()
+    .max(
+      AI_IMPROVEMENT_SOURCE_MAX_LENGTH,
+      `Has superado el límite de ${AI_IMPROVEMENT_SOURCE_MAX_LENGTH} caracteres para mejorar con IA`
+    )
+    .optional()
+    .transform((value) => (value ?? '').trim())
 });
 
 export type PromptFormValues = z.infer<typeof promptFormSchema>;

@@ -29,7 +29,7 @@ export const TagInput = ({ value, onChange, placeholder }: TagInputProps) => {
   const removeTag = (tag: string) => onChange(value.filter((item) => item !== tag));
 
   return (
-    <div className="rounded-2xl border border-slate-200 px-3 py-2 dark:border-slate-700">
+    <div className="rounded-2xl border border-slate-200 px-3 py-2 dark:border-slate-700 dark:bg-slate-900">
       <div className="flex flex-wrap gap-2">
         {value.map((tag) => (
           <button
@@ -43,7 +43,7 @@ export const TagInput = ({ value, onChange, placeholder }: TagInputProps) => {
         ))}
         <input
           type="text"
-          className="flex-1 border-none bg-transparent text-sm text-slate-700 focus:outline-none"
+          className="flex-1 border-none bg-transparent text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none dark:text-slate-100 dark:placeholder:text-slate-400"
           value={inputValue}
           placeholder={placeholder}
           onChange={(event) => setInputValue(event.target.value)}

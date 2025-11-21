@@ -5,6 +5,7 @@ import clsx from 'clsx';
 import { Modal } from '@/components/common/Modal';
 import { Button } from '@/components/common/Button';
 import { toast } from 'sonner';
+import { isPremiumModel } from '@/features/ai-improvements/models';
 
 interface PromptDiffModalProps {
   open: boolean;
@@ -44,6 +45,7 @@ export const PromptDiffModal = ({
   onChangeProposal
 }: PromptDiffModalProps) => {
   const [feedback, setFeedback] = useState<FeedbackChoice | null>(null);
+  const tierLabel = modelName ? (isPremiumModel(modelName) ? 'Premium' : 'Free') : null;
 
   const handleCopy = async () => {
     try {
@@ -76,9 +78,22 @@ export const PromptDiffModal = ({
         </>
       }
     >
-      <p className="text-xs text-slate-500 dark:text-slate-300">
-        {modelName ? `Modelo: ${modelName}` : 'Modelo OpenRouter'} · Decide si esta versión se ajusta a lo que buscas.
-      </p>
+      <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500 dark:text-slate-300">
+        <span>Versión propuesta generada por IA</span>
+        {tierLabel && (
+          <span
+            className={clsx(
+              'rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide',
+              tierLabel === 'Premium'
+                ? 'bg-purple-100 text-purple-700'
+                : 'bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-200'
+            )}
+          >
+            {tierLabel}
+          </span>
+        )}
+        <span className="text-slate-400 dark:text-slate-500">· Decide si esta versión se ajusta a lo que buscas.</span>
+      </div>
       <div className="mt-4 grid gap-4 lg:grid-cols-2">
         <div>
           <p className="text-xs font-semibold uppercase text-slate-500 dark:text-slate-300">Original</p>

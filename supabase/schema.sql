@@ -15,6 +15,7 @@ create table if not exists public.prompts (
   title text not null,
   summary text,
   content text not null,
+  ai_improvement_source text,
   category text not null,
   tags text[] default '{}',
   is_favorite boolean default false,

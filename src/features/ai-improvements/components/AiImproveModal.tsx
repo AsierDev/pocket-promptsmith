@@ -6,6 +6,8 @@ import { Button } from '@/components/common/Button';
 import { logImprovement } from '@/features/prompts/actions';
 import { toast } from 'sonner';
 import type { PromptRow } from '@/types/supabase';
+import { AI_IMPROVEMENT_SOURCE_MAX_LENGTH } from '@/features/prompts/schemas';
+import { isPremiumModel } from '@/features/ai-improvements/models';
 
 interface AiImproveModalProps {
   open: boolean;
@@ -34,21 +36,35 @@ export const AiImproveModal = ({
   const [goal, setGoal] = useState('Hazlo más claro y accionable');
   const [result, setResult] = useState<AiResult | null>(null);
   const [loading, setLoading] = useState(false);
+  const [sourceContent, setSourceContent] = useState(content);
   const [pending, startTransition] = useTransition();
   useEffect(() => {
     if (!open) {
       setResult(null);
+      setSourceContent(content);
     }
-  }, [open]);
+  }, [content, open]);
 
   const requestImprovement = async () => {
+    const normalizedContent = content?.trim();
+    if (!normalizedContent || normalizedContent.length < 20) {
+      toast.error('Agrega más contenido antes de mejorar con IA');
+      return;
+    }
+    if (normalizedContent.length > AI_IMPROVEMENT_SOURCE_MAX_LENGTH) {
+      toast.error(
+        'Este prompt es demasiado largo para mejorarlo de una vez. Usa el campo Texto a mejorar para trabajar por partes.'
+      );
+      return;
+    }
     setLoading(true);
     setResult(null);
+    setSourceContent(normalizedContent);
     try {
       const response = await fetch('/api/ai-improve', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content, goal, category })
+        body: JSON.stringify({ content: normalizedContent, goal, category })
       });
       if (!response.ok) {
         throw new Error('La IA no pudo mejorar el prompt');
@@ -66,7 +82,7 @@ export const AiImproveModal = ({
     if (!result) return;
     startTransition(async () => {
       try {
-        await logImprovement(promptId, content, result.improved_prompt, result.diff);
+        await logImprovement(promptId, sourceContent, result.improved_prompt, result.diff);
         onApply(result.improved_prompt);
         toast.success('Contenido actualizado con IA');
         onClose();
@@ -121,9 +137,9 @@ export const AiImproveModal = ({
           </div>
         )}
         {result?.modelUsed && (
-          <p className="text-xs text-slate-500">
-            Modelo empleado: <span className="font-semibold">{result.modelUsed}</span>
-          </p>
+          <div className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-[11px] font-semibold uppercase text-slate-600 dark:bg-slate-800 dark:text-slate-200">
+            {isPremiumModel(result.modelUsed) ? 'Premium' : 'Free'}
+          </div>
         )}
         {result?.changes && (
           <ul className="list-disc space-y-2 rounded-2xl bg-white/70 p-4 text-xs text-slate-600 dark:bg-slate-800/50">

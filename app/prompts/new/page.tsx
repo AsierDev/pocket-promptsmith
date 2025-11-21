@@ -12,7 +12,6 @@ export default async function NewPromptPage({
   const params = await searchParams;
   const reachedLimit = profile ? hasReachedPromptLimit(profile.prompt_quota_used) : false;
   const focusAiPanel = params?.ai === '1';
-  const premiumUsed = profile?.improvements_used_today ?? 0;
 
   return (
     <div className="space-y-6 rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-card dark:border-slate-800 dark:bg-slate-900">
@@ -24,7 +23,7 @@ export default async function NewPromptPage({
         </div>
         <Link
           href="/prompts"
-          className="rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-600 transition hover:border-slate-300 hover:text-slate-900 dark:border-slate-700"
+          className="rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-600 transition hover:border-slate-300 hover:text-slate-900 dark:border-slate-700 dark:text-slate-200 dark:hover:text-white"
         >
           Cerrar
         </Link>
@@ -33,7 +32,6 @@ export default async function NewPromptPage({
         mode="create"
         disableSubmit={reachedLimit}
         autoFocusAiPanel={focusAiPanel}
-        premiumImprovementsUsedToday={premiumUsed}
       />
     </div>
   );

@@ -14,7 +14,7 @@ export const FormField = ({ label, htmlFor, description, error, children }: Form
       <label htmlFor={htmlFor} className="text-sm font-medium text-slate-700 dark:text-slate-200">
         {label}
       </label>
-      {description && <p className="text-xs text-slate-500">{description}</p>}
+      {description && <p className="text-xs text-slate-500 dark:text-slate-300">{description}</p>}
     </div>
     {children}
     {error && (

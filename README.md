@@ -15,11 +15,11 @@ Pocket Promptsmith is a feature-rich PWA built with **Next.js 16 (App Router + R
 
 - **🔐 Magic Link Authentication** - Secure login with Supabase Auth
 - **📝 Prompt Management** - Create, edit, and organize prompts with categories, tags, and a short “Objetivo” summary
-- **🤖 AI-Powered Improvements** - Enhance prompts using OpenRouter API with a premium (5/día) + free fallback model chain
+- **🤖 AI-Powered Improvements** - Enhance prompts using OpenRouter API with a premium (5/día) + free fallback model chain and a dedicated “texto a mejorar” field (4k chars) que evita enviar todo el prompt cuando es muy largo
 - **🔢 Dynamic Variables** - Extract and replace variables like `{{variable}}` in prompts
 - **📱 Progressive Web App** - Installable app with offline capabilities
 - **♿ Freemium Model** - 10 prompts limit, 5 AI improvements per day
-- **⚡ Server-Side Rendering** - Optimized with Next.js 16 and Turbopack
+- **⚡ Server-Side Rendering** - Optimized with Next.js 16 and Webpack/Turbopack
 - **🎨 Modern UI** - Clean interface with Tailwind CSS and accessibility features
 
 ## 📋 Table of Contents
@@ -207,7 +207,7 @@ supabase db push
 This command will create all necessary tables, RLS policies, and PostgreSQL functions:
 
 - `profiles` - User profiles and limits tracking
-- `prompts` - Prompt storage with metadata
+- `prompts` - Prompt storage with metadata; incluye `ai_improvement_source` (nullable) para guardar solo el fragmento usado en mejoras de IA
 - `prompt_improvements` - AI improvement history
 - **PostgreSQL Functions:**
   - `get_user_tags()` - Fetch user tags efficiently
@@ -234,6 +234,7 @@ If you prefer manual setup, execute the SQL commands from `supabase/schema.sql` 
 | `npm run test:watch`       | Run Vitest in watch mode                |
 | `npm run test:integration` | Run Playwright E2E tests                |
 | `npm run type-check`       | Run TypeScript type checking            |
+| `npm run build -- --webpack`| Production build usando Webpack (útil en entornos donde Turbopack está restringido) |
 
 ### Development Workflow
 

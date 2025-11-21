@@ -72,7 +72,7 @@ export const DashboardNav = () => {
       {navItems.map((item) => {
         const isActive = item.section ? currentSection === item.section : false;
         const baseClasses =
-          'flex flex-col rounded-2xl border px-4 py-3 text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary';
+          'flex flex-col rounded-2xl border px-4 py-3 text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary dark:border-slate-700 dark:text-slate-200';
         const content = (
           <>
             <div className="flex items-center justify-between">
@@ -83,7 +83,7 @@ export const DashboardNav = () => {
                 <span className="text-xs text-slate-400">›</span>
               )}
             </div>
-            {item.description && <p className="text-xs text-slate-500">{item.description}</p>}
+            {item.description && <p className="text-xs text-slate-500 dark:text-slate-300">{item.description}</p>}
           </>
         );
 
@@ -91,7 +91,10 @@ export const DashboardNav = () => {
           return (
             <div
               key={item.label}
-              className={clsx(baseClasses, 'cursor-not-allowed border-dashed border-slate-200 text-slate-400')}
+              className={clsx(
+                baseClasses,
+                'cursor-not-allowed border-dashed border-slate-200 text-slate-400 dark:border-slate-700'
+              )}
               aria-disabled="true"
             >
               {content}
@@ -107,7 +110,7 @@ export const DashboardNav = () => {
               baseClasses,
               isActive
                 ? 'border-primary/60 bg-primary/10 text-primary'
-                : 'border-slate-200 text-slate-600 hover:border-primary/40 hover:text-primary dark:border-slate-700'
+                : 'border-slate-200 text-slate-600 hover:border-primary/40 hover:text-primary dark:border-slate-700 dark:text-slate-200 dark:hover:text-primary'
             )}
           >
             {content}
@@ -122,12 +125,12 @@ export const DashboardNav = () => {
         <span aria-hidden className="text-lg text-primary">+</span>
       </Link>
       <div className="pt-4">
-        <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Próximamente</p>
+        <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-300">Próximamente</p>
         <div className="mt-3 space-y-2">
           {upcomingItems.map((item) => (
             <div
               key={item.label}
-              className="flex flex-col rounded-2xl border border-dashed border-slate-200 px-4 py-3 text-sm text-slate-400"
+              className="flex flex-col rounded-2xl border border-dashed border-slate-200 px-4 py-3 text-sm text-slate-400 dark:border-slate-700"
               aria-disabled="true"
             >
               <div className="flex items-center justify-between">

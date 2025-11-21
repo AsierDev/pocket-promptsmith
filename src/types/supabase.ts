@@ -39,6 +39,7 @@ export type Database = {
           title: string;
           summary: string | null;
           content: string;
+          ai_improvement_source: string | null;
           category: 'Escritura' | 'Código' | 'Marketing' | 'Análisis' | 'Creatividad' | 'Educación' | 'Otros';
           tags: string[];
           is_favorite: boolean;
@@ -53,6 +54,7 @@ export type Database = {
           title: string;
           summary?: string | null;
           content: string;
+          ai_improvement_source?: string | null;
           category: Database['public']['Tables']['prompts']['Row']['category'];
           tags?: string[];
           is_favorite?: boolean;

@@ -1,6 +1,27 @@
 import { env } from "@/lib/env";
 import type { PromptRow } from "@/types/supabase";
 import { getModelsForImprovement } from "@/features/ai-improvements/models";
+import { extractVariables } from "@/features/variables/extractVariables";
+
+const normalizeVariableName = (variable: string) =>
+  variable.trim().replace(/[{}]/g, "").replace(/\s+/g, "_");
+
+const sanitizeImprovedVariables = (
+  improved: string,
+  allowedVariables: Set<string>
+) => {
+  const removed: string[] = [];
+  const sanitized = improved.replace(/{{(.*?)}}/g, (_match, rawVar) => {
+    const normalized = normalizeVariableName(String(rawVar));
+    if (allowedVariables.has(normalized)) {
+      return `{{${rawVar}}}`;
+    }
+    removed.push(normalized);
+    return normalized;
+  });
+
+  return { sanitized, removed: Array.from(new Set(removed)) };
+};
 
 const CATEGORY_PROMPTS: Record<PromptRow["category"], string> = {
   Código: `You are a senior prompt engineer specializing in AI coding assistants.
@@ -8,6 +29,7 @@ const CATEGORY_PROMPTS: Record<PromptRow["category"], string> = {
 **CRITICAL RULES:**
 - NEVER simplify or remove existing structure. ONLY enrich and clarify.
 - Preserve ALL {{variables}} exactly as written. DO NOT add new variables.
+- Use ONLY the variables present in the original prompt. If you produce any new {{placeholders}}, remove them.
 - If key context is missing, explicitly ask the user for it (e.g., "Please specify the programming language") instead of inventing placeholders.
 - Respond in the SAME LANGUAGE as the original prompt.
 - DO NOT append the improvement goal to the output. Apply it silently.
@@ -51,6 +73,7 @@ Preserve {{variables}} exactly. Add value concisely.`,
 **CRITICAL RULES:**
 - NEVER simplify or remove existing structure. ONLY add clarity and richness.
 - Preserve ALL {{variables}} exactly as written. DO NOT add new variables.
+- Use ONLY the variables present in the original prompt. If you produce any new {{placeholders}}, remove them.
 - If key context is missing (audience, tone, length), ask explicitly instead of inventing placeholders.
 - Respond in the SAME LANGUAGE as the original prompt.
 - DO NOT append the improvement goal to the output. Apply it silently.
@@ -107,6 +130,7 @@ Preserve {{variables}} exactly. Add value concisely.`,
 **CRITICAL RULES:**
 - NEVER simplify or remove existing structure. ONLY enrich with marketing frameworks.
 - Preserve ALL {{variables}} exactly as written. DO NOT add new variables.
+- Use ONLY the variables present in the original prompt. If you produce any new {{placeholders}}, remove them.
 - If business context is missing (KPIs, budget, timeline), ask explicitly instead of inventing.
 - Respond in the SAME LANGUAGE as the original prompt.
 - DO NOT append the improvement goal to the output. Apply it silently.
@@ -159,6 +183,7 @@ Preserve {{variables}} exactly. Add value concisely.`,
 **CRITICAL RULES:**
 - NEVER simplify or remove existing structure. ONLY add analytical rigor.
 - Preserve ALL {{variables}} exactly as written. DO NOT add new variables.
+- Use ONLY the variables present in the original prompt. If you produce any new {{placeholders}}, remove them.
 - If data context is missing (datasets, timeframes, KPIs), ask explicitly instead of inventing.
 - Respond in the SAME LANGUAGE as the original prompt.
 - DO NOT append the improvement goal to the output. Apply it silently.
@@ -208,6 +233,7 @@ Preserve {{variables}} exactly. Add value concisely.`,
 **CRITICAL RULES:**
 - NEVER simplify or remove existing pedagogical structure. ONLY enhance learning design.
 - Preserve ALL {{variables}} exactly as written. DO NOT add new variables.
+- Use ONLY the variables present in the original prompt. If you produce any new {{placeholders}}, remove them.
 - If learner context is missing (level, prerequisites, goals), ask explicitly instead of inventing.
 - Respond in the SAME LANGUAGE as the original prompt.
 - DO NOT append the improvement goal to the output. Apply it silently.
@@ -257,6 +283,7 @@ Preserve {{variables}} exactly. Add value concisely.`,
 **CRITICAL RULES:**
 - NEVER simplify or remove existing creative structure. ONLY amplify creative potential.
 - Preserve ALL {{variables}} exactly as written. DO NOT add new variables.
+- Use ONLY the variables present in the original prompt. If you produce any new {{placeholders}}, remove them.
 - If creative context is missing (genre, constraints, goals), ask explicitly instead of inventing.
 - Respond in the SAME LANGUAGE as the original prompt.
 - DO NOT append the improvement goal to the output. Apply it silently.
@@ -306,6 +333,7 @@ Preserve {{variables}} exactly. Add value concisely.`,
 **CRITICAL RULES:**
 - NEVER simplify or remove existing structure. ONLY add universal clarity principles.
 - Preserve ALL {{variables}} exactly as written. DO NOT add new variables.
+- Use ONLY the variables present in the original prompt. If you produce any new {{placeholders}}, remove them.
 - If key context is missing, ask explicitly instead of inventing placeholders.
 - Respond in the SAME LANGUAGE as the original prompt.
 - DO NOT append the improvement goal to the output. Apply it silently.
@@ -439,12 +467,17 @@ export const improvePromptWithAI = async (
   }
 
   const systemPrompt = CATEGORY_PROMPTS[category] ?? CATEGORY_PROMPTS.Otros;
+  const allowedVariables = extractVariables(content);
+  const allowedVariablesSet = new Set(allowedVariables);
   const { goal, temperature, maxTokens } = resolveAiRequestOptions(options);
   const premiumUsage = options.premiumUsedToday ?? 0;
   const modelCandidates = getModelsForImprovement(premiumUsage);
+  const variableGuard = allowedVariables.length
+    ? `Variables permitidas (prohibido crear nuevas): ${allowedVariables.map((v) => `{{${v}}}`).join(", ")}. Si aparece otra variable, elimínala y deja texto plano sin llaves.`
+    : "No hay variables de plantilla en el prompt original. No crees ningún placeholder ni uses llaves dobles.";
   const userMessage = goal
-    ? `Original prompt:\n${content}\n\nObjetivo de mejora:\n${goal}`
-    : `Original prompt:\n${content}`;
+    ? `Original prompt:\n${content}\n\nObjetivo de mejora:\n${goal}\n\n${variableGuard}`
+    : `Original prompt:\n${content}\n\n${variableGuard}`;
 
   let lastError: unknown;
 
@@ -484,7 +517,18 @@ export const improvePromptWithAI = async (
         `AI improvement generated with ${model} for category ${category}`
       );
       const parsed = parseResponse(text.trim());
-      return { ...parsed, modelUsed: model };
+      const { sanitized, removed } = sanitizeImprovedVariables(
+        parsed.improved_prompt,
+        allowedVariablesSet
+      );
+      if (removed.length > 0) {
+        console.warn(
+          `Se eliminaron variables no permitidas del resultado de IA: ${removed.join(
+            ", "
+          )}`
+        );
+      }
+      return { ...parsed, improved_prompt: sanitized, modelUsed: model };
     } catch (error) {
       lastError = error;
     }

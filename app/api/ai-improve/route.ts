@@ -7,6 +7,7 @@ import {
 import { getSupabaseServerClient, getProfile } from '@/lib/supabaseServer';
 import { FREEMIUM_LIMITS } from '@/lib/limits';
 import { isPremiumModel } from '@/features/ai-improvements/models';
+import { AI_IMPROVEMENT_SOURCE_MAX_LENGTH } from '@/features/prompts/schemas';
 
 export async function POST(request: Request) {
   try {
@@ -34,12 +35,22 @@ export async function POST(request: Request) {
       temperature?: number;
       length?: PromptLengthSetting;
     };
-    if (!content) {
+    const normalizedContent = content?.trim?.() ?? '';
+    if (!normalizedContent) {
       return NextResponse.json({ error: 'Contenido requerido' }, { status: 400 });
+    }
+    if (normalizedContent.length > AI_IMPROVEMENT_SOURCE_MAX_LENGTH) {
+      return NextResponse.json(
+        {
+          error:
+            'Este prompt es demasiado largo para mejorarlo de una vez. Usa el campo Texto a mejorar para trabajar por partes.'
+        },
+        { status: 400 }
+      );
     }
 
     const premiumUsedToday = profile?.improvements_used_today ?? 0;
-    const result = await improvePromptWithAI(content, category ?? 'Otros', {
+    const result = await improvePromptWithAI(normalizedContent, category ?? 'Otros', {
       goal,
       temperature,
       length,
