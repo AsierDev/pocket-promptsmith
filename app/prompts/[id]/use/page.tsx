@@ -12,6 +12,8 @@ export default async function UsePromptPage({ params }: { params: Promise<{ id: 
       <div
         role="dialog"
         aria-modal="true"
+        aria-labelledby="use-prompt-title"
+        aria-describedby="use-prompt-description"
         className="flex h-full w-full max-w-full flex-col bg-white/95 px-6 py-6 shadow-2xl backdrop-blur dark:bg-slate-900/95 sm:max-w-[520px] lg:max-w-[40vw]"
       >
         <UsePromptClient prompt={prompt} closeHref="/prompts" />

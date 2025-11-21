@@ -55,7 +55,12 @@ export const PromptGrid = ({ prompts, total, pageSize, currentPage, searchParams
               Anterior
             </Link>
           ) : (
-            <span className="rounded-full border border-slate-100 px-4 py-2 text-slate-400 dark:border-slate-800">
+            <span
+              aria-disabled="true"
+              role="link"
+              tabIndex={-1}
+              className="rounded-full border border-slate-100 px-4 py-2 text-slate-400 dark:border-slate-800"
+            >
               Anterior
             </span>
           )}
@@ -67,7 +72,12 @@ export const PromptGrid = ({ prompts, total, pageSize, currentPage, searchParams
               Siguiente
             </Link>
           ) : (
-            <span className="rounded-full border border-slate-100 px-4 py-2 text-slate-400 dark:border-slate-800">
+            <span
+              aria-disabled="true"
+              role="link"
+              tabIndex={-1}
+              className="rounded-full border border-slate-100 px-4 py-2 text-slate-400 dark:border-slate-800"
+            >
               Siguiente
             </span>
           )}

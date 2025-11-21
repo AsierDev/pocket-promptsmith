@@ -5,6 +5,7 @@ import { deletePromptAction } from '@/features/prompts/actions';
 import { Modal } from '@/components/common/Modal';
 import { Button } from '@/components/common/Button';
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 
 interface Props {
   promptId: string;
@@ -17,9 +18,13 @@ export const DeletePromptButton = ({ promptId }: Props) => {
 
   const handleDelete = () => {
     startTransition(async () => {
-      await deletePromptAction(promptId);
-      setOpen(false);
-      router.push('/prompts');
+      try {
+        await deletePromptAction(promptId);
+        setOpen(false);
+        router.push('/prompts');
+      } catch (error) {
+        toast.error((error as Error).message ?? 'No se pudo eliminar el prompt.');
+      }
     });
   };
 

@@ -35,7 +35,9 @@ export const PromptFilters = ({ initialFilters, suggestedTags = [] }: PromptFilt
     const params = new URLSearchParams();
     if (query) params.set('q', query);
     if (category) params.set('category', category);
-    if (tags.length) params.set('tags', tags.join(','));
+    if (tags.length) {
+      tags.forEach((tag) => params.append('tags', tag));
+    }
     if (favoritesOnly) params.set('favorites', 'true');
     if (sort) params.set('sort', sort);
     params.set('page', '1');

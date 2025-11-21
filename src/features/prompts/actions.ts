@@ -102,12 +102,21 @@ export const updatePromptAction = async (promptId: string, formData: FormData) =
 export const deletePromptAction = async (promptId: string) => {
   const supabase = await getSupabaseServerClient();
   const profile = await getProfile();
-  await supabase.from('prompts').delete().eq('id', promptId);
+  const { error: deleteError } = await supabase.from('prompts').delete().eq('id', promptId);
+
+  if (deleteError) {
+    throw new Error(deleteError.message);
+  }
+
   if (profile && profile.prompt_quota_used > 0) {
-    await supabase
+    const { error: profileError } = await supabase
       .from('profiles')
       .update({ prompt_quota_used: Math.max(0, profile.prompt_quota_used - 1) })
       .eq('id', profile.id);
+
+    if (profileError) {
+      throw new Error(profileError.message);
+    }
   }
   revalidatePath('/prompts');
   return { ok: true };

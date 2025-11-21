@@ -9,9 +9,14 @@ const isPromptCategory = (value: string): value is (typeof PROMPT_CATEGORIES)[nu
 const parseFilters = (searchParams: Record<string, string | string[] | undefined>): PromptFilters => {
   const tagsParam = searchParams.tags;
   const tagsArray = Array.isArray(tagsParam)
-    ? tagsParam
-    : tagsParam
-    ? (tagsParam as string).split(',').filter(Boolean)
+    ? tagsParam.flatMap((value) =>
+        String(value)
+          .split(',')
+          .map((tag) => tag.trim())
+          .filter(Boolean)
+      )
+    : typeof tagsParam === 'string'
+    ? tagsParam.split(',').map((tag) => tag.trim()).filter(Boolean)
     : [];
 
   return {

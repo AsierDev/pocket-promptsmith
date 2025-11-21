@@ -182,7 +182,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 
-# OpenRouter AI Configuration (Optional)
+# OpenRouter AI Configuration (Required for AI features; env validator exige valor)
 OPENROUTER_API_KEY=your-openrouter-api-key
 OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
 
@@ -190,7 +190,11 @@ OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
 NODE_ENV=development
 ```
 
-> **Security Note**: OpenRouter API key is only required for AI improvement features. Supabase is mandatory for authentication and CRUD operations. The service role key is used only from CLI for schema migrations - never share it publicly.
+> **Security Notes**  
+> - `src/lib/env.ts` valida en frío con Zod y es solo server-side; si faltan claves, la app falla en arranque.  
+> - No importes `env` en componentes `use client`; los clientes web deben depender solo de `NEXT_PUBLIC_*`.  
+> - Para CI/tests puedes usar valores dummy (`NEXT_PUBLIC_SUPABASE_URL=http://localhost:54321`, `NEXT_PUBLIC_SUPABASE_ANON_KEY=anon`, `OPENROUTER_API_KEY=dummy`).  
+> - El service role key se usa solo desde CLI para migraciones; nunca lo compartas ni lo despliegues al frontend.
 
 ## 🗄️ Database Setup
 

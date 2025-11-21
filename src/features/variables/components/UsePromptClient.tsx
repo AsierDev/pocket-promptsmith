@@ -51,9 +51,19 @@ export const UsePromptClient = ({ prompt, closeHref }: Props) => {
     <div className="flex h-full flex-col">
       <header className="flex items-start justify-between gap-4 border-b border-slate-200/70 pb-4">
         <div>
-          <p className="text-xs uppercase tracking-wide text-slate-400 dark:text-slate-300">Usar prompt</p>
+          <p
+            id="use-prompt-title"
+            className="text-xs uppercase tracking-wide text-slate-400 dark:text-slate-300"
+          >
+            Usar prompt
+          </p>
           <h1 className="text-2xl font-semibold text-slate-900 dark:text-white">{prompt.title}</h1>
-          <p className="text-sm text-slate-700 dark:text-slate-200">Completa variables, revisa y copia con un clic.</p>
+          <p
+            id="use-prompt-description"
+            className="text-sm text-slate-700 dark:text-slate-200"
+          >
+            Completa variables, revisa y copia con un clic.
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <FavoriteToggle promptId={prompt.id} initialFavorite={prompt.is_favorite} />

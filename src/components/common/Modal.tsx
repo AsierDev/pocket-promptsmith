@@ -1,6 +1,6 @@
 'use client';
 
-import { DialogHTMLAttributes, PropsWithChildren, useEffect } from 'react';
+import { DialogHTMLAttributes, PropsWithChildren, useEffect, useId } from 'react';
 import clsx from 'clsx';
 import { Button } from '@/components/common/Button';
 
@@ -22,6 +22,10 @@ export const Modal = ({
   size = 'md',
   children
 }: ModalProps) => {
+  const modalId = useId();
+  const titleId = `${modalId}-title`;
+  const descriptionId = description ? `${modalId}-description` : undefined;
+
   useEffect(() => {
     const handler = (event: KeyboardEvent) => {
       if (event.key === 'Escape') onClose();
@@ -38,7 +42,8 @@ export const Modal = ({
     <div
       role="dialog"
       aria-modal="true"
-      aria-labelledby="modal-title"
+      aria-labelledby={titleId}
+      aria-describedby={descriptionId}
       className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur"
     >
       <div
@@ -52,10 +57,14 @@ export const Modal = ({
         )}
       >
         <div className="mb-4 space-y-1">
-          <h2 id="modal-title" className="text-lg font-semibold text-slate-900 dark:text-white">
+          <h2 id={titleId} className="text-lg font-semibold text-slate-900 dark:text-white">
             {title}
           </h2>
-          {description && <p className="text-sm text-slate-500 dark:text-slate-400">{description}</p>}
+          {description && (
+            <p id={descriptionId} className="text-sm text-slate-500 dark:text-slate-400">
+              {description}
+            </p>
+          )}
         </div>
         <div className="max-h-[70vh] overflow-y-auto pr-2">{children}</div>
         <div className="mt-6 flex justify-end gap-3">

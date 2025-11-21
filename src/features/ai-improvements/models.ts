@@ -1,13 +1,13 @@
-import { FREEMIUM_LIMITS } from '@/lib/limits';
+import { FREEMIUM_LIMITS } from "@/lib/limits";
 
 export const PREMIUM_MODELS = [
-  'google/gemini-2.5-flash-lite',
-  'google/gemini-2.0-flash-lite-001'
+  "google/gemini-2.5-flash-lite",
+  "google/gemini-2.0-flash-lite-001",
 ] as const;
 
 export const FREE_MODELS = [
-  'google/gemini-2.0-flash-exp:free',
-  'meta-llama/llama-4-maverick:free'
+  "google/gemini-2.0-flash-exp:free",
+  "x-ai/grok-4.1-fast:free",
 ] as const;
 
 export type PremiumModel = (typeof PREMIUM_MODELS)[number];

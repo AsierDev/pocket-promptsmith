@@ -1,19 +1,26 @@
-declare global {
-  var __PPS_ENV_WARNED__: boolean | undefined;
+import { z } from 'zod';
+
+const envSchema = z.object({
+  NEXT_PUBLIC_SUPABASE_URL: z.string().url('NEXT_PUBLIC_SUPABASE_URL debe ser una URL'),
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1, 'NEXT_PUBLIC_SUPABASE_ANON_KEY es obligatorio'),
+  OPENROUTER_API_KEY: z.string().min(1, 'OPENROUTER_API_KEY es obligatorio'),
+  OPENROUTER_BASE_URL: z.string().url().optional()
+});
+
+if (typeof window !== 'undefined' && process.env.NODE_ENV !== 'test') {
+  throw new Error('env.ts es solo para uso en el servidor');
 }
 
-const requiredEnv = ['NEXT_PUBLIC_SUPABASE_URL', 'NEXT_PUBLIC_SUPABASE_ANON_KEY'] as const;
+const parsed = envSchema.safeParse(process.env);
 
-const missingEnv = requiredEnv.filter((key) => !process.env[key]);
-
-if (missingEnv.length > 0 && !globalThis.__PPS_ENV_WARNED__) {
-  console.warn(`Missing env var(s): ${missingEnv.join(', ')}. Configure .env.local before running.`);
-  globalThis.__PPS_ENV_WARNED__ = true;
+if (!parsed.success) {
+  const messages = parsed.error.issues.map((issue) => `${issue.path.join('.')}: ${issue.message}`).join('; ');
+  throw new Error(`Configuración de entorno inválida: ${messages}. Define las variables requeridas en .env.local`);
 }
 
 export const env = {
-  supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL ?? '',
-  supabaseAnonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '',
-  openRouterKey: process.env.OPENROUTER_API_KEY ?? '',
-  openRouterUrl: process.env.OPENROUTER_BASE_URL ?? 'https://openrouter.ai/api/v1'
+  supabaseUrl: parsed.data.NEXT_PUBLIC_SUPABASE_URL,
+  supabaseAnonKey: parsed.data.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  openRouterKey: parsed.data.OPENROUTER_API_KEY,
+  openRouterUrl: parsed.data.OPENROUTER_BASE_URL ?? 'https://openrouter.ai/api/v1'
 };

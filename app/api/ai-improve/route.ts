@@ -51,10 +51,18 @@ export async function POST(request: Request) {
       : premiumUsedToday;
 
     if (usedPremiumModel && profile) {
-      await supabase
+      const { error: updateError } = await supabase
         .from('profiles')
         .update({ improvements_used_today: nextPremiumCount })
         .eq('id', profile.id);
+
+      if (updateError) {
+        console.error('Error updating improvements_used_today', updateError);
+        return NextResponse.json(
+          { error: 'No se pudo registrar el uso de IA, inténtalo de nuevo.' },
+          { status: 500 }
+        );
+      }
     }
 
     return NextResponse.json({
