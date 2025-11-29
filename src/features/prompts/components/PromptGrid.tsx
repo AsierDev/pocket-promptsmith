@@ -25,7 +25,7 @@ const buildPageHref = (
     }
   });
   params.set('page', String(page));
-  return `/prompts?${params.toString()}` as Route;
+  return `/prompts/library?${params.toString()}` as Route;
 };
 
 export const PromptGrid = ({ prompts, total, pageSize, currentPage, searchParams }: PromptGridProps) => {
@@ -37,11 +37,14 @@ export const PromptGrid = ({ prompts, total, pageSize, currentPage, searchParams
 
   return (
     <section className="space-y-6">
-      <div className="space-y-3">
+      {/* Responsive Grid: 1 column on mobile, 2 on tablet, 3 on desktop */}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
         {prompts.map((prompt) => (
           <PromptCard key={prompt.id} prompt={prompt} />
         ))}
       </div>
+
+      {/* Pagination */}
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 text-sm shadow-sm dark:border-slate-800 dark:bg-slate-900">
         <span>
           Página {currentPage} de {totalPages}

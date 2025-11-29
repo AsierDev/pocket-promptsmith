@@ -45,7 +45,7 @@ export const PromptFilters = ({ initialFilters, suggestedTags = [] }: PromptFilt
   }, [query, category, tags, favoritesOnly, sort]);
 
   const applyFilters = () => {
-    router.push(`/prompts?${searchParams.toString()}`);
+    router.push(`/prompts/library?${searchParams.toString()}`);
   };
 
   const clearFilters = () => {
@@ -54,26 +54,26 @@ export const PromptFilters = ({ initialFilters, suggestedTags = [] }: PromptFilt
     setTags([]);
     setFavoritesOnly(false);
     setSort('recent');
-    router.push('/prompts');
+    router.push('/prompts/library');
   };
 
   return (
     <section className="rounded-3xl border border-slate-200 bg-white/90 p-5 shadow-sm ring-1 ring-slate-100 dark:border-slate-800 dark:bg-slate-900">
-      <div className="grid gap-4 lg:grid-cols-[2fr,1fr,1fr]">
-        <label className="space-y-1 text-sm">
-          <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Buscar</span>
+      <div className="grid gap-4 lg:grid-cols-3">
+        <label className="space-y-1.5 text-sm">
+          <span className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">Buscar</span>
           <input
             type="search"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Título, contenido o palabra clave"
-            className="w-full rounded-2xl border border-slate-200 px-4 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700"
+            className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-950 dark:text-white"
           />
         </label>
-        <label className="space-y-1 text-sm">
-          <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Categoría</span>
+        <label className="space-y-1.5 text-sm">
+          <span className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">Categoría</span>
           <select
-            className="w-full rounded-2xl border border-slate-200 px-4 py-2 text-sm dark:border-slate-700"
+            className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm dark:border-slate-700 dark:bg-slate-950 dark:text-white"
             value={category}
             onChange={(event) => setCategory(event.target.value)}
           >
@@ -85,12 +85,12 @@ export const PromptFilters = ({ initialFilters, suggestedTags = [] }: PromptFilt
             ))}
           </select>
         </label>
-        <label className="space-y-1 text-sm">
-          <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Ordenar por</span>
+        <label className="space-y-1.5 text-sm">
+          <span className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">Ordenar por</span>
           <select
             value={sort}
             onChange={(event) => setSort(event.target.value as typeof sort)}
-            className="w-full rounded-2xl border border-slate-200 px-4 py-2 text-sm dark:border-slate-700"
+            className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm dark:border-slate-700 dark:bg-slate-950 dark:text-white"
           >
             {Object.entries(sortCopy).map(([value, label]) => (
               <option key={value} value={value}>
@@ -120,11 +120,10 @@ export const PromptFilters = ({ initialFilters, suggestedTags = [] }: PromptFilt
                     if (isActive) return;
                     setTags([...tags, tag]);
                   }}
-                  className={`rounded-full border px-3 py-1 transition ${
-                    isActive
+                  className={`rounded-full border px-3 py-1 transition ${isActive
                       ? 'border-primary bg-primary/10 text-primary'
                       : 'border-slate-200 hover:border-primary hover:text-primary dark:border-slate-700'
-                  }`}
+                    }`}
                 >
                   #{tag}
                 </button>
