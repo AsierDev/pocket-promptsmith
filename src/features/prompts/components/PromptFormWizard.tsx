@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm, Controller, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
@@ -60,7 +60,6 @@ export const PromptFormWizard = ({
         handleSubmit,
         formState: { errors },
         setValue,
-        watch,
         trigger
     } = useForm<PromptFormValues>({
         resolver: zodResolver(promptFormSchema),
@@ -77,10 +76,10 @@ export const PromptFormWizard = ({
         }
     });
 
-    const contentValue = watch('content');
-    const aiImprovementSource = watch('ai_improvement_source');
-    const categoryValue = watch('category');
-    const tagsValue = watch('tags') ?? [];
+    const contentValue = useWatch({ control, name: 'content' });
+    const aiImprovementSource = useWatch({ control, name: 'ai_improvement_source' });
+    const categoryValue = useWatch({ control, name: 'category' });
+    const tagsValue = useWatch({ control, name: 'tags' }) ?? [];
 
     const submitHandler = handleSubmit((values) => {
         if (disableSubmit) {
