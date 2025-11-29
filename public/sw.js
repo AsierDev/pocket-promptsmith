@@ -1,5 +1,11 @@
-const CACHE_NAME = 'pocket-promptsmith-static-v2';
-const PRECACHE_URLS = ['/manifest.json', '/icons/icon.svg'];
+const CACHE_NAME = 'pocket-promptsmith-static-v3';
+const PRECACHE_URLS = [
+  '/manifest.json',
+  '/icons/icon-192.png',
+  '/icons/icon-512.png',
+  '/icons/icon-maskable-512.png',
+  '/offline.html'
+];
 const ASSET_DESTINATIONS = new Set(['style', 'script', 'font', 'image']);
 const PRIVATE_PATH_PREFIXES = ['/api', '/prompts', '/dashboard', '/profile'];
 
