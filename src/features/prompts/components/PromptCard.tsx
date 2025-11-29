@@ -62,20 +62,9 @@ const categoryTokens: Record<PromptRow['category'], CategoryToken> = {
   }
 };
 
-const summarize = (content: string) => {
+const summarize = (content: string, maxLength = 100) => {
   const sanitized = content.replace(/\s+/g, ' ').trim();
-  return sanitized.length > 160 ? `${sanitized.slice(0, 157)}…` : sanitized;
-};
-
-const formatDate = (value: string | null) => {
-  if (!value) return 'Sin mejoras recientes';
-  try {
-    return new Intl.DateTimeFormat('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(
-      new Date(value)
-    );
-  } catch {
-    return value;
-  }
+  return sanitized.length > maxLength ? `${sanitized.slice(0, maxLength - 1)}…` : sanitized;
 };
 
 interface PromptCardProps {
@@ -85,46 +74,59 @@ interface PromptCardProps {
 export const PromptCard = ({ prompt }: PromptCardProps) => {
   const category = categoryTokens[prompt.category];
   const summary = prompt.summary?.trim().length
-    ? prompt.summary.trim()
+    ? summarize(prompt.summary.trim())
     : summarize(prompt.content || '');
   const tags = prompt.tags?.slice(0, 2) ?? [];
-  const lastUpdated = prompt.updated_at ?? prompt.created_at;
 
   return (
-    <article className="flex gap-4 rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-sm transition hover:border-primary/40 hover:shadow-md dark:border-slate-800 dark:bg-slate-900/90">
-      <div className="flex flex-1 gap-4">
-        <div className="flex h-12 w-12 items-center justify-center rounded-2xl" aria-hidden>
-          <span
-            className={`flex h-10 w-10 items-center justify-center rounded-2xl text-lg ${category.bg} ${category.iconColor}`}
-          >
-            {category.icon}
+    <article className="group relative flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-sm transition hover:border-primary/50 hover:shadow-md dark:border-slate-800 dark:bg-slate-900/90 sm:flex-row sm:gap-4">
+      {/* Icon */}
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl sm:h-12 sm:w-12" aria-hidden>
+        <span
+          className={`flex h-full w-full items-center justify-center rounded-xl text-lg ${category.bg} ${category.iconColor}`}
+        >
+          {category.icon}
+        </span>
+      </div>
+
+      {/* Content */}
+      <div className="flex min-w-0 flex-1 flex-col gap-2">
+        {/* Title & Category */}
+        <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-2">
+          <h3 className="text-base font-semibold text-slate-900 dark:text-white">
+            {prompt.title}
+          </h3>
+          <span className={`w-fit inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${category.bg} ${category.text}`}>
+            <span className={`h-1.5 w-1.5 rounded-full ${category.dot}`} aria-hidden />
+            {prompt.category}
           </span>
         </div>
-        <div className="min-w-0 space-y-2">
-          <div className="flex flex-wrap items-center gap-2">
-            <h3 className="text-base font-semibold text-slate-900 dark:text-white">
-              {prompt.title}
-            </h3>
-            <span className={`inline-flex items-center gap-1 rounded-full px-3 py-0.5 text-xs font-medium ${category.bg} ${category.text}`}>
-              <span className={`h-1.5 w-1.5 rounded-full ${category.dot}`} aria-hidden />
-              {prompt.category}
-            </span>
-            {tags.map((tag) => (
-              <span
-                key={tag}
-                className="inline-flex items-center rounded-full bg-slate-100 px-3 py-0.5 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-200"
-              >
-                #{tag}
-              </span>
-            ))}
-          </div>
-          <p className="text-sm text-slate-600 dark:text-slate-300">{summary}</p>
-          <p className="text-xs text-slate-500">
-            ⭐ Usos: {prompt.use_count} · Última mejora: {formatDate(lastUpdated)}
-          </p>
+
+        {/* Summary */}
+        <p className="text-sm text-slate-600 dark:text-slate-300">{summary}</p>
+
+        {/* Tags & Meta */}
+        <div className="flex flex-wrap items-center gap-2 text-xs">
+          {tags.length > 0 && (
+            <div className="flex gap-1.5">
+              {tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300"
+                >
+                  #{tag}
+                </span>
+              ))}
+            </div>
+          )}
+          <span className="text-slate-500">
+            Usos: {prompt.use_count}
+          </span>
         </div>
       </div>
-      <div className="flex shrink-0 flex-col items-end gap-3">
+
+      {/* Actions */}
+      <div className="flex shrink-0 items-center justify-between gap-2 sm:flex-col sm:items-end sm:justify-start">
         <FavoriteToggle promptId={prompt.id} initialFavorite={prompt.is_favorite} />
         <div className="flex items-center gap-2">
           <Link
@@ -132,7 +134,20 @@ export const PromptCard = ({ prompt }: PromptCardProps) => {
             className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition hover:border-slate-300 hover:text-slate-900 dark:border-slate-700 dark:text-slate-200"
             aria-label={`Editar ${prompt.title}`}
           >
-            ✏️
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={2}
+              stroke="currentColor"
+              className="h-4 w-4"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"
+              />
+            </svg>
           </Link>
           <Link
             href={`/prompts/${prompt.id}/use`}
