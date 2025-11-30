@@ -17,31 +17,32 @@ export default async function DashboardPage() {
     return (
         <div className="space-y-6">
             {/* Welcome Section */}
-            <div className="rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-sm">
-                <h1 className="text-2xl font-bold text-slate-900">
+            <div className="rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-card-subtle dark:border-slate-700 dark:bg-slate-900/90">
+                <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
                     Hola, {profile?.email?.split('@')[0] || 'Usuario'} 👋
                 </h1>
-                <p className="mt-1 text-sm text-slate-600">
+                <p className="mt-1.5 text-sm text-slate-500 dark:text-slate-400">
                     Bienvenido a tu biblioteca de prompts
                 </p>
             </div>
 
             {/* Stats Cards */}
             <div className="grid gap-4 sm:grid-cols-2">
-                <div className="rounded-2xl border border-violet-200 bg-gradient-to-br from-violet-50 to-purple-50 p-5">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-sm font-medium text-violet-600">Prompts creados</p>
-                            <p className="mt-2 text-3xl font-bold text-violet-900">{usedToday}/10</p>
+                {/* Prompts creados */}
+                <div className="rounded-2xl border border-violet-300 bg-violet-50 px-6 py-5 shadow-sm dark:border-violet-500/60 dark:bg-slate-900">
+                    <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                            <p className="text-sm font-medium text-slate-700 dark:text-slate-200">Prompts creados</p>
+                            <p className="mt-2 text-4xl font-extrabold text-slate-900 dark:text-slate-50">{usedToday}/10</p>
                         </div>
-                        <div className="rounded-full bg-violet-500/10 p-3">
+                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-violet-100 dark:bg-violet-500/15">
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 fill="none"
                                 viewBox="0 0 24 24"
                                 strokeWidth={2}
                                 stroke="currentColor"
-                                className="h-6 w-6 text-violet-600"
+                                className="h-6 w-6 text-violet-600 dark:text-violet-200"
                             >
                                 <path
                                     strokeLinecap="round"
@@ -53,18 +54,19 @@ export default async function DashboardPage() {
                     </div>
                 </div>
 
-                <div className="rounded-2xl border border-amber-200 bg-gradient-to-br from-amber-50 to-yellow-50 p-5">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-sm font-medium text-amber-700">Favoritos</p>
-                            <p className="mt-2 text-3xl font-bold text-amber-900">{favoriteCount}</p>
+                {/* Favoritos */}
+                <div className="rounded-2xl border border-amber-300 bg-amber-50 px-6 py-5 shadow-sm dark:border-amber-500/60 dark:bg-slate-900">
+                    <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                            <p className="text-sm font-medium text-slate-700 dark:text-slate-200">Favoritos</p>
+                            <p className="mt-2 text-4xl font-extrabold text-slate-900 dark:text-slate-50">{favoriteCount}</p>
                         </div>
-                        <div className="rounded-full bg-amber-500/10 p-3">
+                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-500/15">
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 viewBox="0 0 24 24"
                                 fill="currentColor"
-                                className="h-6 w-6 text-amber-600"
+                                className="h-6 w-6 text-amber-600 dark:text-amber-200"
                             >
                                 <path
                                     fillRule="evenodd"
@@ -78,9 +80,9 @@ export default async function DashboardPage() {
             </div>
 
             {/* Recent Prompts */}
-            <div className="rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-sm">
+            <div className="rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-card-subtle dark:border-slate-700 dark:bg-slate-900/90">
                 <div className="mb-4 flex items-center justify-between">
-                    <h2 className="text-xl font-bold text-slate-900">Recientes</h2>
+                    <h2 className="text-xl font-bold text-slate-900 dark:text-white">Recientes</h2>
                     <Link
                         href="/prompts/library"
                         className="text-sm font-semibold text-primary transition hover:text-violet-700"
@@ -95,8 +97,8 @@ export default async function DashboardPage() {
                         ))}
                     </div>
                 ) : (
-                    <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center">
-                        <p className="text-sm text-slate-600">Aún no has creado ningún prompt.</p>
+                    <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center dark:border-slate-700 dark:bg-slate-950/50">
+                        <p className="text-sm text-slate-600 dark:text-slate-400">Aún no has creado ningún prompt.</p>
                         <Link
                             href="/prompts/new"
                             className="mt-3 inline-flex rounded-full bg-primary px-6 py-2 text-sm font-semibold text-white transition hover:bg-violet-600"

@@ -87,12 +87,12 @@ export const UsePromptClient = ({ prompt, closeHref }: Props) => {
           ) : (
             <form className="space-y-3" aria-live="polite">
               {variables.map((variable) => (
-                <label key={variable} className="space-y-1 text-sm font-medium text-slate-800 dark:text-slate-100">
+                <label key={variable} className="space-y-1 text-sm font-medium text-slate-700 dark:text-slate-200">
                   {variable}
                   <input
                     type="text"
                     {...form.register(variable, { required: true })}
-                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-400"
+                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500"
                     placeholder={`Valor para ${variable}`}
                   />
                 </label>
@@ -103,15 +103,17 @@ export const UsePromptClient = ({ prompt, closeHref }: Props) => {
 
         <section className="space-y-2">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-50">Prompt listo para usar</h2>
-            <span className="text-xs text-slate-500 dark:text-slate-300">
+            <h2 className="text-sm font-semibold text-slate-900 dark:text-white">Prompt listo para usar</h2>
+          </div>
+          <div className="text-right">
+            <span className="text-xs text-slate-400 dark:text-slate-500">
               {debouncedPreview.length} caracteres · {debouncedPreview.split('\n').length} líneas
             </span>
           </div>
           <textarea
             value={debouncedPreview}
             readOnly
-            className="h-80 w-full resize-none rounded-2xl border border-slate-200 bg-slate-50 p-4 font-mono text-sm leading-relaxed text-slate-900 outline-none focus:border-primary focus:ring-1 focus:ring-primary dark:border-slate-800 dark:bg-slate-900/70 dark:text-slate-50"
+            className="h-80 w-full resize-none rounded-2xl border border-slate-200 bg-slate-50 p-4 font-mono text-sm leading-comfortable text-slate-900 outline-none focus:border-primary focus:ring-1 focus:ring-primary dark:border-slate-800 dark:bg-slate-900/70 dark:text-slate-50"
             style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowX: 'hidden' }}
           />
         </section>
@@ -122,14 +124,15 @@ export const UsePromptClient = ({ prompt, closeHref }: Props) => {
             type="button"
             onClick={() => handleCopy(debouncedPreview)}
             disabled={hasMissing && variables.length > 0}
-            className="w-full"
+            className="w-full rounded-full bg-primary px-6 py-2.5 font-semibold text-white hover:bg-violet-600"
           >
             Copiar prompt completo
           </Button>
+          <p className="text-center text-xs text-slate-500 dark:text-slate-400">El prompt incluye todas tus variables y mejoras aplicadas</p>
           <button
             type="button"
             onClick={() => handleCopy(prompt.content)}
-            className="text-sm font-semibold text-slate-600 underline-offset-4 hover:text-primary hover:underline dark:text-slate-200"
+            className="text-sm font-semibold text-slate-600 underline-offset-4 hover:text-primary hover:underline dark:text-slate-300 dark:hover:text-primary"
           >
             Copiar solo instrucciones originales
           </button>

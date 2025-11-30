@@ -45,7 +45,7 @@ export const PromptGrid = ({ prompts, total, pageSize, currentPage, searchParams
       </div>
 
       {/* Pagination */}
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 text-sm shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <div className="mt-6 flex items-center justify-between border-t border-slate-200 pt-3 text-sm text-slate-600 dark:border-slate-800 dark:text-slate-400">
         <span>
           Página {currentPage} de {totalPages}
         </span>

@@ -54,9 +54,11 @@ export function WizardStep2({
             <div className="grid gap-6 lg:grid-cols-[1fr,320px]">
                 {/* Left: Content editor */}
                 <div className="space-y-4">
-                    <div className="rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                        <div className="mb-4 flex items-center justify-between">
+                    <div className="rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-card-subtle dark:border-slate-800 dark:bg-slate-900">
+                        <div className="mb-3">
                             <h2 className="text-lg font-bold text-slate-900 dark:text-white">Contenido del Prompt</h2>
+                        </div>
+                        <div className="mb-2">
                             <span
                                 className={clsx('text-xs font-medium', {
                                     'text-rose-500': isOverLimit,
@@ -80,7 +82,7 @@ export function WizardStep2({
                                 rows={14}
                                 maxLength={PROMPT_CONTENT_MAX_LENGTH}
                                 className={clsx(
-                                    'w-full rounded-3xl border bg-white px-4 py-3 font-mono text-sm leading-relaxed text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500',
+                                    'w-full rounded-3xl border bg-white px-4 py-3 font-mono text-sm leading-comfortable text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500',
                                     isOverLimit
                                         ? 'border-rose-500 focus:border-rose-500 focus:ring-rose-500/20'
                                         : 'border-slate-300 focus:border-primary focus:ring-primary/20 dark:border-slate-700'
@@ -176,14 +178,14 @@ export function WizardStep2({
                     type="button"
                     onClick={onBack}
                     variant="ghost"
-                    className="rounded-full bg-slate-100 px-6 font-medium text-slate-900 hover:bg-slate-200 hover:text-slate-900 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 dark:hover:text-white"
+                    className="rounded-full border border-slate-200 bg-white px-6 font-medium text-slate-700 hover:bg-slate-50 hover:text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 dark:hover:text-white"
                 >
                     ← Atrás
                 </Button>
                 <Button
                     type="button"
                     onClick={onNext}
-                    className="rounded-full bg-primary px-8 text-white hover:bg-violet-600"
+                    className="w-full rounded-full bg-primary px-8 text-white hover:bg-violet-600 sm:w-auto"
                 >
                     Siguiente →
                 </Button>

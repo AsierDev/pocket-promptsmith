@@ -4,22 +4,25 @@
 
 :root {
   color-scheme: light dark;
+
+  /* Text contrast tokens */
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-primary-dark: #f1f5f9;
+  --text-secondary-dark: #cbd5e1;
+
+  /* Line height tokens for comfortable reading */
+  --line-height-relaxed: 1.5;
+  --line-height-comfortable: 1.6;
 }
 
 body {
   font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   min-height: 100vh;
-  background: #f8fafc;
-  color: #0f172a;
+  background: #f9fafb;
+  color: var(--text-primary);
 }
 
 a {
   color: inherit;
-}
-
-@media (prefers-color-scheme: dark) {
-  body {
-    background: #020617;
-    color: #f8fafc;
-  }
 }

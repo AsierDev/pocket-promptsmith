@@ -58,8 +58,8 @@ export const PromptFilters = ({ initialFilters, suggestedTags = [] }: PromptFilt
   };
 
   return (
-    <section className="rounded-3xl border border-slate-200 bg-white/90 p-5 shadow-sm ring-1 ring-slate-100 dark:border-slate-800 dark:bg-slate-900">
-      <div className="grid gap-4 lg:grid-cols-3">
+    <section className="rounded-3xl border border-slate-200 bg-white/90 p-4 shadow-card-subtle ring-1 ring-slate-100 dark:border-slate-800 dark:bg-slate-900 dark:ring-slate-800">
+      <div className="grid gap-3 lg:grid-cols-3">
         <label className="space-y-1.5 text-sm">
           <span className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">Buscar</span>
           <input
@@ -67,13 +67,13 @@ export const PromptFilters = ({ initialFilters, suggestedTags = [] }: PromptFilt
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Título, contenido o palabra clave"
-            className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+            className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500"
           />
         </label>
         <label className="space-y-1.5 text-sm">
           <span className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">Categoría</span>
           <select
-            className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+            className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-base focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-950 dark:text-white sm:text-sm"
             value={category}
             onChange={(event) => setCategory(event.target.value)}
           >
@@ -90,7 +90,7 @@ export const PromptFilters = ({ initialFilters, suggestedTags = [] }: PromptFilt
           <select
             value={sort}
             onChange={(event) => setSort(event.target.value as typeof sort)}
-            className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+            className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-base focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-950 dark:text-white sm:text-sm"
           >
             {Object.entries(sortCopy).map(([value, label]) => (
               <option key={value} value={value}>
@@ -100,13 +100,11 @@ export const PromptFilters = ({ initialFilters, suggestedTags = [] }: PromptFilt
           </select>
         </label>
       </div>
-      <div className="mt-4 space-y-2 text-sm">
+      <div className="mt-3 space-y-2 text-sm">
         <div className="flex items-baseline justify-between">
-          <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Tags</span>
-          <span className="text-xs text-slate-400">
-            {tags.length > 0 ? `${tags.length} seleccionados` : 'Sugerencias rápidas abajo'}
-          </span>
+          <span className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Tags</span>
         </div>
+        <p className="text-[11px] text-slate-400 dark:text-slate-500">Sugerencias rápidas abajo. Presiona Enter para agregar.</p>
         <TagInput value={tags} onChange={setTags} placeholder="Presiona Enter para agregar" />
         {suggestedTags.length > 0 && (
           <div className="flex flex-wrap gap-2 text-xs text-slate-500">
@@ -121,8 +119,8 @@ export const PromptFilters = ({ initialFilters, suggestedTags = [] }: PromptFilt
                     setTags([...tags, tag]);
                   }}
                   className={`rounded-full border px-3 py-1 transition ${isActive
-                      ? 'border-primary bg-primary/10 text-primary'
-                      : 'border-slate-200 hover:border-primary hover:text-primary dark:border-slate-700'
+                    ? 'border-primary bg-primary/10 text-primary font-medium'
+                    : 'border-slate-200 text-slate-600 hover:border-primary hover:text-primary dark:border-slate-700 dark:text-slate-400'
                     }`}
                 >
                   #{tag}
@@ -132,7 +130,7 @@ export const PromptFilters = ({ initialFilters, suggestedTags = [] }: PromptFilt
           </div>
         )}
       </div>
-      <div className="mt-6 flex flex-wrap items-center justify-between gap-4 text-sm">
+      <div className="mt-5 flex flex-wrap items-center justify-between gap-3 text-sm">
         <label className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-3 py-1.5 text-slate-600 transition dark:border-slate-700 dark:text-slate-300">
           <input
             type="checkbox"
@@ -146,7 +144,7 @@ export const PromptFilters = ({ initialFilters, suggestedTags = [] }: PromptFilt
           <button
             type="button"
             onClick={clearFilters}
-            className="rounded-full border border-slate-200 px-4 py-2 font-medium text-slate-500 transition hover:border-slate-300 hover:text-slate-900 dark:border-slate-700 dark:text-slate-300"
+            className="rounded-full px-4 py-2 text-sm font-medium text-slate-500 transition hover:text-slate-900 hover:underline dark:text-slate-400 dark:hover:text-white"
           >
             Limpiar
           </button>

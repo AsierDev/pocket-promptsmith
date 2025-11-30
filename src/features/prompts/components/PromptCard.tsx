@@ -79,11 +79,11 @@ export const PromptCard = ({ prompt }: PromptCardProps) => {
   const tags = prompt.tags?.slice(0, 2) ?? [];
 
   return (
-    <article className="group relative flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-sm transition hover:border-primary/50 hover:shadow-md dark:border-slate-800 dark:bg-slate-900/90 sm:flex-row sm:gap-4">
+    <article className="group relative flex min-h-[160px] flex-col gap-3 rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-card-subtle transition hover:border-primary/50 hover:shadow-card dark:border-slate-800 dark:bg-slate-900/90 sm:flex-row sm:gap-4">
       {/* Icon */}
       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl sm:h-12 sm:w-12" aria-hidden>
         <span
-          className={`flex h-full w-full items-center justify-center rounded-xl text-lg ${category.bg} ${category.iconColor}`}
+          className={`flex h-full w-full items-center justify-center rounded-xl text-lg ${category.bg} ${category.iconColor} dark:bg-opacity-20`}
         >
           {category.icon}
         </span>
@@ -96,14 +96,14 @@ export const PromptCard = ({ prompt }: PromptCardProps) => {
           <h3 className="text-base font-semibold text-slate-900 dark:text-white">
             {prompt.title}
           </h3>
-          <span className={`w-fit inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${category.bg} ${category.text}`}>
+          <span className={`w-fit inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${category.bg} ${category.text} dark:bg-opacity-25 dark:text-opacity-95`}>
             <span className={`h-1.5 w-1.5 rounded-full ${category.dot}`} aria-hidden />
             {prompt.category}
           </span>
         </div>
 
         {/* Summary */}
-        <p className="text-sm text-slate-600 dark:text-slate-300">{summary}</p>
+        <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300">{summary}</p>
 
         {/* Tags & Meta */}
         <div className="flex flex-wrap items-center gap-2 text-xs">
@@ -119,7 +119,7 @@ export const PromptCard = ({ prompt }: PromptCardProps) => {
               ))}
             </div>
           )}
-          <span className="text-slate-500">
+          <span className="text-slate-500 dark:text-slate-400">
             Usos: {prompt.use_count}
           </span>
         </div>
@@ -131,7 +131,7 @@ export const PromptCard = ({ prompt }: PromptCardProps) => {
         <div className="flex items-center gap-2">
           <Link
             href={`/prompts/${prompt.id}`}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition hover:border-slate-300 hover:text-slate-900 dark:border-slate-700 dark:text-slate-200"
+            className="group/edit inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
             aria-label={`Editar ${prompt.title}`}
           >
             <svg

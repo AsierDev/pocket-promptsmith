@@ -6,6 +6,7 @@ import { PremiumUsageProvider } from '@/features/ai-improvements/PremiumUsagePro
 import { FREEMIUM_LIMITS } from '@/lib/limits';
 import { BottomNav } from '@/components/navigation/BottomNav';
 import { TopTabs } from '@/components/navigation/TopTabs';
+import { ThemeToggle } from '@/components/common/ThemeToggle';
 
 export default async function PromptsLayout({ children }: { children: React.ReactNode }) {
   const session = await getSession();
@@ -24,27 +25,28 @@ export default async function PromptsLayout({ children }: { children: React.Reac
       limit={FREEMIUM_LIMITS.improvementsPerDay}
       lastResetAt={profile?.improvements_reset_at ?? null}
     >
-      <div className="min-h-screen bg-slate-50 pb-20 lg:pb-0">
-        <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur">
+      <div className="min-h-screen bg-slate-50 pb-20 dark:bg-slate-950 lg:pb-0">
+        <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur dark:border-slate-700 dark:bg-slate-900/95">
           <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
             <div className="flex items-center gap-8">
-              <div className="text-xl font-bold text-slate-900">
+              <div className="text-xl font-bold text-slate-900 dark:text-white">
                 Pocket Promptsmith
               </div>
               <TopTabs />
             </div>
             <div className="flex items-center gap-3">
               {userEmail && (
-                <span className="hidden text-sm text-slate-600 sm:inline-flex">{userEmail}</span>
+                <span className="hidden text-sm text-slate-600 dark:text-slate-400 sm:inline-flex">{userEmail}</span>
               )}
-              <div className="flex items-center gap-2 rounded-full border border-slate-200 px-3 py-1.5">
+              <ThemeToggle />
+              <div className="flex items-center gap-2 rounded-full border border-slate-200 px-3 py-1.5 dark:border-slate-700">
                 <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
                   {userInitial}
                 </div>
                 <form action={signOut}>
                   <button
                     type="submit"
-                    className="text-xs font-semibold text-slate-500 transition hover:text-primary"
+                    className="text-xs font-semibold text-slate-500 transition hover:text-primary dark:text-slate-400"
                   >
                     Salir
                   </button>
