@@ -6,12 +6,22 @@ interface FormFieldProps {
   description?: string;
   error?: string;
   children: ReactNode;
+  className?: string;
+  labelClassName?: string;
 }
 
-export const FormField = ({ label, htmlFor, description, error, children }: FormFieldProps) => (
-  <div className="space-y-2">
+export const FormField = ({
+  label,
+  htmlFor,
+  description,
+  error,
+  children,
+  className,
+  labelClassName
+}: FormFieldProps) => (
+  <div className={className || "space-y-2"}>
     <div>
-      <label htmlFor={htmlFor} className="text-sm font-medium text-slate-700 dark:text-slate-200">
+      <label htmlFor={htmlFor} className={labelClassName || "text-sm font-medium text-slate-700 dark:text-slate-200"}>
         {label}
       </label>
       {description && <p className="text-xs text-slate-500 dark:text-slate-300">{description}</p>}

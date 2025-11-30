@@ -28,21 +28,21 @@ export default async function LandingPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-100 text-slate-900">
-      <header className="sticky top-0 z-10 border-b border-slate-200 bg-white/80 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <Link href="/" className="text-xl font-semibold">
+      <header className="sticky top-0 z-10 w-full border-b border-slate-200 bg-white/80 backdrop-blur">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
+          <Link href="/" className="text-lg font-semibold sm:text-xl">
             Pocket Promptsmith
           </Link>
-          <nav className="flex items-center gap-6 text-sm text-slate-600">
-            <a href="#features" className="transition hover:text-primary">
+          <nav className="flex items-center gap-4 text-sm text-slate-600 sm:gap-6">
+            <a href="#features" className="hidden transition hover:text-primary sm:block">
               Funcionalidades
             </a>
-            <a href="#como-funciona" className="transition hover:text-primary">
+            <a href="#como-funciona" className="hidden transition hover:text-primary sm:block">
               Cómo funciona
             </a>
             <Link
               href={headerCtaHref}
-              className="rounded-full bg-primary px-4 py-2 font-semibold text-white shadow-sm transition hover:bg-violet-600"
+              className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-violet-600 md:px-6 md:text-base"
             >
               {headerCtaLabel}
             </Link>

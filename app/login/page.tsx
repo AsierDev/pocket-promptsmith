@@ -41,31 +41,39 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
+    <main className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-12 dark:bg-slate-950 sm:px-6 lg:px-8">
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="w-full max-w-md space-y-6 rounded-3xl bg-white p-8 shadow-card"
+        className="w-full max-w-md space-y-8 rounded-3xl bg-white p-8 shadow-card dark:bg-slate-900 dark:shadow-none dark:ring-1 dark:ring-slate-800 sm:p-10"
         aria-describedby="login-description"
       >
-        <div>
-          <h1 className="text-2xl font-semibold">Inicia sesión</h1>
-          <p id="login-description" className="text-sm text-slate-500">
-            Recibirás un enlace mágico para acceder.
+        <div className="space-y-2 text-center sm:text-left">
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-50">Inicia sesión</h1>
+          <p id="login-description" className="text-sm text-slate-500 dark:text-slate-400">
+            Recibirás un enlace mágico para acceder a tu cuenta.
           </p>
         </div>
-        <FormField label="Email" htmlFor="email" error={errors.email?.message}>
-          <input
-            id="email"
-            type="email"
-            className="w-full rounded-xl border border-slate-200 px-4 py-2 text-slate-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/50"
-            placeholder="tu@correo.com"
-            aria-required
-            {...register('email')}
-          />
-        </FormField>
-        <Button type="submit" className="w-full" loading={loading}>
-          Enviar enlace mágico
-        </Button>
+        <div className="space-y-6">
+          <FormField
+            label="Email"
+            htmlFor="email"
+            error={errors.email?.message}
+            className="space-y-2"
+            labelClassName="text-sm font-medium text-slate-700 dark:text-slate-300"
+          >
+            <input
+              id="email"
+              type="email"
+              className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-50 dark:placeholder:text-slate-500 dark:focus:border-primary dark:focus:ring-primary/20"
+              placeholder="tu@correo.com"
+              aria-required
+              {...register('email')}
+            />
+          </FormField>
+          <Button type="submit" className="w-full py-3 text-base font-semibold" loading={loading}>
+            Enviar enlace mágico
+          </Button>
+        </div>
       </form>
     </main>
   );
