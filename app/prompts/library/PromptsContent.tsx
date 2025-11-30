@@ -30,6 +30,7 @@ export const PromptsContent = async ({ filters, searchParams }: Props) => {
   return (
     <div className="space-y-6">
       <PromptFiltersComponent initialFilters={filters} suggestedTags={suggestedTags} />
+      <div id="library-results-anchor" className="scroll-mt-24" />
       {shouldShowLibraryEmpty && <PromptEmptyState variant="library" />}
       {shouldShowFavoritesEmpty && <PromptEmptyState variant="favorites" />}
       {shouldShowFilterEmpty && <PromptEmptyState variant="filters" />}

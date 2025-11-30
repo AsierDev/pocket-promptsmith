@@ -45,7 +45,11 @@ export const PromptFilters = ({ initialFilters, suggestedTags = [] }: PromptFilt
   }, [query, category, tags, favoritesOnly, sort]);
 
   const applyFilters = () => {
-    router.push(`/prompts/library?${searchParams.toString()}`);
+    router.push(`/prompts/library?${searchParams.toString()}`, { scroll: false });
+    const anchor = document.getElementById('library-results-anchor');
+    if (anchor) {
+      anchor.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   const clearFilters = () => {
@@ -54,7 +58,11 @@ export const PromptFilters = ({ initialFilters, suggestedTags = [] }: PromptFilt
     setTags([]);
     setFavoritesOnly(false);
     setSort('recent');
-    router.push('/prompts/library');
+    router.push('/prompts/library', { scroll: false });
+    const anchor = document.getElementById('library-results-anchor');
+    if (anchor) {
+      anchor.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   return (
