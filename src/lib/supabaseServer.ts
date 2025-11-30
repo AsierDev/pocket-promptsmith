@@ -16,14 +16,21 @@ export const getSupabaseServerClient = async () => {
           return cookieStore.getAll();
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => {
-            cookieStore.set({
-              name,
-              value,
-              ...options,
-              path: options?.path ?? "/",
+          // In Server Components, we cannot set cookies.
+          // Cookie updates (session refresh) should be handled by middleware.
+          // This is a no-op to prevent "Cookies can only be modified in a Server Action" errors.
+          try {
+            cookiesToSet.forEach(({ name, value, options }) => {
+              cookieStore.set({
+                name,
+                value,
+                ...options,
+                path: options?.path ?? "/",
+              });
             });
-          });
+          } catch {
+            // Silently fail - this is expected in Server Components
+          }
         },
       },
     }
@@ -32,12 +39,22 @@ export const getSupabaseServerClient = async () => {
 
 export const getSession = async () => {
   const supabase = await getSupabaseServerClient();
-  const { data, error } = await supabase.auth.getSession();
-  if (error) {
-    console.error("Error retrieving session", error);
+  // Use getUser() instead of getSession() in Server Components to avoid
+  // attempting to refresh the session and set cookies, which causes errors.
+  const { data, error } = await supabase.auth.getUser();
+  if (error || !data.user) {
     return null;
   }
-  return data.session;
+  
+  // Return a minimal session-like object with the user
+  // This maintains compatibility with code that checks for session.user
+  return {
+    user: data.user,
+    access_token: '', // Not available via getUser
+    refresh_token: '', // Not available via getUser
+    expires_in: 0,
+    expires_at: 0,
+  };
 };
 
 const isNotFoundError = (error: PostgrestError | null) =>

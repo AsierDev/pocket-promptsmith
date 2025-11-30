@@ -24,7 +24,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es" className="scroll-smooth" suppressHydrationWarning>
-      <body className="bg-slate-50 text-slate-900 antialiased dark:bg-slate-900 dark:text-slate-100">
+      <body className="bg-slate-50 text-slate-900 antialiased dark:bg-slate-900 dark:text-slate-100" suppressHydrationWarning>
         <Suspense fallback={null}>
           <AppProviders>
             <PwaProvider />
