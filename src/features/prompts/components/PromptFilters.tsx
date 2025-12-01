@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import { PROMPT_CATEGORIES } from '@/features/prompts/schemas';
-import { TagInput } from './TagInput';
+import { TagInput } from '@/features/prompts/components/TagInput';
 
 interface PromptFiltersProps {
   initialFilters: {

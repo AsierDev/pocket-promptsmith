@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { FavoriteToggle } from './FavoriteToggle';
+import { FavoriteToggle } from '@/features/prompts/components/FavoriteToggle';
 import type { PromptRow } from '@/types/supabase';
 
 type CategoryToken = {

@@ -4,7 +4,8 @@ import {
   type PromptCategory,
   type PromptLengthSetting
 } from '@/features/ai-improvements/client';
-import { getSupabaseServerClient, getProfile } from '@/lib/supabaseServer';
+import { getProfile } from '@/lib/supabaseServer';
+import { getSupabaseServerClient } from '@/lib/authUtils';
 import { FREEMIUM_LIMITS } from '@/lib/limits';
 import { isPremiumModel } from '@/features/ai-improvements/models';
 import { AI_IMPROVEMENT_SOURCE_MAX_LENGTH } from '@/features/prompts/schemas';
@@ -18,8 +19,14 @@ export async function POST(request: Request) {
     } = await supabase.auth.getSession();
 
     if (sessionError) {
-      console.error('Error retrieving session for AI improve route', sessionError);
-      return NextResponse.json({ error: 'No se pudo validar tu sesión' }, { status: 500 });
+      console.error(
+        'Error retrieving session for AI improve route',
+        sessionError
+      );
+      return NextResponse.json(
+        { error: 'No se pudo validar tu sesión' },
+        { status: 500 }
+      );
     }
 
     if (!session) {
@@ -28,16 +35,20 @@ export async function POST(request: Request) {
 
     const profile = await getProfile();
 
-    const { content, goal, category, temperature, length } = (await request.json()) as {
-      content: string;
-      goal?: string;
-      category: PromptCategory;
-      temperature?: number;
-      length?: PromptLengthSetting;
-    };
+    const { content, goal, category, temperature, length } =
+      (await request.json()) as {
+        content: string;
+        goal?: string;
+        category: PromptCategory;
+        temperature?: number;
+        length?: PromptLengthSetting;
+      };
     const normalizedContent = content?.trim?.() ?? '';
     if (!normalizedContent) {
-      return NextResponse.json({ error: 'Contenido requerido' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Contenido requerido' },
+        { status: 400 }
+      );
     }
     if (normalizedContent.length > AI_IMPROVEMENT_SOURCE_MAX_LENGTH) {
       return NextResponse.json(
@@ -50,12 +61,16 @@ export async function POST(request: Request) {
     }
 
     const premiumUsedToday = profile?.improvements_used_today ?? 0;
-    const result = await improvePromptWithAI(normalizedContent, category ?? 'Otros', {
-      goal,
-      temperature,
-      length,
-      premiumUsedToday
-    });
+    const result = await improvePromptWithAI(
+      normalizedContent,
+      category ?? 'Otros',
+      {
+        goal,
+        temperature,
+        length,
+        premiumUsedToday
+      }
+    );
     const usedPremiumModel = isPremiumModel(result.modelUsed);
     const nextPremiumCount = usedPremiumModel
       ? Math.min(premiumUsedToday + 1, FREEMIUM_LIMITS.improvementsPerDay)
@@ -81,6 +96,9 @@ export async function POST(request: Request) {
       premiumImprovementsUsedToday: nextPremiumCount
     });
   } catch (error) {
-    return NextResponse.json({ error: (error as Error).message }, { status: 500 });
+    return NextResponse.json(
+      { error: (error as Error).message },
+      { status: 500 }
+    );
   }
 }

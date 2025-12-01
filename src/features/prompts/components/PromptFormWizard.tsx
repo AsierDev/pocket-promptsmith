@@ -12,10 +12,10 @@ import {
     PromptFormValues
 } from '@/features/prompts/schemas';
 import { createPromptAction, updatePromptAction } from '@/features/prompts/actions';
-import { PromptWizard, WizardStep } from './PromptWizard';
-import { WizardStep1 } from './WizardStep1';
-import { WizardStep2 } from './WizardStep2';
-import { WizardStep3 } from './WizardStep3';
+import { PromptWizard, WizardStep } from '@/features/prompts/components/PromptWizard';
+import { WizardStep1 } from '@/features/prompts/components/WizardStep1';
+import { WizardStep2 } from '@/features/prompts/components/WizardStep2';
+import { WizardStep3 } from '@/features/prompts/components/WizardStep3';
 
 interface PromptFormWizardProps {
     defaultValues?: Partial<PromptFormValues> & { id?: string };

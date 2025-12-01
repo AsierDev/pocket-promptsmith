@@ -1,6 +1,6 @@
 import { FormField } from '@/components/common/FormField';
 import { Button } from '@/components/common/Button';
-import { TagInput } from './TagInput';
+import { TagInput } from '@/features/prompts/components/TagInput';
 import { Controller } from 'react-hook-form';
 import type { Control, UseFormRegister, UseFormSetValue, FieldErrors } from 'react-hook-form';
 import type { PromptFormValues } from '@/features/prompts/schemas';

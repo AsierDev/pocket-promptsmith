@@ -2,6 +2,7 @@
 
 import { create } from 'zustand';
 import { FREEMIUM_LIMITS } from '@/lib/limits';
+import { shouldResetDaily, nowIsoString } from '@/lib/dateUtils';
 
 type HydrationPayload = {
   usedToday: number;
@@ -20,19 +21,7 @@ type PremiumUsageState = {
   resetIfNeeded: () => void;
 };
 
-const nowIsoString = () => new Date().toISOString();
-
-const needsReset = (lastResetAt?: string | null) => {
-  if (!lastResetAt) return true;
-  const last = new Date(lastResetAt);
-  if (Number.isNaN(last.getTime())) return true;
-  const now = new Date();
-  return (
-    last.getUTCFullYear() !== now.getUTCFullYear() ||
-    last.getUTCMonth() !== now.getUTCMonth() ||
-    last.getUTCDate() !== now.getUTCDate()
-  );
-};
+// The needsReset function has been moved to src/lib/dateUtils.ts as shouldResetDaily
 
 export const usePremiumUsageStore = create<PremiumUsageState>((set, get) => ({
   usedToday: 0,
@@ -41,8 +30,10 @@ export const usePremiumUsageStore = create<PremiumUsageState>((set, get) => ({
   hydrated: false,
   hydrate: ({ usedToday, limit, lastResetAt }) => {
     const effectiveLimit = limit ?? FREEMIUM_LIMITS.improvementsPerDay;
-    const shouldReset = needsReset(lastResetAt);
-    const nextUsed = shouldReset ? 0 : Math.min(Math.max(usedToday, 0), effectiveLimit);
+    const shouldReset = shouldResetDaily(lastResetAt);
+    const nextUsed = shouldReset
+      ? 0
+      : Math.min(Math.max(usedToday, 0), effectiveLimit);
 
     set({
       usedToday: nextUsed,
@@ -70,7 +61,7 @@ export const usePremiumUsageStore = create<PremiumUsageState>((set, get) => ({
   },
   resetIfNeeded: () => {
     const { lastResetAt } = get();
-    if (needsReset(lastResetAt)) {
+    if (shouldResetDaily(lastResetAt)) {
       set({ usedToday: 0, lastResetAt: nowIsoString() });
     }
   }

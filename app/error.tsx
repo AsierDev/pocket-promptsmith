@@ -13,7 +13,7 @@ export default function Error({
         // Log error to console in development
         console.error('Global error boundary caught:', error);
 
-        // TODO: En producción, enviar a Sentry o servicio de monitoring
+        // TODO: In production, send to Sentry or monitoring service
         // if (process.env.NODE_ENV === 'production') {
         //   Sentry.captureException(error);
         // }

@@ -1,6 +1,6 @@
 import { FormField } from '@/components/common/FormField';
 import { Button } from '@/components/common/Button';
-import { PromptAIHelperPanel } from './PromptAIHelperPanel';
+import { PromptAIHelperPanel } from '@/features/prompts/components/PromptAIHelperPanel';
 import {
     PROMPT_CONTENT_MAX_LENGTH,
     AI_IMPROVEMENT_SOURCE_MAX_LENGTH,
@@ -10,6 +10,7 @@ import type { UseFormRegister, UseFormSetValue, FieldErrors } from 'react-hook-f
 import type { PromptFormValues } from '@/features/prompts/schemas';
 import clsx from 'clsx';
 import { useState } from 'react';
+import { useCharacterLimitValidation } from '@/hooks/useCharacterLimitValidation';
 
 interface WizardStep2Props {
     register: UseFormRegister<PromptFormValues>;
@@ -41,12 +42,11 @@ export function WizardStep2({
     onBack
 }: WizardStep2Props) {
     const [showAiHelper, setShowAiHelper] = useState(false);
-    const charCount = contentValue?.length ?? 0;
-    const isApproachingLimit = charCount >= PROMPT_CONTENT_MAX_LENGTH * 0.9 && charCount <= PROMPT_CONTENT_MAX_LENGTH;
-    const isOverLimit = charCount > PROMPT_CONTENT_MAX_LENGTH;
-    const contentError = isOverLimit
-        ? `Has superado el límite de ${PROMPT_CONTENT_MAX_LENGTH} caracteres. Simplifica el prompt o divídelo en varios.`
-        : errors.content?.message;
+    const { charCount, isApproachingLimit, isOverLimit, contentError } = useCharacterLimitValidation({
+        content: contentValue,
+        maxLength: PROMPT_CONTENT_MAX_LENGTH,
+        existingError: errors.content?.message
+    });
 
     return (
         <div className="space-y-6">

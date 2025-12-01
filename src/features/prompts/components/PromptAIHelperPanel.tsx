@@ -3,8 +3,9 @@
 import { useEffect, useRef, useState, useTransition } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/common/Button';
+import { CopyProposalButton } from '@/components/common/CopyProposalButton';
 import { AI_IMPROVEMENT_SOURCE_MAX_LENGTH, type PromptFormValues } from '@/features/prompts/schemas';
-import { PromptDiffModal } from './PromptDiffModal';
+import { PromptDiffModal } from '@/features/prompts/components/PromptDiffModal';
 import { logImprovement } from '@/features/prompts/actions';
 import clsx from 'clsx';
 import { isPremiumModel } from '@/features/ai-improvements/models';
@@ -181,15 +182,6 @@ export const PromptAIHelperPanel = ({
     });
   };
 
-  const handleCopyProposal = async () => {
-    if (!result) return;
-    try {
-      await navigator.clipboard.writeText(result.improved_prompt);
-      toast.success('Propuesta copiada');
-    } catch (error) {
-      toast.error('No se pudo copiar');
-    }
-  };
 
   const handleRegenerate = () => {
     setDiffOpen(false);
@@ -361,9 +353,7 @@ export const PromptAIHelperPanel = ({
               <Button type="button" onClick={() => setDiffOpen(true)}>
                 Ver diff y aplicar…
               </Button>
-              <Button type="button" variant="secondary" onClick={handleCopyProposal}>
-                Copiar propuesta
-              </Button>
+              <CopyProposalButton text={result.improved_prompt} />
               <button
                 type="button"
                 onClick={requestImprovement}

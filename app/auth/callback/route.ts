@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getSupabaseServerClient } from '@/lib/supabaseServer';
+import { getSupabaseServerClient } from '@/lib/authUtils';
 
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url);

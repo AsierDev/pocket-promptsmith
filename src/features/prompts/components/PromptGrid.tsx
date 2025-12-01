@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { PromptCard } from './PromptCard';
+import { PromptCard } from '@/features/prompts/components/PromptCard';
 import type { PromptRow } from '@/types/supabase';
 import type { Route } from 'next';
 

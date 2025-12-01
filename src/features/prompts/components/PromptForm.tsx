@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useTransition } from 'react';
+import { useTransition, useMemo } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
@@ -17,9 +17,10 @@ import {
 } from '@/features/prompts/schemas';
 import { Button } from '@/components/common/Button';
 import { FormField } from '@/components/common/FormField';
-import { TagInput } from './TagInput';
+import { TagInput } from '@/features/prompts/components/TagInput';
 import { createPromptAction, updatePromptAction } from '@/features/prompts/actions';
-import { PromptAIHelperPanel } from './PromptAIHelperPanel';
+import { PromptAIHelperPanel } from '@/features/prompts/components/PromptAIHelperPanel';
+import { useCharacterLimitValidation } from '@/hooks/useCharacterLimitValidation';
 
 interface PromptFormProps {
   defaultValues?: Partial<PromptFormValues> & { id?: string };
@@ -63,10 +64,12 @@ export const PromptForm = ({
   });
 
   // eslint-disable-next-line react-hooks/incompatible-library
-  const contentValue = watch('content');
-  const aiImprovementSource = watch('ai_improvement_source');
-  const categoryValue = watch('category');
-  const tagsValue = watch('tags') ?? [];
+  const watchedValues = watch(['content', 'ai_improvement_source', 'category', 'tags']);
+  
+  const contentValue = useMemo(() => watchedValues[0], [watchedValues]);
+  const aiImprovementSource = useMemo(() => watchedValues[1], [watchedValues]);
+  const categoryValue = useMemo(() => watchedValues[2], [watchedValues]);
+  const tagsValue = useMemo(() => watchedValues[3] ?? [], [watchedValues]);
 
   const submitHandler = handleSubmit((values) => {
     if (disableSubmit) {
@@ -106,12 +109,11 @@ export const PromptForm = ({
     setValue('content', value, { shouldDirty: true, shouldValidate: true });
   };
 
-  const charCount = contentValue?.length ?? 0;
-  const isApproachingLimit = charCount >= PROMPT_CONTENT_MAX_LENGTH * 0.9 && charCount <= PROMPT_CONTENT_MAX_LENGTH;
-  const isOverLimit = charCount > PROMPT_CONTENT_MAX_LENGTH;
-  const contentError = isOverLimit
-    ? `Has superado el límite de ${PROMPT_CONTENT_MAX_LENGTH} caracteres. Simplifica el prompt o divídelo en varios.`
-    : errors.content?.message;
+  const { charCount, isApproachingLimit, isOverLimit, contentError } = useCharacterLimitValidation({
+    content: contentValue ?? '',
+    maxLength: PROMPT_CONTENT_MAX_LENGTH,
+    existingError: errors.content?.message
+  });
 
   return (
     <form onSubmit={submitHandler} className="space-y-6" aria-live="polite">

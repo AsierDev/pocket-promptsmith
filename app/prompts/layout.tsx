@@ -1,4 +1,5 @@
-import { getProfile, getSession } from '@/lib/supabaseServer';
+import { getProfile } from '@/lib/supabaseServer';
+import { getSession } from '@/lib/authUtils';
 import { LimitsBanner } from '@/features/limits/LimitsBanner';
 import { signOut } from '@/features/auth/actions';
 import { redirect } from 'next/navigation';

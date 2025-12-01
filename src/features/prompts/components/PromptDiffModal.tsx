@@ -4,6 +4,7 @@ import { useState } from 'react';
 import clsx from 'clsx';
 import { Modal } from '@/components/common/Modal';
 import { Button } from '@/components/common/Button';
+import { CopyProposalButton } from '@/components/common/CopyProposalButton';
 import { toast } from 'sonner';
 import { isPremiumModel } from '@/features/ai-improvements/models';
 
@@ -47,14 +48,6 @@ export const PromptDiffModal = ({
   const [feedback, setFeedback] = useState<FeedbackChoice | null>(null);
   const tierLabel = modelName ? (isPremiumModel(modelName) ? 'Premium' : 'Free') : null;
 
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(proposal);
-      toast.success('Propuesta copiada');
-    } catch {
-      toast.error('No se pudo copiar');
-    }
-  };
 
   const handleFeedback = (value: FeedbackChoice) => {
     setFeedback((prev) => getNextFeedbackState(prev, value));
@@ -69,9 +62,7 @@ export const PromptDiffModal = ({
       size="lg"
       actions={
         <>
-          <Button variant="secondary" onClick={handleCopy}>
-            Copiar propuesta
-          </Button>
+          <CopyProposalButton text={proposal} />
           <Button onClick={() => onApply(proposal)} loading={loading}>
             Aplicar cambios
           </Button>

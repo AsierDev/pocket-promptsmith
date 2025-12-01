@@ -2,10 +2,12 @@
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { getSupabaseServerClient, getProfile } from '@/lib/supabaseServer';
+import { getSupabaseServerClient } from '@/lib/authUtils';
+import { getProfile } from '@/lib/supabaseServer';
 import { promptFormSchema } from '@/features/prompts/schemas';
 import { hasReachedPromptLimit } from '@/lib/limits';
 import { incrementUseCount, toggleFavorite } from '@/features/prompts/services';
+import { clearCacheEntry, clearAllCache } from '@/lib/cacheUtils';
 
 const parseTags = (raw: FormDataEntryValue | null): string[] => {
   if (!raw) return [];
@@ -44,7 +46,9 @@ export const createPromptAction = async (formData: FormData) => {
     ai_improvement_source: formData.get('ai_improvement_source')
   });
 
-  const aiImprovementSource = parsed.ai_improvement_source ? parsed.ai_improvement_source : '';
+  const aiImprovementSource = parsed.ai_improvement_source
+    ? parsed.ai_improvement_source
+    : '';
 
   const { error } = await supabase.from('prompts').insert({
     user_id: user.id,
@@ -69,10 +73,15 @@ export const createPromptAction = async (formData: FormData) => {
   }
 
   revalidatePath('/prompts');
+  // Clear cache after creating a new prompt
+  clearAllCache();
   return { ok: true };
 };
 
-export const updatePromptAction = async (promptId: string, formData: FormData) => {
+export const updatePromptAction = async (
+  promptId: string,
+  formData: FormData
+) => {
   const supabase = await getSupabaseServerClient();
   const parsed = promptFormSchema.parse({
     title: formData.get('title'),
@@ -84,7 +93,9 @@ export const updatePromptAction = async (promptId: string, formData: FormData) =
     ai_improvement_source: formData.get('ai_improvement_source')
   });
 
-  const aiImprovementSource = parsed.ai_improvement_source ? parsed.ai_improvement_source : '';
+  const aiImprovementSource = parsed.ai_improvement_source
+    ? parsed.ai_improvement_source
+    : '';
 
   const { error } = await supabase
     .from('prompts')
@@ -104,13 +115,18 @@ export const updatePromptAction = async (promptId: string, formData: FormData) =
 
   revalidatePath('/prompts');
   revalidatePath(`/prompts/${promptId}`);
+  // Clear cache after updating a prompt
+  clearAllCache();
   return { ok: true };
 };
 
 export const deletePromptAction = async (promptId: string) => {
   const supabase = await getSupabaseServerClient();
   const profile = await getProfile();
-  const { error: deleteError } = await supabase.from('prompts').delete().eq('id', promptId);
+  const { error: deleteError } = await supabase
+    .from('prompts')
+    .delete()
+    .eq('id', promptId);
 
   if (deleteError) {
     throw new Error(deleteError.message);
@@ -127,12 +143,20 @@ export const deletePromptAction = async (promptId: string) => {
     }
   }
   revalidatePath('/prompts');
+  // Clear cache after deleting a prompt
+  clearAllCache();
   return { ok: true };
 };
 
-export const toggleFavoriteAction = async (promptId: string, value: boolean) => {
+export const toggleFavoriteAction = async (
+  promptId: string,
+  value: boolean
+) => {
   await toggleFavorite(promptId, value);
   revalidatePath('/prompts');
+  // Clear cache for this specific prompt and list
+  clearCacheEntry(`prompt:${promptId}`);
+  clearAllCache();
 };
 
 export const trackPromptUsage = async (promptId: string) => {

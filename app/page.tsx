@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { getSession } from '@/lib/supabaseServer';
+import { getSession } from '@/lib/authUtils';
 
 export const dynamic = 'force-dynamic';
 

@@ -1,9 +1,10 @@
 'use server';
 
 import { redirect } from 'next/navigation';
-import { getSupabaseServerClient } from '@/lib/supabaseServer';
+import { getSupabaseServerClient } from '@/lib/authUtils';
 
-const getSiteUrl = () => process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
+const getSiteUrl = () =>
+  process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
 
 export const requestMagicLink = async (formData: FormData) => {
   const email = String(formData.get('email') ?? '').trim();

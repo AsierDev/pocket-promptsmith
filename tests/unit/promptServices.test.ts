@@ -6,9 +6,10 @@ import {
   incrementUseCount,
   toggleFavorite
 } from '@/features/prompts/services';
-import { getSupabaseServerClient } from '@/lib/supabaseServer';
+import { getSupabaseServerClient } from '@/lib/authUtils';
+import { clearAllCache } from '@/lib/cacheUtils';
 
-vi.mock('@/lib/supabaseServer', () => ({
+vi.mock('@/lib/authUtils', () => ({
   getSupabaseServerClient: vi.fn()
 }));
 
@@ -29,6 +30,7 @@ const makeQuery = () => {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  clearAllCache(); // Clear cache before each test
 });
 
 describe('fetchPrompts', () => {
@@ -51,7 +53,9 @@ describe('fetchPrompts', () => {
     });
 
     const supabase = {
-      auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: 'user-1' } } }) },
+      auth: {
+        getUser: vi.fn().mockResolvedValue({ data: { user: { id: 'user-1' } } })
+      },
       from: vi.fn().mockReturnValue(query)
     };
 
@@ -69,7 +73,9 @@ describe('fetchPrompts', () => {
     expect(query.eq).toHaveBeenCalledWith('user_id', 'user-1');
     expect(query.eq).toHaveBeenCalledWith('is_favorite', true);
     expect(query.contains).toHaveBeenCalledWith('tags', ['demo']);
-    expect(query.or).toHaveBeenCalledWith('title.ilike.%hola%,content.ilike.%hola%');
+    expect(query.or).toHaveBeenCalledWith(
+      'title.ilike.%hola%,content.ilike.%hola%'
+    );
     expect(query.order).toHaveBeenCalledWith('title', { ascending: true });
     expect(query.range).toHaveBeenCalledWith(20, 39);
 
@@ -85,7 +91,9 @@ describe('fetchPromptById', () => {
       from: vi.fn().mockReturnValue({
         select: vi.fn().mockReturnThis(),
         eq: vi.fn().mockReturnThis(),
-        single: vi.fn().mockResolvedValue({ data: { id: '1', title: 'test' }, error: null })
+        single: vi
+          .fn()
+          .mockResolvedValue({ data: { id: '1', title: 'test' }, error: null })
       })
     } as any);
 
@@ -98,11 +106,15 @@ describe('fetchPromptById', () => {
       from: vi.fn().mockReturnValue({
         select: vi.fn().mockReturnThis(),
         eq: vi.fn().mockReturnThis(),
-        single: vi.fn().mockResolvedValue({ data: null, error: { message: 'missing' } })
+        single: vi
+          .fn()
+          .mockResolvedValue({ data: null, error: { message: 'missing' } })
       })
     } as any);
 
-    await expect(fetchPromptById('missing')).rejects.toThrow(/Prompt no encontrado/);
+    await expect(fetchPromptById('missing')).rejects.toThrow(
+      /Prompt no encontrado/
+    );
   });
 });
 
@@ -117,7 +129,9 @@ describe('fetchUserTags', () => {
 
   it('returns tags when rpc succeeds', async () => {
     mockedSupabase.mockResolvedValue({
-      auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: 'user-1' } } }) },
+      auth: {
+        getUser: vi.fn().mockResolvedValue({ data: { user: { id: 'user-1' } } })
+      },
       rpc: vi.fn().mockResolvedValue({ data: ['tag1', 'tag2'], error: null })
     } as any);
 
@@ -127,8 +141,12 @@ describe('fetchUserTags', () => {
   it('logs and returns empty array when rpc fails', async () => {
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     mockedSupabase.mockResolvedValue({
-      auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: 'user-1' } } }) },
-      rpc: vi.fn().mockResolvedValue({ data: null, error: new Error('db error') })
+      auth: {
+        getUser: vi.fn().mockResolvedValue({ data: { user: { id: 'user-1' } } })
+      },
+      rpc: vi
+        .fn()
+        .mockResolvedValue({ data: null, error: new Error('db error') })
     } as any);
 
     expect(await fetchUserTags()).toEqual([]);
