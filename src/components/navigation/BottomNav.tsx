@@ -75,7 +75,7 @@ export function BottomNav() {
   ] as const;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-slate-200 bg-white/95 pb-safe backdrop-blur dark:border-slate-700 dark:bg-slate-900/95 lg:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-slate-200 bg-white/95 pb-safe backdrop-blur dark:border-slate-700 dark:bg-slate-900/95 lg:hidden">
       <div className="flex items-center justify-around py-2 pb-3">
         {navItems.map((item) => (
           <Link

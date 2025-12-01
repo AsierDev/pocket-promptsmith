@@ -55,7 +55,7 @@ export const PwaProvider = () => {
   if (!installBannerVisible || bannerDismissed) return null;
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 max-w-sm rounded-2xl bg-white p-4 shadow-card dark:bg-slate-800">
+    <div className="fixed bottom-4 right-4 z-[60] max-w-sm rounded-2xl bg-white p-4 shadow-card dark:bg-slate-800">
       <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">Instala Pocket Promptsmith</p>
       <p className="mt-1 text-xs text-slate-500 dark:text-slate-300">
         Disfruta del modo offline y acceso rápido desde tu escritorio.

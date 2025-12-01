@@ -24,7 +24,9 @@ export const getSupabaseServerClient = async () => {
                 name,
                 value,
                 ...options,
-                path: options?.path ?? '/'
+                path: options?.path ?? '/',
+                sameSite: (options?.sameSite as 'lax' | 'strict' | 'none') ?? 'lax',
+                secure: process.env.NODE_ENV === 'production',
               });
             });
           } catch {
@@ -67,7 +69,10 @@ export const createSupabaseMiddlewareClient = (request: any, response: any) => {
           name,
           value,
           ...options,
-          path: options?.path ?? '/'
+          path: options?.path ?? '/',
+          sameSite: options?.sameSite ?? 'lax',
+          secure: process.env.NODE_ENV === 'production',
+          maxAge: options?.maxAge ?? 60 * 60 * 24 * 7, // 7 days default
         });
       },
       remove(name: string, options: any) {
@@ -76,7 +81,7 @@ export const createSupabaseMiddlewareClient = (request: any, response: any) => {
           value: '',
           ...options,
           maxAge: 0,
-          path: options?.path ?? '/'
+          path: options?.path ?? '/',
         });
       }
     }
