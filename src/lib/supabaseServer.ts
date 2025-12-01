@@ -1,77 +1,23 @@
-import { cookies } from "next/headers";
-import { createServerClient } from "@supabase/ssr";
-import type { PostgrestError, SupabaseClient } from "@supabase/supabase-js";
-import type { Database, ProfileRow } from "@/types/supabase";
-import { env } from "@/lib/env";
-
-export const getSupabaseServerClient = async () => {
-  const cookieStore = await cookies();
-
-  return createServerClient<Database, "public">(
-    env.supabaseUrl,
-    env.supabaseAnonKey,
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll();
-        },
-        setAll(cookiesToSet) {
-          // In Server Components, we cannot set cookies.
-          // Cookie updates (session refresh) should be handled by middleware.
-          // This is a no-op to prevent "Cookies can only be modified in a Server Action" errors.
-          try {
-            cookiesToSet.forEach(({ name, value, options }) => {
-              cookieStore.set({
-                name,
-                value,
-                ...options,
-                path: options?.path ?? "/",
-              });
-            });
-          } catch {
-            // Silently fail - this is expected in Server Components
-          }
-        },
-      },
-    }
-  );
-};
-
-export const getSession = async () => {
-  const supabase = await getSupabaseServerClient();
-  // Use getUser() instead of getSession() in Server Components to avoid
-  // attempting to refresh the session and set cookies, which causes errors.
-  const { data, error } = await supabase.auth.getUser();
-  if (error || !data.user) {
-    return null;
-  }
-  
-  // Return a minimal session-like object with the user
-  // This maintains compatibility with code that checks for session.user
-  return {
-    user: data.user,
-    access_token: '', // Not available via getUser
-    refresh_token: '', // Not available via getUser
-    expires_in: 0,
-    expires_at: 0,
-  };
-};
+import type { PostgrestError, SupabaseClient } from '@supabase/supabase-js';
+import type { Database, ProfileRow } from '@/types/supabase';
+import { getSupabaseServerClient, getSession } from '@/lib/authUtils';
+import { shouldResetDaily } from '@/lib/dateUtils';
 
 const isNotFoundError = (error: PostgrestError | null) =>
-  error?.code === "PGRST116";
+  error?.code === 'PGRST116';
 
 const fetchProfile = async (): Promise<ProfileRow | null> => {
   const supabase = await getSupabaseServerClient();
   const {
-    data: { user },
+    data: { user }
   } = await supabase.auth.getUser();
 
   if (!user) return null;
 
   const { data, error } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", user.id)
+    .from('profiles')
+    .select('*')
+    .eq('id', user.id)
     .single();
 
   if (data) {
@@ -79,26 +25,26 @@ const fetchProfile = async (): Promise<ProfileRow | null> => {
   }
 
   if (error && !isNotFoundError(error)) {
-    console.error("Error fetching profile", error);
-    throw new Error("No se pudo obtener tu perfil.");
+    console.error('Error fetching profile', error);
+    throw new Error('Could not fetch your profile.');
   }
 
   const { data: created, error: insertError } = await supabase
-    .from("profiles")
+    .from('profiles')
     .insert({
       id: user.id,
-      email: user.email ?? "",
-      plan: "free",
+      email: user.email ?? '',
+      plan: 'free',
       prompt_quota_used: 0,
       improvements_used_today: 0,
-      improvements_reset_at: new Date().toISOString(),
+      improvements_reset_at: new Date().toISOString()
     })
-    .select("*")
+    .select('*')
     .single();
 
   if (insertError) {
-    console.error("Error creating profile", insertError);
-    throw new Error("No se pudo inicializar tu perfil.");
+    console.error('Error creating profile', insertError);
+    throw new Error('Could not initialize your profile.');
   }
 
   return created ?? null;
@@ -110,20 +56,20 @@ const maybeResetDailyImprovements = async (
   supabase: SupabaseClient<Database>,
   profile: ProfileRow
 ): Promise<ProfileRow> => {
-  if (!shouldResetImprovements(profile.improvements_reset_at)) {
+  if (!shouldResetDaily(profile.improvements_reset_at)) {
     return profile;
   }
 
   // Use type assertion to bypass TypeScript inference issue
   const { data, error } = await (supabase as any).rpc(
-    "reset_daily_improvements",
+    'reset_daily_improvements',
     {
-      target_user_id: profile.id,
+      target_user_id: profile.id
     }
   );
 
   if (error) {
-    console.error("Error resetting improvements quota", error);
+    console.error('Error resetting improvements quota', error);
     return profile;
   }
 
@@ -131,18 +77,7 @@ const maybeResetDailyImprovements = async (
     data ?? {
       ...profile,
       improvements_used_today: 0,
-      improvements_reset_at: new Date().toISOString(),
+      improvements_reset_at: new Date().toISOString()
     }
-  );
-};
-const shouldResetImprovements = (lastResetAt: string | null) => {
-  if (!lastResetAt) return true;
-  const lastResetDate = new Date(lastResetAt);
-  if (Number.isNaN(lastResetDate.getTime())) return true;
-  const now = new Date();
-  return (
-    lastResetDate.getUTCFullYear() !== now.getUTCFullYear() ||
-    lastResetDate.getUTCMonth() !== now.getUTCMonth() ||
-    lastResetDate.getUTCDate() !== now.getUTCDate()
   );
 };
