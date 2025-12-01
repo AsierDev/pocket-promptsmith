@@ -153,6 +153,9 @@ dist
 *~
 .kilocode/
 
+# AI Assistant files
+.agent/
+
 # OS
 .DS_Store
 .DS_Store?
@@ -204,3 +207,5 @@ tsconfig.tsbuildinfo
 # Temporary files
 *.tmp
 *.temp
+.vercel
+.env*.local

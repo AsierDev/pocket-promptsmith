@@ -3,11 +3,23 @@ import type { NextConfig } from 'next';
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   typedRoutes: true,
+  compress: true, // Habilitar compresión gzip
+  poweredByHeader: false, // Ocultar header "Powered by Next.js"
+  
   experimental: {
     serverActions: {
       bodySizeLimit: '2mb'
-    }
+    },
+    // optimizeCss: true, // Desactivado por precaución con Tailwind
   },
+  
+  // Optimización de imágenes
+  images: {
+    formats: ['image/webp', 'image/avif'],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+  },
+  
   async headers() {
     return [
       {
@@ -42,6 +54,20 @@ const nextConfig: NextConfig = {
           {
             key: 'Permissions-Policy',
             value: 'camera=(), microphone=(), geolocation=()'
+          },
+          // Headers de cache para assets estáticos
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable'
+          }
+        ]
+      },
+      {
+        source: '/api/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 's-maxage=86400'
           }
         ]
       }
