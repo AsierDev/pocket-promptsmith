@@ -7,9 +7,12 @@ export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get('code');
 
+  console.log('[AUTH CALLBACK] URL:', requestUrl.href);
+  console.log('[AUTH CALLBACK] Code present:', !!code);
+
   if (!code) {
-    console.log('[AUTH CALLBACK] No code, redirecting to dashboard');
-    return NextResponse.redirect(new URL('/prompts/dashboard', requestUrl.origin));
+    console.error('[AUTH CALLBACK] NO CODE in URL - cannot authenticate');
+    return NextResponse.redirect(new URL('/login?error=no_code', requestUrl.origin));
   }
 
   try {
@@ -40,16 +43,17 @@ export async function GET(request: Request) {
       }
     );
 
+    console.log('[AUTH CALLBACK] Exchanging code for session...');
     const { data, error } = await supabase.auth.exchangeCodeForSession(code);
     
     if (error) {
-      console.error('[AUTH CALLBACK] Error:', error.message);
+      console.error('[AUTH CALLBACK] Exchange error:', error.message);
       return NextResponse.redirect(new URL('/login?error=auth_failed', requestUrl.origin));
     }
 
-    console.log('[AUTH CALLBACK] Session OK for:', data.user?.email);
+    console.log('[AUTH CALLBACK] ✅ Session established for:', data.user?.email);
 
-    // Return HTML that will redirect client-side AFTER cookies are set
+    // Return HTML for client-side redirect to ensure cookies are set
     return new NextResponse(
       `<!DOCTYPE html>
       <html>
@@ -73,4 +77,5 @@ export async function GET(request: Request) {
     return NextResponse.redirect(new URL('/login?error=unexpected', requestUrl.origin));
   }
 }
+
 
