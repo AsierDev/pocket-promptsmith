@@ -1,10 +1,11 @@
 import { createServerClient } from '@supabase/ssr';
 import type { Database } from '@/types/supabase';
 import { env } from '@/lib/env';
-import { cookies } from 'next/headers';
 import { getSessionFromLocalStorage } from './pwaSessionStorage';
 
 export const getSupabaseServerClient = async () => {
+  // Dynamic import to avoid client-side bundling issues
+  const { cookies } = await import('next/headers');
   const cookieStore = await cookies();
 
   return createServerClient<Database, 'public'>(
@@ -65,7 +66,7 @@ export const getSession = async () => {
     window.matchMedia('(display-mode: standalone)').matches
   ) {
     // In PWA mode, try to get session from localStorage
-    const localSession = getSessionFromLocalStorage();
+    const localSession = await getSessionFromLocalStorage();
 
     if (localSession?.isValid && localSession?.isRecent) {
       // Try to refresh the session using the stored tokens

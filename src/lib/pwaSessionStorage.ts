@@ -46,11 +46,11 @@ export const storeSessionInLocalStorage = async (sessionData: {
 /**
  * Retrieve session from localStorage with validation
  */
-export const getSessionFromLocalStorage = (): {
+export const getSessionFromLocalStorage = async (): Promise<{
   session: any;
   isValid: boolean;
   isRecent: boolean;
-} | null => {
+} | null> => {
   if (typeof window === 'undefined') {
     return null;
   }
@@ -88,7 +88,7 @@ export const getSessionFromLocalStorage = (): {
 /**
  * Clear session from localStorage
  */
-export const clearSessionFromLocalStorage = () => {
+export const clearSessionFromLocalStorage = async () => {
   if (typeof window !== 'undefined') {
     try {
       localStorage.removeItem(SESSION_STORAGE_KEY);
@@ -123,7 +123,7 @@ export const getHybridSession = async () => {
     }
 
     // If no cookie session, check localStorage for PWA persistence
-    const localSession = getSessionFromLocalStorage();
+    const localSession = await getSessionFromLocalStorage();
 
     if (localSession?.isValid && localSession?.isRecent) {
       // Try to refresh the session using the stored tokens
@@ -159,7 +159,7 @@ export const getHybridSession = async () => {
 /**
  * Update last active timestamp to keep session alive
  */
-export const updateLastActiveTimestamp = () => {
+export const updateLastActiveTimestamp = async () => {
   if (typeof window !== 'undefined') {
     try {
       localStorage.setItem(LAST_ACTIVE_KEY, Date.now().toString());

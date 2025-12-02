@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/components/common/Button';
 import { useUiStore } from '@/store/uiStore';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
-import { getSupabaseServerClient } from '@/lib/authUtils';
 
 export const PwaProvider = () => {
   const [deferredPrompt, setDeferredPrompt] = useState<Event | null>(null);
@@ -29,6 +28,10 @@ export const PwaProvider = () => {
             // Get current session and store it
             const storeCurrentSession = async () => {
               try {
+                // Import dynamically to avoid server-side issues
+                const { getSupabaseServerClient } = await import(
+                  '@/lib/authUtils'
+                );
                 const supabase = await getSupabaseServerClient();
                 const { data } = await supabase.auth.getSession();
 
@@ -59,7 +62,7 @@ export const PwaProvider = () => {
           }
         })
         .catch((error) => {
-          console.error('[DEBUG PWA] SW registration failed', error);
+          console.error('SW registration failed', error);
         });
     }
   }, []);
