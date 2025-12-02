@@ -14,14 +14,14 @@ async function generateIcons() {
     .resize(192, 192)
     .png()
     .toFile(path.join(outputDir, 'icon-192.png'));
-  console.log('✓ Generated icon-192.png');
+  console.info('✓ Generated icon-192.png');
 
   // Icon 512x512
   await sharp(svgBuffer)
     .resize(512, 512)
     .png()
     .toFile(path.join(outputDir, 'icon-512.png'));
-  console.log('✓ Generated icon-512.png');
+  console.info('✓ Generated icon-512.png');
 
   // Maskable icon 512x512 (con padding para safe zone)
   // Android requiere ~20% de padding para maskable icons
@@ -40,9 +40,9 @@ async function generateIcons() {
     })
     .png()
     .toFile(path.join(outputDir, 'icon-maskable-512.png'));
-  console.log('✓ Generated icon-maskable-512.png');
+  console.info('✓ Generated icon-maskable-512.png');
 
-  console.log('\n✅ All icons generated successfully!');
+  console.info('\n✅ All icons generated successfully!');
 }
 
 generateIcons().catch(console.error);

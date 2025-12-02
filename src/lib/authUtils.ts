@@ -40,23 +40,19 @@ export const getSupabaseServerClient = async () => {
 };
 
 export const getSession = async () => {
-  console.log('[DEBUG] getSession: Iniciando verificación de sesión');
   const supabase = await getSupabaseServerClient();
   // Use getUser() instead of getSession() in Server Components to avoid
   // attempting to refresh the session and set cookies, which causes errors.
   const { data, error } = await supabase.auth.getUser();
 
   if (error) {
-    console.log('[DEBUG] getSession: Error al obtener usuario', error);
     return null;
   }
 
   if (!data.user) {
-    console.log('[DEBUG] getSession: No se encontró usuario autenticado');
     return null;
   }
 
-  console.log('[DEBUG] getSession: Usuario encontrado', data.user.email);
   // Returns a minimalist session-like object with the user
   // This maintains compatibility with code that checks session.user
   return {

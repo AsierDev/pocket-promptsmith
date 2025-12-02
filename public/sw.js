@@ -41,8 +41,6 @@ self.addEventListener('fetch', (event) => {
   
   // Debug logging for requests to /prompts paths
   if (url.pathname.startsWith('/prompts')) {
-    console.log('[DEBUG SW] Fetch event for /prompts path:', url.pathname);
-    console.log('[DEBUG SW] Should handle request:', shouldHandleRequest(event.request, url));
   }
 
   if (!shouldHandleRequest(event.request, url)) return;
@@ -55,7 +53,6 @@ function shouldHandleRequest(request, url) {
 
   // Always allow network requests for /prompts paths to ensure fresh session data
   if (isSameOrigin && url.pathname.startsWith('/prompts')) {
-    console.log('[DEBUG SW] Allowing network request for /prompts path:', url.pathname);
     return false; // Don't handle with SW, let it go to network
   }
 
@@ -76,13 +73,10 @@ async function handleStaticRequest(request) {
   const url = new URL(request.url);
 
   if (url.pathname.startsWith('/prompts')) {
-    console.log('[DEBUG SW] Handling request for:', url.pathname);
-    console.log('[DEBUG SW] Cached response exists:', !!cachedResponse);
   }
 
   if (cachedResponse) {
     if (url.pathname.startsWith('/prompts')) {
-      console.log('[DEBUG SW] Serving cached response for:', url.pathname);
     }
     return cachedResponse;
   }
@@ -93,7 +87,6 @@ async function handleStaticRequest(request) {
       await cache.put(request, networkResponse.clone());
     }
     if (url.pathname.startsWith('/prompts')) {
-      console.log('[DEBUG SW] Serving network response for:', url.pathname);
     }
     return networkResponse;
   } catch (error) {

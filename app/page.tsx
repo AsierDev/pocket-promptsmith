@@ -23,9 +23,7 @@ const featureCards = [
 ];
 
 export default async function LandingPage() {
-  console.log('[DEBUG LandingPage] Verificando sesión en página principal');
   const session = await getSession();
-  console.log('[DEBUG LandingPage] Sesión encontrada:', !!session);
   const headerCtaHref = session ? '/prompts' : '/login';
   const headerCtaLabel = session ? 'Dashboard' : 'Entrar';
   const heroCtaHref = session ? '/prompts' : '/login';

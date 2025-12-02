@@ -22,12 +22,7 @@ export const PwaProvider = () => {
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker
         .register('/sw.js')
-        .then((registration) => {
-          console.log(
-            '[DEBUG PWA] Service Worker registered successfully:',
-            registration
-          );
-        })
+        .then((registration) => {})
         .catch((error) => {
           console.error('[DEBUG PWA] SW registration failed', error);
         });

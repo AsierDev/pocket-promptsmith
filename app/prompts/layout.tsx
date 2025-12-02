@@ -14,21 +14,11 @@ export default async function PromptsLayout({
 }: {
   children: React.ReactNode;
 }) {
-  console.log(
-    '[DEBUG] PromptsLayout: Verificando sesión para layout de prompts'
-  );
   const session = await getSession();
 
   if (!session) {
-    console.log(
-      '[DEBUG] PromptsLayout: Sesión no encontrada, redirigiendo a /login'
-    );
     redirect('/login');
   }
-
-  console.log(
-    '[DEBUG] PromptsLayout: Sesión encontrada, continuando con el layout'
-  );
 
   const profile = await getProfile();
   const userEmail = profile?.email ?? session.user?.email ?? '';
