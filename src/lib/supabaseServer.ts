@@ -14,40 +14,106 @@ const fetchProfile = async (): Promise<ProfileRow | null> => {
 
   if (!user) return null;
 
-  const { data, error } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', user.id)
-    .single();
+  // Use transaction-based approach to prevent race conditions
+  try {
+    // First attempt: try to fetch existing profile
+    const { data: existingProfile, error: fetchError } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .single();
 
-  if (data) {
-    return maybeResetDailyImprovements(supabase, data);
+    if (existingProfile) {
+      return maybeResetDailyImprovements(supabase, existingProfile);
+    }
+
+    if (fetchError && !isNotFoundError(fetchError)) {
+      console.error('Unexpected error fetching profile:', fetchError);
+      throw new Error('Could not verify profile existence');
+    }
+
+    // If no profile exists, use upsert to prevent race conditions
+    const { data: profile, error: upsertError } = await supabase
+      .from('profiles')
+      .upsert({
+        id: user.id,
+        email: user.email ?? '',
+        plan: 'free',
+        prompt_quota_used: 0,
+        improvements_used_today: 0,
+        improvements_reset_at: new Date().toISOString()
+      })
+      .select('*')
+      .single();
+
+    if (upsertError) {
+      console.error('Error in profile upsert operation:', upsertError);
+      throw new Error(
+        `Could not create or retrieve your profile: ${upsertError.message}`
+      );
+    }
+
+    return maybeResetDailyImprovements(supabase, profile);
+  } catch (error) {
+    console.error('Critical error in profile handling:', error);
+    // Fallback to retry mechanism if upsert fails
+    const fallbackProfile = await fetchProfileWithRetry(supabase, user.id);
+    if (fallbackProfile) {
+      return maybeResetDailyImprovements(supabase, fallbackProfile);
+    }
+    throw new Error(
+      'Failed to initialize your profile after multiple attempts'
+    );
+  }
+};
+
+const fetchProfileWithRetry = async (
+  supabase: SupabaseClient<Database>,
+  userId: string,
+  maxRetries = 3,
+  retryDelay = 100
+): Promise<ProfileRow | null> => {
+  let lastError: PostgrestError | null = null;
+
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+
+      if (data) {
+        return data;
+      }
+
+      if (error && !isNotFoundError(error)) {
+        lastError = error;
+        console.error(`Attempt ${attempt}: Error fetching profile`, error);
+      }
+
+      // Wait before retrying to allow database consistency
+      if (attempt < maxRetries) {
+        await new Promise((resolve) => setTimeout(resolve, retryDelay));
+        retryDelay *= 2; // Exponential backoff
+      }
+    } catch (error) {
+      lastError = error as PostgrestError;
+      console.error(
+        `Attempt ${attempt}: Unexpected error fetching profile`,
+        error
+      );
+      if (attempt < maxRetries) {
+        await new Promise((resolve) => setTimeout(resolve, retryDelay));
+        retryDelay *= 2; // Exponential backoff
+      }
+    }
   }
 
-  if (error && !isNotFoundError(error)) {
-    console.error('Error fetching profile', error);
-    throw new Error('Could not fetch your profile.');
+  if (lastError) {
+    console.error('Max retries reached. Last error:', lastError);
   }
-
-  const { data: created, error: insertError } = await supabase
-    .from('profiles')
-    .insert({
-      id: user.id,
-      email: user.email ?? '',
-      plan: 'free',
-      prompt_quota_used: 0,
-      improvements_used_today: 0,
-      improvements_reset_at: new Date().toISOString()
-    })
-    .select('*')
-    .single();
-
-  if (insertError) {
-    console.error('Error creating profile', insertError);
-    throw new Error('Could not initialize your profile.');
-  }
-
-  return created ?? null;
+  return null;
 };
 
 export const getProfile = fetchProfile;

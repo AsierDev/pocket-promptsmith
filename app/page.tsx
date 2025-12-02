@@ -132,9 +132,9 @@ export default async function LandingPage() {
           <ul className="space-y-4 text-sm text-slate-600">
             <li className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
               <strong className="text-slate-900">
-                1. Envía un magic link.
+                1. Inicia sesión con email y contraseña.
               </strong>{' '}
-              Recibe el enlace, haz clic y llegarás directo al dashboard
+              Ingresa tus credenciales y accede directamente al dashboard
               protegido.
             </li>
             <li className="rounded-2xl border border-slate-100 bg-slate-50 p-4">

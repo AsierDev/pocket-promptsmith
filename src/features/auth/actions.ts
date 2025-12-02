@@ -3,29 +3,50 @@
 import { redirect } from 'next/navigation';
 import { getSupabaseServerClient } from '@/lib/authUtils';
 
-const getSiteUrl = () =>
-  process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
-
-export const requestMagicLink = async (formData: FormData) => {
+export const signIn = async (formData: FormData) => {
   const email = String(formData.get('email') ?? '').trim();
+  const password = String(formData.get('password') ?? '').trim();
 
-  if (!email) {
-    throw new Error('El email es obligatorio');
+  if (!email || !password) {
+    throw new Error('Email y contraseña son obligatorios');
   }
 
   const supabase = await getSupabaseServerClient();
-  const { error } = await supabase.auth.signInWithOtp({
+  const { error } = await supabase.auth.signInWithPassword({
     email,
-    options: {
-      emailRedirectTo: `${getSiteUrl()}/auth/callback`
-    }
+    password,
   });
 
   if (error) {
     throw new Error(error.message);
   }
 
-  return { ok: true };
+  redirect('/prompts/dashboard');
+};
+
+export const signUp = async (formData: FormData) => {
+  const email = String(formData.get('email') ?? '').trim();
+  const password = String(formData.get('password') ?? '').trim();
+
+  if (!email || !password) {
+    throw new Error('Email y contraseña son obligatorios');
+  }
+
+  if (password.length < 6) {
+    throw new Error('La contraseña debe tener al menos 6 caracteres');
+  }
+
+  const supabase = await getSupabaseServerClient();
+  const { error } = await supabase.auth.signUp({
+    email,
+    password,
+  });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  redirect('/prompts/dashboard');
 };
 
 export const signOut = async () => {

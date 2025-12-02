@@ -13,9 +13,9 @@ Pocket Promptsmith is a feature-rich PWA built with **Next.js 16 (App Router + R
 
 ## 🚀 Features
 
-- **🔐 Magic Link Authentication** - Secure login with Supabase Auth
-- **📝 Prompt Management** - Create, edit, and organize prompts with categories, tags, and a short “Objetivo” summary
-- **🤖 AI-Powered Improvements** - Enhance prompts using OpenRouter API with a premium (5/día) + free fallback model chain and a dedicated “texto a mejorar” field (4k chars) que evita enviar todo el prompt cuando es muy largo
+- **🔐 Email + Password Authentication** - Secure login with Supabase Auth
+- **📝 Prompt Management** - Create, edit, and organize prompts with categories, tags, and a short "Objective" summary
+- **🤖 AI-Powered Improvements** - Enhance prompts using OpenRouter API with a premium (5/day) + free fallback model chain and a dedicated "text to improve" field (4k chars) that avoids sending the entire prompt when it's too long
 - **🔢 Dynamic Variables** - Extract and replace variables like `{{variable}}` in prompts
 - **📱 Progressive Web App** - Installable app with offline capabilities
 - **♿ Freemium Model** - 10 prompts limit, 5 AI improvements per day
@@ -65,7 +65,7 @@ Pocket-Promptsmith/
 ├── app/                          # Next.js 16 App Router
 │   ├── layout.tsx               # Global metadata + providers
 │   ├── page.tsx                 # Public landing page
-│   ├── login/                   # Magic link authentication
+│   ├── login/                   # Email + password authentication
 │   ├── auth/callback/           # Supabase session exchange
 │   ├── prompts/                 # Protected dashboard
 │   │   ├── layout.tsx           # Protected layout with daily reset
@@ -182,7 +182,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 
-# OpenRouter AI Configuration (Required for AI features; env validator exige valor)
+# OpenRouter AI Configuration (Required for AI features; env validator requires value)
 OPENROUTER_API_KEY=your-openrouter-api-key
 OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
 
@@ -190,11 +190,12 @@ OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
 NODE_ENV=development
 ```
 
-> **Security Notes**  
-> - `src/lib/env.ts` valida en frío con Zod y es solo server-side; si faltan claves, la app falla en arranque.  
-> - No importes `env` en componentes `use client`; los clientes web deben depender solo de `NEXT_PUBLIC_*`.  
-> - Para CI/tests puedes usar valores dummy (`NEXT_PUBLIC_SUPABASE_URL=http://localhost:54321`, `NEXT_PUBLIC_SUPABASE_ANON_KEY=anon`, `OPENROUTER_API_KEY=dummy`).  
-> - El service role key se usa solo desde CLI para migraciones; nunca lo compartas ni lo despliegues al frontend.
+> **Security Notes**
+>
+> - `src/lib/env.ts` validates with Zod and is server-side only; if keys are missing, the app fails on startup.
+> - Don't import `env` in `use client` components; web clients should only depend on `NEXT_PUBLIC_*`.
+> - For CI/tests you can use dummy values (`NEXT_PUBLIC_SUPABASE_URL=http://localhost:54321`, `NEXT_PUBLIC_SUPABASE_ANON_KEY=anon`, `OPENROUTER_API_KEY=dummy`).
+> - The service role key is used only from CLI for migrations; never share it or deploy it to the frontend.
 
 ## 🗄️ Database Setup
 
@@ -207,7 +208,7 @@ supabase db push
 This command will create all necessary tables, RLS policies, and PostgreSQL functions:
 
 - `profiles` - User profiles and limits tracking
-- `prompts` - Prompt storage with metadata; incluye `ai_improvement_source` (nullable) para guardar solo el fragmento usado en mejoras de IA
+- `prompts` - Prompt storage with metadata; includes `ai_improvement_source` (nullable) to save only the fragment used in AI improvements
 - `prompt_improvements` - AI improvement history
 - **PostgreSQL Functions:**
   - `get_user_tags()` - Fetch user tags efficiently
@@ -224,17 +225,17 @@ If you prefer manual setup, execute the SQL commands from `supabase/schema.sql` 
 
 ### Available Scripts
 
-| Command                    | Description                             |
-| -------------------------- | --------------------------------------- |
-| `npm run dev`              | Start development server with Turbopack |
-| `npm run build`            | Create production build                 |
-| `npm run start`            | Start production server                 |
-| `npm run lint`             | Run ESLint with Next.js configuration   |
-| `npm run test`             | Run Vitest unit tests                   |
-| `npm run test:watch`       | Run Vitest in watch mode                |
-| `npm run test:integration` | Run Playwright E2E tests                |
-| `npm run type-check`       | Run TypeScript type checking            |
-| `npm run build -- --webpack`| Production build usando Webpack (útil en entornos donde Turbopack está restringido) |
+| Command                      | Description                                                                           |
+| ---------------------------- | ------------------------------------------------------------------------------------- |
+| `npm run dev`                | Start development server with Turbopack                                               |
+| `npm run build`              | Create production build                                                               |
+| `npm run start`              | Start production server                                                               |
+| `npm run lint`               | Run ESLint with Next.js configuration                                                 |
+| `npm run test`               | Run Vitest unit tests                                                                 |
+| `npm run test:watch`         | Run Vitest in watch mode                                                              |
+| `npm run test:integration`   | Run Playwright E2E tests                                                              |
+| `npm run type-check`         | Run TypeScript type checking                                                          |
+| `npm run build -- --webpack` | Production build using Webpack (useful in environments where Turbopack is restricted) |
 
 ### Development Workflow
 
@@ -257,7 +258,7 @@ If you prefer manual setup, execute the SQL commands from `supabase/schema.sql` 
 {
   content: string;
   goal?: string;
-  category: "Escritura" | "Código" | "Marketing" | "Análisis" | "Creatividad" | "Educación" | "Otros";
+  category: "Writing" | "Code" | "Marketing" | "Analysis" | "Creativity" | "Education" | "Other";
   temperature?: number; // 0..1
   length?: "short" | "medium" | "long";
 }
@@ -340,11 +341,11 @@ npm run test:watch
 npm run test:coverage
 ```
 
-**Cobertura y entorno**:
+**Coverage and environment**:
 
-- `vitest.config.ts` inyecta valores dummy para `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `OPENROUTER_API_KEY` y `OPENROUTER_BASE_URL`, por lo que no necesitas secretos reales para ejecutar pruebas.
-- `npm run test:coverage` usa `@vitest/coverage-v8` y limita el target a `src/**/*` (excluyendo UI pesada/PWA) para tener un informe accionable. El resultado se guarda en `coverage/index.html` y actualmente ronda el **66 % de statements cubiertos**.
-- Los nuevos suites cubren lógica de prompts (`tests/unit/promptServices.test.ts`), stores (`premiumUsageStore`, `uiStore`), helpers de IA y validadores de entorno, además de los tests existentes de formularios, límites, etc.
+- `vitest.config.ts` injects dummy values for `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `OPENROUTER_API_KEY` and `OPENROUTER_BASE_URL`, so you don't need real secrets to run tests.
+- `npm run test:coverage` uses `@vitest/coverage-v8` and limits target to `src/**/*` (excluding heavy UI/PWA) to have an actionable report. The result is saved in `coverage/index.html` and currently covers **66% of statements**.
+- The new suites cover prompt logic (`tests/unit/promptServices.test.ts`), stores (`premiumUsageStore`, `uiStore`), AI helpers and environment validators, in addition to existing form, limits, etc. tests.
 
 ### Integration Tests (Playwright)
 
@@ -352,25 +353,25 @@ npm run test:coverage
 # Install Playwright browsers once (local only)
 npx playwright install --with-deps
 
-# Run E2E tests (Playwright arranca Next.js automáticamente)
+# Run E2E tests (Playwright starts Next.js automatically)
 npm run test:integration
 ```
 
 **Test Suites**:
 
-- `auth.spec.ts` - Renderiza el formulario de magic link y valida errores
-- `prompts.spec.ts` - Asegura que el dashboard redirige a `/login` sin sesión
-- `ai.spec.ts` - Golpea `POST /api/ai-improve` sin sesión y visita `/prompts/new` para comprobar el guard
-- `variables.spec.ts` - Smoke test de la landing y contenido de variables
+- `auth.spec.ts` - Renders email + password form and validates errors
+- `prompts.spec.ts` - Ensures dashboard redirects to `/login` without session
+- `ai.spec.ts` - Hits `POST /api/ai-improve` without session and visits `/prompts/new` to check saving
+- `variables.spec.ts` - Smoke test of landing and variable content
 
-> `playwright.config.ts` define `webServer` con `npm run dev -- --hostname 127.0.0.1 --port 3000`, por lo que la suite levanta y derriba Next.js automáticamente durante la tubería (no hace falta un `npm run dev` paralelo). También fija los mismos valores dummy de entorno que usa Vitest.
+> `playwright.config.ts` defines `webServer` with `npm run dev -- --hostname 127.0.0.1 --port 3000`, so the suite starts and stops Next.js automatically during the pipeline (no need for a parallel `npm run dev`). It also sets the same dummy environment values that Vitest uses.
 
 ## 🔁 Continuous Integration
 
-- La acción [`ci.yml`](.github/workflows/ci.yml) se ejecuta en cada push a `main/master` y en todos los Pull Requests.
-- Pasos clave: `npm ci`, `npm run lint`, `npm run test`, `npm run test:coverage`, instalación de navegadores Playwright (`npx playwright install --with-deps`) y `npm run test:integration`.
-- Todas las tareas se ejecutan con Node 20 sobre Ubuntu y reutilizan los valores dummy para Supabase/OpenRouter, así los workflows no dependen de secretos sensibles.
-- Si necesitas inspeccionar los reportes de cobertura generados en CI, puedes añadir `actions/upload-artifact` apuntando a `coverage/` (el flujo está preparado para ello).
+- The [`ci.yml`](.github/workflows/ci.yml) action runs on every push to `main/master` and on all Pull Requests.
+- Key steps: `npm ci`, `npm run lint`, `npm run test`, `npm run test:coverage`, Playwright browser installation (`npx playwright install --with-deps`) and `npm run test:integration`.
+- All tasks run on Node 20 on Ubuntu and reuse dummy values for Supabase/OpenRouter, so workflows don't depend on sensitive secrets.
+- If you need to inspect coverage reports generated in CI, you can add `actions/upload-artifact` pointing to `coverage/` (the flow is prepared for it).
 
 ## 🚀 Deployment
 
@@ -508,7 +509,7 @@ We welcome contributions! Please follow these guidelines:
 
 ### Development Process
 
-1. **Fork the repository**
+1. **Fork repository**
 2. **Create a feature branch**: `git checkout -b feature/amazing-feature`
 3. **Make your changes**
 4. **Run tests**: `npm run test && npm run lint`
