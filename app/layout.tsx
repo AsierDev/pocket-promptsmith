@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { AppProviders } from '@/components/common/Providers';
 import { PwaProvider } from '@/features/pwa/PwaProvider';
+import { SessionHydration } from '@/components/SessionHydration';
 import { Suspense } from 'react';
 
 export const metadata: Metadata = {
@@ -28,7 +29,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Suspense fallback={null}>
           <AppProviders>
             <PwaProvider />
-            {children}
+            <SessionHydration>
+              {children}
+            </SessionHydration>
           </AppProviders>
         </Suspense>
       </body>

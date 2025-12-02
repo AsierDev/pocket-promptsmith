@@ -35,13 +35,31 @@ export default function SignupPage() {
       const formData = new FormData();
       formData.append('email', values.email);
       formData.append('password', values.password);
-      await signUp(formData);
-    } catch (error) {
-      if ((error as Error).message === 'NEXT_REDIRECT') {
-        throw error;
+      
+      const sessionData = await signUp(formData);
+      
+      // Store session in localStorage for PWA persistence
+      if (sessionData) {
+        try {
+          // eslint-disable-next-line react-hooks/purity
+          const now = Date.now();
+          const sessionWithMetadata = {
+            ...sessionData,
+            storedAt: now,
+            source: 'pwa_session'
+          };
+          localStorage.setItem('pps_session_data', JSON.stringify(sessionWithMetadata));
+          localStorage.setItem('pps_last_active_timestamp', now.toString());
+        } catch (storageError) {
+          console.error('Failed to store session in localStorage:', storageError);
+          // Continue anyway - cookies should work
+        }
       }
+      
+      // Client-side redirect after storing session
+      window.location.replace('/prompts/dashboard');
+    } catch (error) {
       toast.error((error as Error).message);
-    } finally {
       setLoading(false);
     }
   };

@@ -1,7 +1,6 @@
 import { createServerClient } from '@supabase/ssr';
 import type { Database } from '@/types/supabase';
 import { env } from '@/lib/env';
-import { getSessionFromLocalStorage } from './pwaSessionStorage';
 
 export const getSupabaseServerClient = async () => {
   // Dynamic import to avoid client-side bundling issues
@@ -44,11 +43,11 @@ export const getSupabaseServerClient = async () => {
 export const getSession = async () => {
   const supabase = await getSupabaseServerClient();
 
-  // First try standard cookie-based authentication
+  // Server-side session check via cookies
+  // PWA session hydration from localStorage is now handled by useSessionHydration hook
   const { data, error } = await supabase.auth.getUser();
 
   if (data?.user) {
-    // Session found via cookies - this is the ideal case
     return {
       user: data.user,
       access_token: '', // Not available via getUser
@@ -59,47 +58,7 @@ export const getSession = async () => {
     };
   }
 
-  // If no cookie session, this might be a PWA launch scenario
-  // Check if we're in a PWA context and try hybrid approach
-  if (
-    typeof window !== 'undefined' &&
-    window.matchMedia('(display-mode: standalone)').matches
-  ) {
-    // In PWA mode, try to get session from localStorage
-    const localSession = await getSessionFromLocalStorage();
-
-    if (localSession?.isValid && localSession?.isRecent) {
-      // Try to refresh the session using the stored tokens
-      try {
-        const { data: refreshedData, error: refreshError } =
-          await supabase.auth.setSession({
-            access_token: localSession.session.accessToken,
-            refresh_token: localSession.session.refreshToken
-          });
-
-        if (refreshedData?.user) {
-          // Successfully refreshed session from localStorage
-          return {
-            user: refreshedData.user,
-            access_token: localSession.session.accessToken,
-            refresh_token: localSession.session.refreshToken,
-            expires_in: Math.floor(
-              (localSession.session.expiresAt - Date.now()) / 1000
-            ),
-            expires_at: localSession.session.expiresAt,
-            source: 'localStorage_refreshed'
-          };
-        }
-      } catch (refreshError) {
-        console.error(
-          'Failed to refresh session from localStorage:',
-          refreshError
-        );
-      }
-    }
-  }
-
-  // If we reach here, no valid session was found
+  // No valid session found
   return null;
 };
 
