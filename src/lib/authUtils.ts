@@ -2,6 +2,7 @@ import { createServerClient } from '@supabase/ssr';
 import type { Database } from '@/types/supabase';
 import { env } from '@/lib/env';
 import { cookies } from 'next/headers';
+import { getSessionFromLocalStorage } from './pwaSessionStorage';
 
 export const getSupabaseServerClient = async () => {
   const cookieStore = await cookies();
@@ -41,27 +42,64 @@ export const getSupabaseServerClient = async () => {
 
 export const getSession = async () => {
   const supabase = await getSupabaseServerClient();
-  // Use getUser() instead of getSession() in Server Components to avoid
-  // attempting to refresh the session and set cookies, which causes errors.
+
+  // First try standard cookie-based authentication
   const { data, error } = await supabase.auth.getUser();
 
-  if (error) {
-    return null;
+  if (data?.user) {
+    // Session found via cookies - this is the ideal case
+    return {
+      user: data.user,
+      access_token: '', // Not available via getUser
+      refresh_token: '', // Not available via getUser
+      expires_in: 0,
+      expires_at: 0,
+      source: 'cookies'
+    };
   }
 
-  if (!data.user) {
-    return null;
+  // If no cookie session, this might be a PWA launch scenario
+  // Check if we're in a PWA context and try hybrid approach
+  if (
+    typeof window !== 'undefined' &&
+    window.matchMedia('(display-mode: standalone)').matches
+  ) {
+    // In PWA mode, try to get session from localStorage
+    const localSession = getSessionFromLocalStorage();
+
+    if (localSession?.isValid && localSession?.isRecent) {
+      // Try to refresh the session using the stored tokens
+      try {
+        const { data: refreshedData, error: refreshError } =
+          await supabase.auth.setSession({
+            access_token: localSession.session.accessToken,
+            refresh_token: localSession.session.refreshToken
+          });
+
+        if (refreshedData?.user) {
+          // Successfully refreshed session from localStorage
+          return {
+            user: refreshedData.user,
+            access_token: localSession.session.accessToken,
+            refresh_token: localSession.session.refreshToken,
+            expires_in: Math.floor(
+              (localSession.session.expiresAt - Date.now()) / 1000
+            ),
+            expires_at: localSession.session.expiresAt,
+            source: 'localStorage_refreshed'
+          };
+        }
+      } catch (refreshError) {
+        console.error(
+          'Failed to refresh session from localStorage:',
+          refreshError
+        );
+      }
+    }
   }
 
-  // Returns a minimalist session-like object with the user
-  // This maintains compatibility with code that checks session.user
-  return {
-    user: data.user,
-    access_token: '', // Not available via getUser
-    refresh_token: '', // Not available via getUser
-    expires_in: 0,
-    expires_at: 0
-  };
+  // If we reach here, no valid session was found
+  return null;
 };
 
 export const createSupabaseMiddlewareClient = (request: any, response: any) => {

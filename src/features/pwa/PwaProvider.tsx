@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/components/common/Button';
 import { useUiStore } from '@/store/uiStore';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { getSupabaseServerClient } from '@/lib/authUtils';
 
 export const PwaProvider = () => {
   const [deferredPrompt, setDeferredPrompt] = useState<Event | null>(null);
@@ -22,7 +23,41 @@ export const PwaProvider = () => {
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker
         .register('/sw.js')
-        .then((registration) => {})
+        .then((registration) => {
+          // Store session data in localStorage when PWA is launched
+          if (window.matchMedia('(display-mode: standalone)').matches) {
+            // Get current session and store it
+            const storeCurrentSession = async () => {
+              try {
+                const supabase = await getSupabaseServerClient();
+                const { data } = await supabase.auth.getSession();
+
+                if (data?.session) {
+                  const sessionData = {
+                    userId: data.session.user.id,
+                    email: data.session.user.email,
+                    accessToken: data.session.access_token,
+                    refreshToken: data.session.refresh_token,
+                    expiresAt: Date.now() + data.session.expires_in * 1000
+                  };
+
+                  localStorage.setItem(
+                    'pps_session_data',
+                    JSON.stringify(sessionData)
+                  );
+                  localStorage.setItem(
+                    'pps_last_active_timestamp',
+                    Date.now().toString()
+                  );
+                }
+              } catch (error) {
+                console.error('Failed to store session in PWA launch:', error);
+              }
+            };
+
+            storeCurrentSession();
+          }
+        })
         .catch((error) => {
           console.error('[DEBUG PWA] SW registration failed', error);
         });

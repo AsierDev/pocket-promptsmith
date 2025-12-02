@@ -14,7 +14,7 @@ export const signIn = async (formData: FormData) => {
   const supabase = await getSupabaseServerClient();
   const { error } = await supabase.auth.signInWithPassword({
     email,
-    password,
+    password
   });
 
   if (error) {
@@ -39,7 +39,7 @@ export const signUp = async (formData: FormData) => {
   const supabase = await getSupabaseServerClient();
   const { error } = await supabase.auth.signUp({
     email,
-    password,
+    password
   });
 
   if (error) {
@@ -52,5 +52,16 @@ export const signUp = async (formData: FormData) => {
 export const signOut = async () => {
   const supabase = await getSupabaseServerClient();
   await supabase.auth.signOut();
+
+  // Clear PWA session storage as well
+  if (typeof window !== 'undefined') {
+    try {
+      localStorage.removeItem('pps_session_data');
+      localStorage.removeItem('pps_last_active_timestamp');
+    } catch (error) {
+      console.error('Failed to clear PWA session data:', error);
+    }
+  }
+
   redirect('/login');
 };
