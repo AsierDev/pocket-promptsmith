@@ -25,8 +25,9 @@ export const getSupabaseServerClient = async () => {
                 value,
                 ...options,
                 path: options?.path ?? '/',
-                sameSite: (options?.sameSite as 'lax' | 'strict' | 'none') ?? 'lax',
-                secure: process.env.NODE_ENV === 'production',
+                sameSite:
+                  (options?.sameSite as 'lax' | 'strict' | 'none') ?? 'lax',
+                secure: process.env.NODE_ENV === 'production'
               });
             });
           } catch {
@@ -39,14 +40,23 @@ export const getSupabaseServerClient = async () => {
 };
 
 export const getSession = async () => {
+  console.log('[DEBUG] getSession: Iniciando verificación de sesión');
   const supabase = await getSupabaseServerClient();
   // Use getUser() instead of getSession() in Server Components to avoid
   // attempting to refresh the session and set cookies, which causes errors.
   const { data, error } = await supabase.auth.getUser();
-  if (error || !data.user) {
+
+  if (error) {
+    console.log('[DEBUG] getSession: Error al obtener usuario', error);
     return null;
   }
 
+  if (!data.user) {
+    console.log('[DEBUG] getSession: No se encontró usuario autenticado');
+    return null;
+  }
+
+  console.log('[DEBUG] getSession: Usuario encontrado', data.user.email);
   // Returns a minimalist session-like object with the user
   // This maintains compatibility with code that checks session.user
   return {
@@ -72,7 +82,7 @@ export const createSupabaseMiddlewareClient = (request: any, response: any) => {
           path: options?.path ?? '/',
           sameSite: options?.sameSite ?? 'lax',
           secure: process.env.NODE_ENV === 'production',
-          maxAge: options?.maxAge ?? 60 * 60 * 24 * 7, // 7 days default
+          maxAge: options?.maxAge ?? 60 * 60 * 24 * 7 // 7 days default
         });
       },
       remove(name: string, options: any) {
@@ -81,7 +91,7 @@ export const createSupabaseMiddlewareClient = (request: any, response: any) => {
           value: '',
           ...options,
           maxAge: 0,
-          path: options?.path ?? '/',
+          path: options?.path ?? '/'
         });
       }
     }

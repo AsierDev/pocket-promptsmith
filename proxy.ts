@@ -33,7 +33,7 @@ export async function proxy(request: NextRequest) {
         data: { user },
       } = await supabase.auth.getUser();
       if (user && redirectAuthenticated) {
-        return NextResponse.redirect(new URL("/prompts", request.url));
+        return NextResponse.redirect(new URL("/prompts/dashboard", request.url));
       }
     } catch (error) {
       // If auth check fails on public routes, just continue - it's not critical
@@ -48,12 +48,19 @@ export async function proxy(request: NextRequest) {
   // For protected routes, we MUST verify auth
   const supabase = createSupabaseMiddlewareClient(request, response);
 
+  // Debug: Log cookies
+  console.log('[DEBUG PROXY] Protected route:', pathname);
+  console.log('[DEBUG PROXY] Cookies:', request.cookies.getAll().map((c: any) => c.name));
+
   // Use getUser() instead of getSession() to avoid token refresh attempts
   // which can cause infinite loops with invalid refresh tokens
   const {
     data: { user },
     error: sessionError,
   } = await supabase.auth.getUser();
+
+  console.log('[DEBUG PROXY] User found:', user ? user.email : 'NO USER');
+  console.log('[DEBUG PROXY] Session error:', sessionError ? sessionError.message : 'NO ERROR');
 
   // Handle different error cases
   if (sessionError) {
@@ -62,6 +69,7 @@ export async function proxy(request: NextRequest) {
       sessionError.message?.includes("refresh_token_not_found") ||
       sessionError.message?.includes("Invalid Refresh Token")
     ) {
+      console.log('[DEBUG PROXY] Deleting corrupted cookies');
       response.cookies.delete("sb-access-token");
       response.cookies.delete("sb-refresh-token");
       // Don't log these as errors - they're expected when cookies are corrupted
@@ -89,7 +97,7 @@ export async function proxy(request: NextRequest) {
   }
 
   if (session && redirectAuthenticated) {
-    return NextResponse.redirect(new URL("/prompts", request.url));
+    return NextResponse.redirect(new URL("/prompts/dashboard", request.url));
   }
 
   return response;

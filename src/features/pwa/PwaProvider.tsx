@@ -7,15 +7,30 @@ import { useLocalStorage } from '@/hooks/useLocalStorage';
 
 export const PwaProvider = () => {
   const [deferredPrompt, setDeferredPrompt] = useState<Event | null>(null);
-  const installBannerVisible = useUiStore((state) => state.installBannerVisible);
-  const setInstallBannerVisible = useUiStore((state) => state.setInstallBannerVisible);
-  const [bannerDismissed, setBannerDismissed] = useLocalStorage<boolean>('pps-install-banner-dismissed', false);
+  const installBannerVisible = useUiStore(
+    (state) => state.installBannerVisible
+  );
+  const setInstallBannerVisible = useUiStore(
+    (state) => state.setInstallBannerVisible
+  );
+  const [bannerDismissed, setBannerDismissed] = useLocalStorage<boolean>(
+    'pps-install-banner-dismissed',
+    false
+  );
 
   useEffect(() => {
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js').catch((error) => {
-        console.error('SW registration failed', error);
-      });
+      navigator.serviceWorker
+        .register('/sw.js')
+        .then((registration) => {
+          console.log(
+            '[DEBUG PWA] Service Worker registered successfully:',
+            registration
+          );
+        })
+        .catch((error) => {
+          console.error('[DEBUG PWA] SW registration failed', error);
+        });
     }
   }, []);
 
@@ -31,7 +46,10 @@ export const PwaProvider = () => {
     window.addEventListener('beforeinstallprompt', handler as EventListener);
 
     return () => {
-      window.removeEventListener('beforeinstallprompt', handler as EventListener);
+      window.removeEventListener(
+        'beforeinstallprompt',
+        handler as EventListener
+      );
     };
   }, [bannerDismissed, setInstallBannerVisible]);
 
@@ -56,7 +74,9 @@ export const PwaProvider = () => {
 
   return (
     <div className="fixed bottom-4 right-4 z-[60] max-w-sm rounded-2xl bg-white p-4 shadow-card dark:bg-slate-800">
-      <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">Instala Pocket Promptsmith</p>
+      <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+        Instala Pocket Promptsmith
+      </p>
       <p className="mt-1 text-xs text-slate-500 dark:text-slate-300">
         Disfruta del modo offline y acceso rápido desde tu escritorio.
       </p>

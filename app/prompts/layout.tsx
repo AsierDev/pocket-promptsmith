@@ -9,12 +9,26 @@ import { BottomNav } from '@/components/navigation/BottomNav';
 import { TopTabs } from '@/components/navigation/TopTabs';
 import { ThemeToggle } from '@/components/common/ThemeToggle';
 
-export default async function PromptsLayout({ children }: { children: React.ReactNode }) {
+export default async function PromptsLayout({
+  children
+}: {
+  children: React.ReactNode;
+}) {
+  console.log(
+    '[DEBUG] PromptsLayout: Verificando sesión para layout de prompts'
+  );
   const session = await getSession();
 
   if (!session) {
+    console.log(
+      '[DEBUG] PromptsLayout: Sesión no encontrada, redirigiendo a /login'
+    );
     redirect('/login');
   }
+
+  console.log(
+    '[DEBUG] PromptsLayout: Sesión encontrada, continuando con el layout'
+  );
 
   const profile = await getProfile();
   const userEmail = profile?.email ?? session.user?.email ?? '';
@@ -37,7 +51,9 @@ export default async function PromptsLayout({ children }: { children: React.Reac
             </div>
             <div className="flex items-center gap-3">
               {userEmail && (
-                <span className="hidden text-sm text-slate-600 dark:text-slate-400 sm:inline-flex">{userEmail}</span>
+                <span className="hidden text-sm text-slate-600 dark:text-slate-400 sm:inline-flex">
+                  {userEmail}
+                </span>
               )}
               <ThemeToggle />
               <div className="flex items-center gap-2 rounded-full border border-slate-200 px-3 py-1.5 dark:border-slate-700">
@@ -59,9 +75,7 @@ export default async function PromptsLayout({ children }: { children: React.Reac
 
         <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
           <LimitsBanner promptCount={profile?.prompt_quota_used ?? 0} />
-          <div className="mt-6">
-            {children}
-          </div>
+          <div className="mt-6">{children}</div>
         </main>
 
         <BottomNav />

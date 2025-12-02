@@ -7,20 +7,25 @@ export const dynamic = 'force-dynamic';
 const featureCards = [
   {
     title: 'Variables inteligentes',
-    description: 'Detectamos {{variables}} automáticamente y generamos formularios dinámicos.'
+    description:
+      'Detectamos {{variables}} automáticamente y generamos formularios dinámicos.'
   },
   {
     title: 'Mejoras con IA',
-    description: 'Aplica sugerencias con diff visual usando modelos gratuitos de OpenRouter.'
+    description:
+      'Aplica sugerencias con diff visual usando modelos gratuitos de OpenRouter.'
   },
   {
     title: 'Modo offline',
-    description: 'Funciona como app instalable con caché de prompts y service worker propio.'
+    description:
+      'Funciona como app instalable con caché de prompts y service worker propio.'
   }
 ];
 
 export default async function LandingPage() {
+  console.log('[DEBUG LandingPage] Verificando sesión en página principal');
   const session = await getSession();
+  console.log('[DEBUG LandingPage] Sesión encontrada:', !!session);
   const headerCtaHref = session ? '/prompts' : '/login';
   const headerCtaLabel = session ? 'Dashboard' : 'Entrar';
   const heroCtaHref = session ? '/prompts' : '/login';
@@ -34,10 +39,16 @@ export default async function LandingPage() {
             Pocket Promptsmith
           </Link>
           <nav className="flex items-center gap-4 text-sm text-slate-600 sm:gap-6">
-            <a href="#features" className="hidden transition hover:text-primary sm:block">
+            <a
+              href="#features"
+              className="hidden transition hover:text-primary sm:block"
+            >
               Funcionalidades
             </a>
-            <a href="#como-funciona" className="hidden transition hover:text-primary sm:block">
+            <a
+              href="#como-funciona"
+              className="hidden transition hover:text-primary sm:block"
+            >
               Cómo funciona
             </a>
             <Link
@@ -60,8 +71,9 @@ export default async function LandingPage() {
               Tu biblioteca inteligente de prompts
             </h1>
             <p className="mx-auto max-w-2xl text-lg text-slate-600">
-              Guarda, organiza y reutiliza tus mejores prompts, detecta variables en segundos y aplícales
-              mejoras con IA directamente desde el dashboard.
+              Guarda, organiza y reutiliza tus mejores prompts, detecta
+              variables en segundos y aplícales mejoras con IA directamente
+              desde el dashboard.
             </p>
           </div>
           <div className="flex flex-wrap items-center justify-center gap-4">
@@ -85,9 +97,16 @@ export default async function LandingPage() {
           className="grid gap-6 rounded-3xl border border-slate-200 bg-white/80 p-8 text-left shadow-card md:grid-cols-3"
         >
           {featureCards.map((feature) => (
-            <div key={feature.title} className="rounded-2xl border border-slate-100 p-6 shadow-sm">
-              <h3 className="text-xl font-semibold text-slate-900">{feature.title}</h3>
-              <p className="mt-2 text-sm text-slate-500">{feature.description}</p>
+            <div
+              key={feature.title}
+              className="rounded-2xl border border-slate-100 p-6 shadow-sm"
+            >
+              <h3 className="text-xl font-semibold text-slate-900">
+                {feature.title}
+              </h3>
+              <p className="mt-2 text-sm text-slate-500">
+                {feature.description}
+              </p>
             </div>
           ))}
         </section>
@@ -97,32 +116,47 @@ export default async function LandingPage() {
           className="grid gap-8 rounded-3xl border border-slate-200 bg-white/90 p-8 text-left shadow-card md:grid-cols-2"
         >
           <div className="space-y-3">
-            <p className="text-sm font-semibold uppercase tracking-wide text-primary">Cómo funciona</p>
-            <h2 className="text-3xl font-bold">Todo el flujo en una sola vista</h2>
+            <p className="text-sm font-semibold uppercase tracking-wide text-primary">
+              Cómo funciona
+            </p>
+            <h2 className="text-3xl font-bold">
+              Todo el flujo en una sola vista
+            </h2>
             <p className="text-base text-slate-600">
-              Autenticación sin contraseñas, filtros avanzados, formulario con validaciones en vivo y
-              modal para usar tus prompts con variables. El dashboard incluye navegación lateral para que
-              siempre tengas a mano las acciones principales.
+              Autenticación sin contraseñas, filtros avanzados, formulario con
+              validaciones en vivo y modal para usar tus prompts con variables.
+              El dashboard incluye navegación lateral para que siempre tengas a
+              mano las acciones principales.
             </p>
           </div>
           <ul className="space-y-4 text-sm text-slate-600">
             <li className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
-              <strong className="text-slate-900">1. Envía un magic link.</strong> Recibe el enlace,
-              haz clic y llegarás directo al dashboard protegido.
+              <strong className="text-slate-900">
+                1. Envía un magic link.
+              </strong>{' '}
+              Recibe el enlace, haz clic y llegarás directo al dashboard
+              protegido.
             </li>
             <li className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
-              <strong className="text-slate-900">2. Crea y organiza.</strong> Formularios completos con
-              categorías, tags y límites claros para el plan free.
+              <strong className="text-slate-900">2. Crea y organiza.</strong>{' '}
+              Formularios completos con categorías, tags y límites claros para
+              el plan free.
             </li>
             <li className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
-              <strong className="text-slate-900">3. Usa o mejora.</strong> Detecta variables, copia tus
-              prompts y, si lo necesitas, pide mejoras con IA y aplica el diff.
+              <strong className="text-slate-900">3. Usa o mejora.</strong>{' '}
+              Detecta variables, copia tus prompts y, si lo necesitas, pide
+              mejoras con IA y aplica el diff.
             </li>
           </ul>
         </section>
 
         <div className="flex justify-center">
-          <Image src="/icons/icon.svg" width={120} height={120} alt="Pocket Promptsmith" />
+          <Image
+            src="/icons/icon.svg"
+            width={120}
+            height={120}
+            alt="Pocket Promptsmith"
+          />
         </div>
       </main>
     </div>
