@@ -6,12 +6,14 @@ import { env } from '@/lib/env';
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get('code');
+  const type = requestUrl.searchParams.get('type');
+  const email = requestUrl.searchParams.get('email');
 
   console.log('[AUTH CALLBACK] URL:', requestUrl.href);
-  console.log('[AUTH CALLBACK] Code present:', !!code);
+  console.log('[AUTH CALLBACK] Code:', !!code, 'Type:', type, 'Email:', !!email);
 
   if (!code) {
-    console.error('[AUTH CALLBACK] NO CODE in URL - cannot authenticate');
+    console.error('[AUTH CALLBACK] NO CODE in URL');
     return NextResponse.redirect(new URL('/login?error=no_code', requestUrl.origin));
   }
 
@@ -43,17 +45,26 @@ export async function GET(request: Request) {
       }
     );
 
-    console.log('[AUTH CALLBACK] Exchanging code for session...');
-    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+    console.log('[AUTH CALLBACK] Verifying OTP...');
+    
+    // Use verifyOtp for direct code flow (from custom email template)
+    // Use exchangeCodeForSession for PKCE flow (from default Supabase flow)
+    const { data, error } = type === 'magiclink' && email
+      ? await supabase.auth.verifyOtp({
+          email: decodeURIComponent(email),
+          token: code,
+          type: 'magiclink',
+        })
+      : await supabase.auth.exchangeCodeForSession(code);
     
     if (error) {
-      console.error('[AUTH CALLBACK] Exchange error:', error.message);
+      console.error('[AUTH CALLBACK] Verification error:', error.message);
       return NextResponse.redirect(new URL('/login?error=auth_failed', requestUrl.origin));
     }
 
     console.log('[AUTH CALLBACK] ✅ Session established for:', data.user?.email);
 
-    // Return HTML for client-side redirect to ensure cookies are set
+    // Client-side redirect to ensure cookies are set
     return new NextResponse(
       `<!DOCTYPE html>
       <html>
