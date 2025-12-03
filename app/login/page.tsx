@@ -5,24 +5,25 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useState } from 'react';
 import { toast } from 'sonner';
-import { signIn } from '@/features/auth/actions';
+import { signIn, signInWithGoogle } from '@/features/auth/actions';
 import Link from 'next/link';
 
 const loginSchema = z.object({
   email: z.string().email('Introduce un email válido'),
-  password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres'),
+  password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres')
 });
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors }
   } = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
+    resolver: zodResolver(loginSchema)
   });
 
   const onSubmit = async (values: LoginFormData) => {
@@ -31,9 +32,9 @@ export default function LoginPage() {
       const formData = new FormData();
       formData.append('email', values.email);
       formData.append('password', values.password);
-      
+
       const sessionData = await signIn(formData);
-      
+
       // Store session in localStorage for PWA persistence
       if (sessionData) {
         try {
@@ -44,19 +45,38 @@ export default function LoginPage() {
             storedAt: now,
             source: 'pwa_session'
           };
-          localStorage.setItem('pps_session_data', JSON.stringify(sessionWithMetadata));
+          localStorage.setItem(
+            'pps_session_data',
+            JSON.stringify(sessionWithMetadata)
+          );
           localStorage.setItem('pps_last_active_timestamp', now.toString());
         } catch (storageError) {
-          console.error('Failed to store session in localStorage:', storageError);
+          console.error(
+            'Failed to store session in localStorage:',
+            storageError
+          );
           // Continue anyway - cookies should work
         }
       }
-      
+
       // Client-side redirect after storing session
       window.location.replace('/prompts/dashboard');
     } catch (error) {
       toast.error((error as Error).message);
       setLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setGoogleLoading(true);
+    try {
+      const result = await signInWithGoogle();
+      if (result?.url) {
+        window.location.href = result.url;
+      }
+    } catch (error) {
+      toast.error((error as Error).message);
+      setGoogleLoading(false);
     }
   };
 
@@ -92,7 +112,9 @@ export default function LoginPage() {
               placeholder="tu@email.com"
             />
             {errors.email && (
-              <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
+              <p className="mt-1 text-sm text-red-600">
+                {errors.email.message}
+              </p>
             )}
           </div>
 
@@ -112,7 +134,9 @@ export default function LoginPage() {
               placeholder="••••••••"
             />
             {errors.password && (
-              <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
+              <p className="mt-1 text-sm text-red-600">
+                {errors.password.message}
+              </p>
             )}
           </div>
         </div>
@@ -123,6 +147,50 @@ export default function LoginPage() {
           className="w-full rounded-lg bg-indigo-600 px-4 py-3 font-semibold text-white shadow-sm hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 dark:bg-indigo-500 dark:hover:bg-indigo-400"
         >
           {loading ? 'Iniciando sesión...' : 'Iniciar sesión'}
+        </button>
+
+        <div className="relative my-6">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-slate-300 dark:border-slate-700" />
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="bg-white px-2 text-slate-500 dark:bg-slate-900 dark:text-slate-400">
+              O continúa con
+            </span>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={handleGoogleSignIn}
+          disabled={googleLoading}
+          className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 font-semibold text-slate-700 shadow-sm hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+        >
+          <div className="flex items-center justify-center space-x-4">
+            <svg
+              className="h-5 w-5"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                fill="#4285F4"
+              />
+              <path
+                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                fill="#34A853"
+              />
+              <path
+                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                fill="#FBBC05"
+              />
+              <path
+                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                fill="#EA4335"
+              />
+            </svg>
+            <span>{googleLoading ? 'Redirigiendo...' : 'Google'}</span>
+          </div>
         </button>
 
         <p className="text-center text-sm text-slate-600 dark:text-slate-400">

@@ -3,6 +3,7 @@
 import { redirect } from 'next/navigation';
 import { getSupabaseServerClient } from '@/lib/authUtils';
 import { clearSessionFromLocalStorage } from '@/lib/pwaSessionStorage';
+import { env } from '@/lib/env';
 
 export const signIn = async (formData: FormData) => {
   const email = String(formData.get('email') ?? '').trim();
@@ -29,10 +30,10 @@ export const signIn = async (formData: FormData) => {
 
   // Supabase returns expires_at as a number (seconds since epoch)
   // Convert to milliseconds for JavaScript Date compatibility
-  const expiresAtMs = data.session.expires_at 
-    ? (typeof data.session.expires_at === 'number' 
-        ? data.session.expires_at * 1000 
-        : new Date(data.session.expires_at as any).getTime())
+  const expiresAtMs = data.session.expires_at
+    ? typeof data.session.expires_at === 'number'
+      ? data.session.expires_at * 1000
+      : new Date(data.session.expires_at as any).getTime()
     : Date.now() + 3600000;
 
   return {
@@ -73,10 +74,10 @@ export const signUp = async (formData: FormData) => {
 
   // Supabase returns expires_at as a number (seconds since epoch)
   // Convert to milliseconds for JavaScript Date compatibility
-  const expiresAtMs = data.session.expires_at 
-    ? (typeof data.session.expires_at === 'number' 
-        ? data.session.expires_at * 1000 
-        : new Date(data.session.expires_at as any).getTime())
+  const expiresAtMs = data.session.expires_at
+    ? typeof data.session.expires_at === 'number'
+      ? data.session.expires_at * 1000
+      : new Date(data.session.expires_at as any).getTime()
     : Date.now() + 3600000;
 
   return {
@@ -98,4 +99,20 @@ export const signOut = async () => {
   clearSessionFromLocalStorage();
 
   redirect('/login');
+};
+
+export const signInWithGoogle = async () => {
+  const supabase = await getSupabaseServerClient();
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: `${env.siteUrl}/auth/callback`
+    }
+  });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return { url: data.url };
 };
