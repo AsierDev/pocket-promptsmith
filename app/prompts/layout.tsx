@@ -8,6 +8,7 @@ import { FREEMIUM_LIMITS } from '@/lib/limits';
 import { BottomNav } from '@/components/navigation/BottomNav';
 import { TopTabs } from '@/components/navigation/TopTabs';
 import { ThemeToggle } from '@/components/common/ThemeToggle';
+import { LogoutButton } from '@/components/auth/LogoutButton';
 
 export default async function PromptsLayout({
   children
@@ -50,14 +51,7 @@ export default async function PromptsLayout({
                 <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
                   {userInitial}
                 </div>
-                <form action={signOut}>
-                  <button
-                    type="submit"
-                    className="text-xs font-semibold text-slate-500 transition hover:text-primary dark:text-slate-400"
-                  >
-                    Salir
-                  </button>
-                </form>
+                <LogoutButton />
               </div>
             </div>
           </div>

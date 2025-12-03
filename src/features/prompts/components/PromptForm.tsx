@@ -18,7 +18,10 @@ import {
 import { Button } from '@/components/common/Button';
 import { FormField } from '@/components/common/FormField';
 import { TagInput } from '@/features/prompts/components/TagInput';
-import { createPromptAction, updatePromptAction } from '@/features/prompts/actions';
+import {
+  createPromptAction,
+  updatePromptAction
+} from '@/features/prompts/actions';
 import { PromptAIHelperPanel } from '@/features/prompts/components/PromptAIHelperPanel';
 import { useCharacterLimitValidation } from '@/hooks/useCharacterLimitValidation';
 
@@ -30,7 +33,14 @@ interface PromptFormProps {
   autoFocusAiPanel?: boolean;
 }
 
-const quickTags = ['Código', 'Educación', 'Marketing', 'UX', 'Ventas', 'Producto'];
+const quickTags = [
+  'Código',
+  'Educación',
+  'Marketing',
+  'UX',
+  'Ventas',
+  'Producto'
+];
 
 export const PromptForm = ({
   defaultValues,
@@ -57,15 +67,19 @@ export const PromptForm = ({
       content: '',
       category: 'Escritura',
       tags: [],
-      thumbnail_url: '',
       ai_improvement_source: '',
       ...(defaultValues ?? {})
     }
   });
 
   // eslint-disable-next-line react-hooks/incompatible-library
-  const watchedValues = watch(['content', 'ai_improvement_source', 'category', 'tags']);
-  
+  const watchedValues = watch([
+    'content',
+    'ai_improvement_source',
+    'category',
+    'tags'
+  ]);
+
   const contentValue = useMemo(() => watchedValues[0], [watchedValues]);
   const aiImprovementSource = useMemo(() => watchedValues[1], [watchedValues]);
   const categoryValue = useMemo(() => watchedValues[2], [watchedValues]);
@@ -81,9 +95,11 @@ export const PromptForm = ({
     formData.append('summary', values.summary ?? '');
     formData.append('content', values.content);
     formData.append('category', values.category);
-    formData.append('thumbnail_url', values.thumbnail_url ?? '');
     formData.append('tags', JSON.stringify(values.tags ?? []));
-    formData.append('ai_improvement_source', values.ai_improvement_source ?? '');
+    formData.append(
+      'ai_improvement_source',
+      values.ai_improvement_source ?? ''
+    );
 
     startTransition(async () => {
       try {
@@ -109,25 +125,33 @@ export const PromptForm = ({
     setValue('content', value, { shouldDirty: true, shouldValidate: true });
   };
 
-  const { charCount, isApproachingLimit, isOverLimit, contentError } = useCharacterLimitValidation({
-    content: contentValue ?? '',
-    maxLength: PROMPT_CONTENT_MAX_LENGTH,
-    existingError: errors.content?.message
-  });
+  const { charCount, isApproachingLimit, isOverLimit, contentError } =
+    useCharacterLimitValidation({
+      content: contentValue ?? '',
+      maxLength: PROMPT_CONTENT_MAX_LENGTH,
+      existingError: errors.content?.message
+    });
 
   return (
     <form onSubmit={submitHandler} className="space-y-6" aria-live="polite">
       {disableSubmit && (
         <p className="rounded-2xl border border-amber-100 bg-amber-50 px-4 py-3 text-sm text-amber-700">
-          Has alcanzado el límite de prompts del plan Free. Borra alguno o espera a Pro.
+          Has alcanzado el límite de prompts del plan Free. Borra alguno o
+          espera a Pro.
         </p>
       )}
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr),320px]">
         <div className="space-y-8">
           <section className="rounded-3xl border border-slate-200 bg-white/90 p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-300">Información básica</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-300">
+              Información básica
+            </p>
             <div className="mt-4 space-y-4">
-              <FormField label="Título" htmlFor="title" error={errors.title?.message}>
+              <FormField
+                label="Título"
+                htmlFor="title"
+                error={errors.title?.message}
+              >
                 <input
                   id="title"
                   type="text"
@@ -136,7 +160,11 @@ export const PromptForm = ({
                   placeholder="Prompt para brainstorming creativo"
                 />
               </FormField>
-              <FormField label="Categoría" htmlFor="category" error={errors.category?.message}>
+              <FormField
+                label="Categoría"
+                htmlFor="category"
+                error={errors.category?.message}
+              >
                 <select
                   id="category"
                   {...register('category')}
@@ -156,20 +184,22 @@ export const PromptForm = ({
                 error={errors.summary?.message}
               >
                 <textarea
-                id="summary"
-                {...register('summary')}
-                placeholder="Generar ideas de negocio para developers..."
-                rows={3}
-                maxLength={260}
-                className="w-full min-h-[96px] resize-y rounded-2xl border border-slate-200 px-4 py-2 text-sm leading-relaxed text-slate-900 placeholder:text-slate-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-400"
-              />
+                  id="summary"
+                  {...register('summary')}
+                  placeholder="Generar ideas de negocio para developers..."
+                  rows={3}
+                  maxLength={260}
+                  className="w-full min-h-[96px] resize-y rounded-2xl border border-slate-200 px-4 py-2 text-sm leading-relaxed text-slate-900 placeholder:text-slate-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-400"
+                />
               </FormField>
             </div>
           </section>
 
           <section className="rounded-3xl border border-slate-200 bg-white/90 p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
             <div className="flex items-center justify-between">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-300">Contenido</p>
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-300">
+                Contenido
+              </p>
               <span
                 className={clsx('text-xs font-medium', {
                   'text-rose-500': isOverLimit,
@@ -203,7 +233,9 @@ export const PromptForm = ({
           </section>
 
           <section className="rounded-3xl border border-slate-200 bg-white/90 p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-300">Organización</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-300">
+              Organización
+            </p>
             <div className="mt-4 space-y-4">
               <Controller
                 control={control}
@@ -215,7 +247,11 @@ export const PromptForm = ({
                     description="Presiona Enter para agregar. Máximo 8."
                     error={errors.tags?.message}
                   >
-                    <TagInput value={field.value ?? []} onChange={field.onChange} placeholder="Ej: marketing, ux" />
+                    <TagInput
+                      value={field.value ?? []}
+                      onChange={field.onChange}
+                      placeholder="Ej: marketing, ux"
+                    />
                   </FormField>
                 )}
               />
@@ -243,20 +279,6 @@ export const PromptForm = ({
                   );
                 })}
               </div>
-              <FormField
-                label="Imagen o recurso opcional"
-                htmlFor="thumbnail_url"
-                description="Si usas una portada o enlace de referencia, agrégalo aquí."
-                error={errors.thumbnail_url?.message}
-              >
-                <input
-                  id="thumbnail_url"
-                  type="url"
-                  placeholder="https://"
-                  {...register('thumbnail_url')}
-                  className="w-full rounded-2xl border border-slate-200 px-4 py-2 text-slate-900 placeholder:text-slate-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-400"
-                />
-              </FormField>
             </div>
           </section>
 
@@ -267,7 +289,12 @@ export const PromptForm = ({
             >
               {mode === 'edit' ? 'Cerrar' : 'Cancelar'}
             </Link>
-            <Button type="submit" loading={pending} disabled={disableSubmit} className="rounded-full px-6">
+            <Button
+              type="submit"
+              loading={pending}
+              disabled={disableSubmit}
+              className="rounded-full px-6"
+            >
               {mode === 'edit' ? 'Guardar cambios' : 'Guardar prompt'}
             </Button>
           </div>
@@ -282,7 +309,10 @@ export const PromptForm = ({
           autoFocus={autoFocusAiPanel}
           aiImprovementSource={aiImprovementSource ?? ''}
           onChangeAiImprovementSource={(value) =>
-            setValue('ai_improvement_source', value, { shouldDirty: true, shouldValidate: true })
+            setValue('ai_improvement_source', value, {
+              shouldDirty: true,
+              shouldValidate: true
+            })
           }
           aiImprovementLimit={AI_IMPROVEMENT_SOURCE_MAX_LENGTH}
           aiImprovementError={errors.ai_improvement_source?.message}

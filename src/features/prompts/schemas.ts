@@ -23,12 +23,14 @@ export const promptFormSchema = z.object({
   content: z
     .string()
     .min(20, 'Comparte más contexto para sacar mejor provecho')
-    .max(PROMPT_CONTENT_MAX_LENGTH, `Has superado el límite de ${PROMPT_CONTENT_MAX_LENGTH} caracteres. Simplifica el prompt o divídelo en varios.`),
+    .max(
+      PROMPT_CONTENT_MAX_LENGTH,
+      `Has superado el límite de ${PROMPT_CONTENT_MAX_LENGTH} caracteres. Simplifica el prompt o divídelo en varios.`
+    ),
   category: z.enum(PROMPT_CATEGORIES, {
     errorMap: () => ({ message: 'Selecciona una categoría' })
   }),
   tags: z.array(z.string().min(2)).max(8).default([]),
-  thumbnail_url: z.string().url().optional().or(z.literal('')),
   ai_improvement_source: z
     .string()
     .max(

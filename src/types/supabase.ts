@@ -40,13 +40,19 @@ export type Database = {
           summary: string | null;
           content: string;
           ai_improvement_source: string | null;
-          category: 'Escritura' | 'Código' | 'Marketing' | 'Análisis' | 'Creatividad' | 'Educación' | 'Otros';
+          category:
+            | 'Escritura'
+            | 'Código'
+            | 'Marketing'
+            | 'Análisis'
+            | 'Creatividad'
+            | 'Educación'
+            | 'Otros';
           tags: string[];
           is_favorite: boolean;
           created_at: string;
           updated_at: string | null;
           use_count: number;
-          thumbnail_url: string | null;
         };
         Insert: {
           id?: string;
@@ -58,7 +64,6 @@ export type Database = {
           category: Database['public']['Tables']['prompts']['Row']['category'];
           tags?: string[];
           is_favorite?: boolean;
-          thumbnail_url?: string | null;
           created_at?: string;
           updated_at?: string | null;
           use_count?: number;
@@ -84,7 +89,9 @@ export type Database = {
           diff_json: Json;
           created_at?: string;
         };
-        Update: Partial<Database['public']['Tables']['prompt_improvements']['Insert']>;
+        Update: Partial<
+          Database['public']['Tables']['prompt_improvements']['Insert']
+        >;
       };
     };
     Views: Record<string, never>;

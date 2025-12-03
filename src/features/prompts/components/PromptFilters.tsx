@@ -1,9 +1,10 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useTransition } from 'react';
 import { PROMPT_CATEGORIES } from '@/features/prompts/schemas';
 import { TagInput } from '@/features/prompts/components/TagInput';
+import { Button } from '@/components/common/Button';
 
 interface PromptFiltersProps {
   initialFilters: {
@@ -23,12 +24,19 @@ const sortCopy: Record<'recent' | 'usage' | 'az' | 'favorites', string> = {
   favorites: 'Solo favoritos'
 };
 
-export const PromptFilters = ({ initialFilters, suggestedTags = [] }: PromptFiltersProps) => {
+export const PromptFilters = ({
+  initialFilters,
+  suggestedTags = []
+}: PromptFiltersProps) => {
   const router = useRouter();
+  const [isApplying, startApplyingTransition] = useTransition();
+  const [isClearing, startClearingTransition] = useTransition();
   const [query, setQuery] = useState(initialFilters.q ?? '');
   const [category, setCategory] = useState(initialFilters.category ?? '');
   const [tags, setTags] = useState<string[]>(initialFilters.tags ?? []);
-  const [favoritesOnly, setFavoritesOnly] = useState(initialFilters.favoritesOnly ?? false);
+  const [favoritesOnly, setFavoritesOnly] = useState(
+    initialFilters.favoritesOnly ?? false
+  );
   const [sort, setSort] = useState(initialFilters.sort ?? 'recent');
 
   const searchParams = useMemo(() => {
@@ -45,31 +53,39 @@ export const PromptFilters = ({ initialFilters, suggestedTags = [] }: PromptFilt
   }, [query, category, tags, favoritesOnly, sort]);
 
   const applyFilters = () => {
-    router.push(`/prompts/library?${searchParams.toString()}`, { scroll: false });
-    const anchor = document.getElementById('library-results-anchor');
-    if (anchor) {
-      anchor.scrollIntoView({ behavior: 'smooth' });
-    }
+    startApplyingTransition(() => {
+      router.push(`/prompts/library?${searchParams.toString()}`, {
+        scroll: false
+      });
+      const anchor = document.getElementById('library-results-anchor');
+      if (anchor) {
+        anchor.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
   };
 
   const clearFilters = () => {
-    setQuery('');
-    setCategory('');
-    setTags([]);
-    setFavoritesOnly(false);
-    setSort('recent');
-    router.push('/prompts/library', { scroll: false });
-    const anchor = document.getElementById('library-results-anchor');
-    if (anchor) {
-      anchor.scrollIntoView({ behavior: 'smooth' });
-    }
+    startClearingTransition(() => {
+      setQuery('');
+      setCategory('');
+      setTags([]);
+      setFavoritesOnly(false);
+      setSort('recent');
+      router.push('/prompts/library', { scroll: false });
+      const anchor = document.getElementById('library-results-anchor');
+      if (anchor) {
+        anchor.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
   };
 
   return (
     <section className="rounded-3xl border border-slate-200 bg-white/90 p-4 shadow-card-subtle ring-1 ring-slate-100 dark:border-slate-800 dark:bg-slate-900 dark:ring-slate-800">
       <div className="grid gap-3 lg:grid-cols-3">
         <label className="space-y-1.5 text-sm">
-          <span className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">Buscar</span>
+          <span className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+            Buscar
+          </span>
           <input
             type="search"
             value={query}
@@ -79,7 +95,9 @@ export const PromptFilters = ({ initialFilters, suggestedTags = [] }: PromptFilt
           />
         </label>
         <label className="space-y-1.5 text-sm">
-          <span className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">Categoría</span>
+          <span className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+            Categoría
+          </span>
           <select
             className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-base focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-950 dark:text-white sm:text-sm"
             value={category}
@@ -94,7 +112,9 @@ export const PromptFilters = ({ initialFilters, suggestedTags = [] }: PromptFilt
           </select>
         </label>
         <label className="space-y-1.5 text-sm">
-          <span className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">Ordenar por</span>
+          <span className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+            Ordenar por
+          </span>
           <select
             value={sort}
             onChange={(event) => setSort(event.target.value as typeof sort)}
@@ -110,10 +130,18 @@ export const PromptFilters = ({ initialFilters, suggestedTags = [] }: PromptFilt
       </div>
       <div className="mt-3 space-y-2 text-sm">
         <div className="flex items-baseline justify-between">
-          <span className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Tags</span>
+          <span className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+            Tags
+          </span>
         </div>
-        <p className="text-[11px] text-slate-400 dark:text-slate-500">Sugerencias rápidas abajo. Presiona Enter para agregar.</p>
-        <TagInput value={tags} onChange={setTags} placeholder="Presiona Enter para agregar" />
+        <p className="text-[11px] text-slate-400 dark:text-slate-500">
+          Sugerencias rápidas abajo. Presiona Enter para agregar.
+        </p>
+        <TagInput
+          value={tags}
+          onChange={setTags}
+          placeholder="Presiona Enter para agregar"
+        />
         {suggestedTags.length > 0 && (
           <div className="flex flex-wrap gap-2 text-xs text-slate-500">
             {suggestedTags.slice(0, 6).map((tag) => {
@@ -126,10 +154,11 @@ export const PromptFilters = ({ initialFilters, suggestedTags = [] }: PromptFilt
                     if (isActive) return;
                     setTags([...tags, tag]);
                   }}
-                  className={`rounded-full border px-3 py-1 transition ${isActive
-                    ? 'border-primary bg-primary/10 text-primary font-medium'
-                    : 'border-slate-200 text-slate-600 hover:border-primary hover:text-primary dark:border-slate-700 dark:text-slate-400'
-                    }`}
+                  className={`rounded-full border px-3 py-1 transition ${
+                    isActive
+                      ? 'border-primary bg-primary/10 text-primary font-medium'
+                      : 'border-slate-200 text-slate-600 hover:border-primary hover:text-primary dark:border-slate-700 dark:text-slate-400'
+                  }`}
                 >
                   #{tag}
                 </button>
@@ -149,20 +178,25 @@ export const PromptFilters = ({ initialFilters, suggestedTags = [] }: PromptFilt
           Solo favoritos
         </label>
         <div className="flex flex-wrap gap-3">
-          <button
+          <Button
             type="button"
             onClick={clearFilters}
+            variant="ghost"
+            loading={isClearing}
+            disabled={isClearing || isApplying}
             className="rounded-full px-4 py-2 text-sm font-medium text-slate-500 transition hover:text-slate-900 hover:underline dark:text-slate-400 dark:hover:text-white"
           >
             Limpiar
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
             onClick={applyFilters}
+            loading={isApplying}
+            disabled={isApplying || isClearing}
             className="rounded-full bg-primary px-5 py-2 font-semibold text-white shadow-sm transition hover:bg-violet-600"
           >
             Aplicar filtros
-          </button>
+          </Button>
         </div>
       </div>
     </section>

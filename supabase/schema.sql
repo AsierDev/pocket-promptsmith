@@ -21,8 +21,7 @@ create table if not exists public.prompts (
   is_favorite boolean default false,
   created_at timestamptz default now(),
   updated_at timestamptz,
-  use_count integer default 0,
-  thumbnail_url text
+  use_count integer default 0
 );
 
 create table if not exists public.prompt_improvements (

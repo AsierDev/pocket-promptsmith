@@ -6,13 +6,28 @@ import {
   stripCodeFences
 } from '@/features/ai-improvements/client';
 
+vi.mock('@/lib/env', () => ({
+  env: {
+    supabaseUrl: 'https://test.supabase.co',
+    supabaseAnonKey: 'test-key',
+    googleClientId: 'test-google-id',
+    googleClientSecret: 'test-google-secret',
+    openRouterKey: 'test-router-key',
+    openRouterUrl: 'https://test.openrouter.ai',
+    siteUrl: 'https://test.com'
+  }
+}));
+
 describe('AI helpers', () => {
   it('normalizes variable names by trimming and removing braces', () => {
     expect(normalizeVariableName('  {{User Name}}  ')).toBe('User_Name');
   });
 
   it('sanitizes improved prompts removing unknown variables', () => {
-    const { sanitized, removed } = sanitizeImprovedVariables('Hola {{name}} {{newVar}}', new Set(['name']));
+    const { sanitized, removed } = sanitizeImprovedVariables(
+      'Hola {{name}} {{newVar}}',
+      new Set(['name'])
+    );
     expect(sanitized).toBe('Hola {{name}} newVar');
     expect(removed).toEqual(['newVar']);
   });

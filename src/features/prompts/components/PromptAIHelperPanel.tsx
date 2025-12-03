@@ -4,7 +4,10 @@ import { useEffect, useRef, useState, useTransition } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/common/Button';
 import { CopyProposalButton } from '@/components/common/CopyProposalButton';
-import { AI_IMPROVEMENT_SOURCE_MAX_LENGTH, type PromptFormValues } from '@/features/prompts/schemas';
+import {
+  AI_IMPROVEMENT_SOURCE_MAX_LENGTH,
+  type PromptFormValues
+} from '@/features/prompts/schemas';
 import { PromptDiffModal } from '@/features/prompts/components/PromptDiffModal';
 import { logImprovement } from '@/features/prompts/actions';
 import clsx from 'clsx';
@@ -35,23 +38,30 @@ interface AiResult {
 const goalPresets = [
   {
     label: 'Hazlo más claro',
-    value: 'Haz que el prompt sea más claro y directo sin perder el tono original.'
+    value:
+      'Haz que el prompt sea más claro y directo sin perder el tono original.'
   },
   {
     label: 'Más estructurado',
-    value: 'Convierte el prompt en pasos bien organizados con bullets o secciones numeradas.'
+    value:
+      'Convierte el prompt en pasos bien organizados con bullets o secciones numeradas.'
   },
   {
     label: 'Optimiza para código',
-    value: 'Pide ejemplos de código y estándares técnicos concretos para desarrolladores.'
+    value:
+      'Pide ejemplos de código y estándares técnicos concretos para desarrolladores.'
   },
   {
     label: 'Más conciso',
-    value: 'Reduce repeticiones y resume en menos palabras manteniendo las instrucciones clave.'
+    value:
+      'Reduce repeticiones y resume en menos palabras manteniendo las instrucciones clave.'
   }
 ];
 
-const lengthOptions: Array<{ value: 'short' | 'medium' | 'long'; label: string }> = [
+const lengthOptions: Array<{
+  value: 'short' | 'medium' | 'long';
+  label: string;
+}> = [
   { value: 'short', label: 'Corto' },
   { value: 'medium', label: 'Medio' },
   { value: 'long', label: 'Largo' }
@@ -81,9 +91,13 @@ export const PromptAIHelperPanel = ({
   const [applyPending, startApplyTransition] = useTransition();
   const premiumUsedToday = usePremiumUsageStore((state) => state.usedToday);
   const premiumLimit = usePremiumUsageStore((state) => state.limit);
-  const setPremiumUsedToday = usePremiumUsageStore((state) => state.setUsedToday);
+  const setPremiumUsedToday = usePremiumUsageStore(
+    (state) => state.setUsedToday
+  );
   const incrementPremiumUsed = usePremiumUsageStore((state) => state.increment);
-  const resetPremiumUsageIfNeeded = usePremiumUsageStore((state) => state.resetIfNeeded);
+  const resetPremiumUsageIfNeeded = usePremiumUsageStore(
+    (state) => state.resetIfNeeded
+  );
   const goalInputRef = useRef<HTMLTextAreaElement>(null);
   const hasPremiumLeft = premiumUsedToday < premiumLimit;
   const premiumInfoMessage = hasPremiumLeft
@@ -93,10 +107,15 @@ export const PromptAIHelperPanel = ({
   const aiImprovementLength = aiImprovementSource?.length ?? 0;
   const aiImprovementOverLimit = aiImprovementLength > aiImprovementLimit;
   const improvementFieldError =
-    aiImprovementError || (aiImprovementOverLimit ? `Máximo ${aiImprovementLimit} caracteres` : undefined);
+    aiImprovementError ||
+    (aiImprovementOverLimit
+      ? `Máximo ${aiImprovementLimit} caracteres`
+      : undefined);
   const fullContentLength = content.trim().length;
-  const cannotImproveWithFullPrompt = !trimmedAiSource && fullContentLength > aiImprovementLimit;
-  const disableGenerate = loading || Boolean(improvementFieldError) || cannotImproveWithFullPrompt;
+  const cannotImproveWithFullPrompt =
+    !trimmedAiSource && fullContentLength > aiImprovementLimit;
+  const disableGenerate =
+    loading || Boolean(improvementFieldError) || cannotImproveWithFullPrompt;
 
   useEffect(() => {
     resetPremiumUsageIfNeeded();
@@ -108,7 +127,10 @@ export const PromptAIHelperPanel = ({
     }
   }, [autoFocus]);
 
-  const updatePremiumUsage = (modelUsed?: string, premiumImprovementsUsedToday?: number) => {
+  const updatePremiumUsage = (
+    modelUsed?: string,
+    premiumImprovementsUsedToday?: number
+  ) => {
     if (typeof premiumImprovementsUsedToday === 'number') {
       setPremiumUsedToday(premiumImprovementsUsedToday);
       return;
@@ -127,7 +149,9 @@ export const PromptAIHelperPanel = ({
       return;
     }
     if (trimmedAiSource && aiImprovementLength > aiImprovementLimit) {
-      toast.error(improvementFieldError ?? 'Has superado el límite para mejorar con IA');
+      toast.error(
+        improvementFieldError ?? 'Has superado el límite para mejorar con IA'
+      );
       return;
     }
     if (!trimmedAiSource && normalizedText.length > aiImprovementLimit) {
@@ -182,7 +206,6 @@ export const PromptAIHelperPanel = ({
     });
   };
 
-
   const handleRegenerate = () => {
     setDiffOpen(false);
     void requestImprovement();
@@ -191,8 +214,12 @@ export const PromptAIHelperPanel = ({
   return (
     <aside className="rounded-3xl border border-slate-200 bg-white/90 p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
       <div className="space-y-1">
-        <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-300">Ayuda con IA</p>
-        <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Mejorar este prompt</h3>
+        <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-300">
+          Ayuda con IA
+        </p>
+        <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+          Mejorar este prompt
+        </h3>
         <p className="text-sm text-slate-500 dark:text-slate-300">
           Describe qué necesitas y recibe una versión lista para comparar.
         </p>
@@ -204,15 +231,20 @@ export const PromptAIHelperPanel = ({
             {Math.min(premiumUsedToday, premiumLimit)} / {premiumLimit}
           </span>
         </div>
-        <p className="mt-1 text-[11px] leading-snug text-slate-500 dark:text-slate-400">{premiumInfoMessage}</p>
+        <p className="mt-1 text-[11px] leading-snug text-slate-500 dark:text-slate-400">
+          {premiumInfoMessage}
+        </p>
       </div>
       <div className="mt-4 space-y-3">
         <label className="space-y-2 text-sm">
           <div className="flex items-start justify-between gap-3">
             <div className="space-y-1">
-              <span className="font-medium text-slate-700 dark:text-slate-200">Texto a mejorar (opcional)</span>
+              <span className="font-medium text-slate-700 dark:text-slate-200">
+                Texto a mejorar (opcional)
+              </span>
               <p className="text-xs text-slate-500 dark:text-slate-300">
-                Si tu prompt completo es muy largo, pega aquí solo la parte que quieras que la IA mejore.
+                Si tu prompt completo es muy largo, pega aquí solo la parte que
+                quieras que la IA mejore.
               </p>
             </div>
             <span
@@ -226,7 +258,9 @@ export const PromptAIHelperPanel = ({
           </div>
           <textarea
             value={aiImprovementSource}
-            onChange={(event) => onChangeAiImprovementSource(event.target.value)}
+            onChange={(event) =>
+              onChangeAiImprovementSource(event.target.value)
+            }
             placeholder="Pega aquí solo el fragmento que quieras mejorar"
             rows={4}
             maxLength={aiImprovementLimit}
@@ -237,17 +271,23 @@ export const PromptAIHelperPanel = ({
                 : 'border-slate-200 focus:border-primary focus:ring-primary dark:border-slate-700'
             )}
           />
-          {improvementFieldError && <p className="text-xs text-rose-500">{improvementFieldError}</p>}
+          {improvementFieldError && (
+            <p className="text-xs text-rose-500">{improvementFieldError}</p>
+          )}
           {cannotImproveWithFullPrompt && (
             <p className="text-xs font-semibold text-amber-600 dark:text-amber-400">
-              Este prompt es demasiado largo para mejorarlo de una vez. Usa el campo Texto a mejorar para trabajar por partes.
+              Este prompt es demasiado largo para mejorarlo de una vez. Usa el
+              campo Texto a mejorar para trabajar por partes.
             </p>
           )}
         </label>
         <label className="space-y-2 text-sm">
-          <span className="font-medium text-slate-700 dark:text-slate-200">¿Cómo quieres que la IA mejore este prompt?</span>
+          <span className="font-medium text-slate-700 dark:text-slate-200">
+            ¿Cómo quieres que la IA mejore este prompt?
+          </span>
           <p className="text-xs text-slate-500 dark:text-slate-300">
-            Opcional. Ejemplos: hazlo más conciso, más estructurado, añade ejemplos, etc.
+            Opcional. Ejemplos: hazlo más conciso, más estructurado, añade
+            ejemplos, etc.
           </p>
           <textarea
             ref={goalInputRef}
@@ -326,7 +366,13 @@ export const PromptAIHelperPanel = ({
             </div>
           </div>
         )}
-        <Button type="button" onClick={requestImprovement} loading={loading} disabled={disableGenerate} className="w-full">
+        <Button
+          type="button"
+          onClick={requestImprovement}
+          loading={loading}
+          disabled={disableGenerate}
+          className="w-full"
+        >
           Generar mejora
         </Button>
         {result && (
@@ -350,16 +396,54 @@ export const PromptAIHelperPanel = ({
               {result.improved_prompt}
             </pre>
             <div className="flex flex-wrap gap-2">
-              <Button type="button" onClick={() => setDiffOpen(true)}>
+              <Button
+                type="button"
+                onClick={() => setDiffOpen(true)}
+                className="min-w-[140px]"
+              >
                 Ver diff y aplicar…
               </Button>
               <CopyProposalButton text={result.improved_prompt} />
               <button
                 type="button"
                 onClick={requestImprovement}
-                className="text-xs font-semibold text-primary underline-offset-2 hover:underline"
+                disabled={loading}
+                className={clsx(
+                  'text-xs font-semibold underline-offset-2 transition-colors',
+                  loading
+                    ? 'text-slate-400 cursor-not-allowed'
+                    : 'text-primary hover:underline'
+                )}
               >
-                Generar otra propuesta
+                {loading ? (
+                  <span className="flex items-center gap-2">
+                    <svg
+                      className="h-3 w-3 animate-spin"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                    <span className="sr-only">Generando propuesta</span>
+                    Generando...
+                  </span>
+                ) : (
+                  'Generar otra propuesta'
+                )}
               </button>
             </div>
           </div>

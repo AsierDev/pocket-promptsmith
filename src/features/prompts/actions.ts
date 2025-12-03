@@ -42,7 +42,6 @@ export const createPromptAction = async (formData: FormData) => {
     content: formData.get('content'),
     category: formData.get('category'),
     tags: parseTags(formData.get('tags')),
-    thumbnail_url: formData.get('thumbnail_url'),
     ai_improvement_source: formData.get('ai_improvement_source')
   });
 
@@ -57,7 +56,6 @@ export const createPromptAction = async (formData: FormData) => {
     content: parsed.content,
     category: parsed.category,
     tags: parsed.tags,
-    thumbnail_url: parsed.thumbnail_url ?? null,
     ai_improvement_source: aiImprovementSource ? aiImprovementSource : null
   });
 
@@ -75,7 +73,7 @@ export const createPromptAction = async (formData: FormData) => {
   revalidatePath('/prompts');
   // Clear cache after creating a new prompt
   clearAllCache();
-  return { ok: true };
+  redirect('/prompts/dashboard');
 };
 
 export const updatePromptAction = async (
@@ -89,7 +87,6 @@ export const updatePromptAction = async (
     content: formData.get('content'),
     category: formData.get('category'),
     tags: parseTags(formData.get('tags')),
-    thumbnail_url: formData.get('thumbnail_url'),
     ai_improvement_source: formData.get('ai_improvement_source')
   });
 
@@ -105,7 +102,6 @@ export const updatePromptAction = async (
       content: parsed.content,
       category: parsed.category,
       tags: parsed.tags,
-      thumbnail_url: parsed.thumbnail_url ?? null,
       ai_improvement_source: aiImprovementSource ? aiImprovementSource : null,
       updated_at: new Date().toISOString()
     })
@@ -117,7 +113,7 @@ export const updatePromptAction = async (
   revalidatePath(`/prompts/${promptId}`);
   // Clear cache after updating a prompt
   clearAllCache();
-  return { ok: true };
+  redirect('/prompts/dashboard');
 };
 
 export const deletePromptAction = async (promptId: string) => {
