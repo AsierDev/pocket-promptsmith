@@ -1,12 +1,13 @@
 import { NextResponse } from 'next/server';
-import {
-  improvePromptWithAI,
-  type PromptCategory,
-  type PromptLengthSetting
-} from '@/features/ai-improvements/client';
-import { getProfile } from '@/lib/supabaseServer';
+
 import { getSupabaseServerClient } from '@/lib/authUtils';
 import { FREEMIUM_LIMITS } from '@/lib/limits';
+import { getProfile } from '@/lib/supabaseServer';
+import {
+  AiImproveRequestSchema,
+  validateRequest
+} from '@/lib/validation/apiSchemas';
+import { improvePromptWithAI } from '@/features/ai-improvements/client';
 import { isPremiumModel } from '@/features/ai-improvements/models';
 import { AI_IMPROVEMENT_SOURCE_MAX_LENGTH } from '@/features/prompts/schemas';
 
@@ -35,14 +36,11 @@ export async function POST(request: Request) {
 
     const profile = await getProfile();
 
-    const { content, goal, category, temperature, length } =
-      (await request.json()) as {
-        content: string;
-        goal?: string;
-        category: PromptCategory;
-        temperature?: number;
-        length?: PromptLengthSetting;
-      };
+    const requestBody = await request.json();
+    const validatedData = validateRequest(AiImproveRequestSchema)(requestBody);
+
+    const { content, goal, category, temperature, length } = validatedData;
+
     const normalizedContent = content?.trim?.() ?? '';
     if (!normalizedContent) {
       return NextResponse.json(
@@ -50,6 +48,7 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
+
     if (normalizedContent.length > AI_IMPROVEMENT_SOURCE_MAX_LENGTH) {
       return NextResponse.json(
         {
@@ -71,6 +70,7 @@ export async function POST(request: Request) {
         premiumUsedToday
       }
     );
+
     const usedPremiumModel = isPremiumModel(result.modelUsed);
     const nextPremiumCount = usedPremiumModel
       ? Math.min(premiumUsedToday + 1, FREEMIUM_LIMITS.improvementsPerDay)
@@ -96,8 +96,23 @@ export async function POST(request: Request) {
       premiumImprovementsUsedToday: nextPremiumCount
     });
   } catch (error) {
+    console.error('AI improve route error:', error);
+
+    if (error instanceof Error) {
+      if (error.message.includes('Validation failed')) {
+        return NextResponse.json({ error: error.message }, { status: 400 });
+      }
+
+      if (error.message.includes('OPENROUTER_API_KEY')) {
+        return NextResponse.json(
+          { error: 'Servicio temporalmente no disponible' },
+          { status: 503 }
+        );
+      }
+    }
+
     return NextResponse.json(
-      { error: (error as Error).message },
+      { error: 'Error interno del servidor' },
       { status: 500 }
     );
   }

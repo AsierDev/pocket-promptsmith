@@ -1,4 +1,6 @@
 import Link from 'next/link';
+import { memo } from 'react';
+
 import { FavoriteToggle } from '@/features/prompts/components/FavoriteToggle';
 import type { PromptRow } from '@/types/supabase';
 
@@ -71,7 +73,7 @@ interface PromptCardProps {
   prompt: PromptRow;
 }
 
-export const PromptCard = ({ prompt }: PromptCardProps) => {
+export const PromptCard = memo(({ prompt }: PromptCardProps) => {
   const category = categoryTokens[prompt.category];
   const summary = prompt.summary?.trim().length
     ? summarize(prompt.summary.trim())
@@ -80,7 +82,6 @@ export const PromptCard = ({ prompt }: PromptCardProps) => {
 
   return (
     <article className="group relative flex min-h-[160px] flex-col gap-3 rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-card-subtle transition hover:border-primary/50 hover:shadow-card dark:border-slate-800 dark:bg-slate-900/90 sm:flex-row sm:gap-4">
-      {/* Icon */}
       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl sm:h-12 sm:w-12" aria-hidden>
         <span
           className={`flex h-full w-full items-center justify-center rounded-xl text-lg ${category.bg} ${category.iconColor} dark:bg-opacity-20`}
@@ -89,9 +90,7 @@ export const PromptCard = ({ prompt }: PromptCardProps) => {
         </span>
       </div>
 
-      {/* Content */}
       <div className="flex min-w-0 flex-1 flex-col gap-2">
-        {/* Title & Category */}
         <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-2">
           <h3 className="text-base font-semibold text-slate-900 dark:text-white">
             {prompt.title}
@@ -102,10 +101,8 @@ export const PromptCard = ({ prompt }: PromptCardProps) => {
           </span>
         </div>
 
-        {/* Summary */}
         <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300">{summary}</p>
 
-        {/* Tags & Meta */}
         <div className="flex flex-wrap items-center gap-2 text-xs">
           {tags.length > 0 && (
             <div className="flex gap-1.5">
@@ -125,7 +122,6 @@ export const PromptCard = ({ prompt }: PromptCardProps) => {
         </div>
       </div>
 
-      {/* Actions */}
       <div className="flex shrink-0 items-center justify-between gap-2 sm:flex-col sm:items-end sm:justify-start">
         <FavoriteToggle promptId={prompt.id} initialFavorite={prompt.is_favorite} />
         <div className="flex items-center gap-2">
@@ -159,4 +155,7 @@ export const PromptCard = ({ prompt }: PromptCardProps) => {
       </div>
     </article>
   );
-};
+});
+
+PromptCard.displayName = 'PromptCard';
+
