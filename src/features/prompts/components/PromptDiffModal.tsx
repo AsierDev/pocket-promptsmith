@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
 import clsx from 'clsx';
-import { Modal } from '@/components/common/Modal';
+import { useState } from 'react';
+import { toast } from 'sonner';
+
 import { Button } from '@/components/common/Button';
 import { CopyProposalButton } from '@/components/common/CopyProposalButton';
-import { toast } from 'sonner';
+import { Modal } from '@/components/common/Modal';
 import { isPremiumModel } from '@/features/ai-improvements/models';
 
 interface PromptDiffModalProps {

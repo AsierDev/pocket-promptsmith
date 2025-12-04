@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+
 import { signOut } from '@/features/auth/actions';
 import { clearSessionFromLocalStorage } from '@/lib/pwaSessionStorage';
 

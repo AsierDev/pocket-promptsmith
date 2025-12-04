@@ -1,13 +1,14 @@
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
-import { Modal } from '@/components/common/Modal';
-import { Button } from '@/components/common/Button';
-import { logImprovement } from '@/features/prompts/actions';
 import { toast } from 'sonner';
-import type { PromptRow } from '@/types/supabase';
-import { AI_IMPROVEMENT_SOURCE_MAX_LENGTH } from '@/features/prompts/schemas';
+
+import { Button } from '@/components/common/Button';
+import { Modal } from '@/components/common/Modal';
 import { isPremiumModel } from '@/features/ai-improvements/models';
+import { logImprovement } from '@/features/prompts/actions';
+import { AI_IMPROVEMENT_SOURCE_MAX_LENGTH } from '@/features/prompts/schemas';
+import type { PromptRow } from '@/types/supabase';
 
 interface AiImproveModalProps {
   open: boolean;

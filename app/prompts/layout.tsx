@@ -1,14 +1,15 @@
-import { getProfile } from '@/lib/supabaseServer';
-import { getSession } from '@/lib/authUtils';
-import { LimitsBanner } from '@/features/limits/LimitsBanner';
-import { signOut } from '@/features/auth/actions';
 import { redirect } from 'next/navigation';
-import { PremiumUsageProvider } from '@/features/ai-improvements/PremiumUsageProvider';
-import { FREEMIUM_LIMITS } from '@/lib/limits';
+
+import { LogoutButton } from '@/components/auth/LogoutButton';
+import { ThemeToggle } from '@/components/common/ThemeToggle';
 import { BottomNav } from '@/components/navigation/BottomNav';
 import { TopTabs } from '@/components/navigation/TopTabs';
-import { ThemeToggle } from '@/components/common/ThemeToggle';
-import { LogoutButton } from '@/components/auth/LogoutButton';
+import { PremiumUsageProvider } from '@/features/ai-improvements/PremiumUsageProvider';
+import { signOut } from '@/features/auth/actions';
+import { LimitsBanner } from '@/features/limits/LimitsBanner';
+import { getSession } from '@/lib/authUtils';
+import { FREEMIUM_LIMITS } from '@/lib/limits';
+import { getProfile } from '@/lib/supabaseServer';
 
 export default async function PromptsLayout({
   children

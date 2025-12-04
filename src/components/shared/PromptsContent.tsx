@@ -1,7 +1,7 @@
-import { PromptFilters as PromptFiltersComponent } from '@/features/prompts/components/PromptFilters';
-import { fetchPrompts, fetchUserTags, type PromptFilters } from '@/features/prompts/services';
-import { PromptGrid } from '@/features/prompts/components/PromptGrid';
 import { PromptEmptyState } from '@/features/prompts/components/PromptEmptyState';
+import { PromptFilters as PromptFiltersComponent } from '@/features/prompts/components/PromptFilters';
+import { PromptGrid } from '@/features/prompts/components/PromptGrid';
+import { fetchPrompts, fetchUserTags, type PromptFilters } from '@/features/prompts/services';
 
 interface Props {
   filters: PromptFilters;

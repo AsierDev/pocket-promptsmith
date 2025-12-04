@@ -1,7 +1,10 @@
+import type { Route } from 'next';
 import Link from 'next/link';
+import { memo } from 'react';
+
 import { PromptCard } from '@/features/prompts/components/PromptCard';
 import type { PromptRow } from '@/types/supabase';
-import type { Route } from 'next';
+
 
 interface PromptGridProps {
   prompts: PromptRow[];
@@ -28,7 +31,7 @@ const buildPageHref = (
   return `/prompts/library?${params.toString()}` as Route;
 };
 
-export const PromptGrid = ({ prompts, total, pageSize, currentPage, searchParams }: PromptGridProps) => {
+export const PromptGrid = memo(({ prompts, total, pageSize, currentPage, searchParams }: PromptGridProps) => {
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const canPrev = currentPage > 1;
   const canNext = currentPage < totalPages;
@@ -88,4 +91,6 @@ export const PromptGrid = ({ prompts, total, pageSize, currentPage, searchParams
       </div>
     </section>
   );
-};
+});
+
+PromptGrid.displayName = 'PromptGrid';

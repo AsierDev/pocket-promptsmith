@@ -1,7 +1,9 @@
-import { getProfile } from '@/lib/supabaseServer';
-import { fetchPrompts } from '@/features/prompts/services';
-import { PromptCard } from '@/features/prompts/components/PromptCard';
 import Link from 'next/link';
+
+import { PromptCard } from '@/features/prompts/components/PromptCard';
+import { fetchPrompts } from '@/features/prompts/services';
+import { getProfile } from '@/lib/supabaseServer';
+
 
 export const dynamic = 'force-dynamic';
 

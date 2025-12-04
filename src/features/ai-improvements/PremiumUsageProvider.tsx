@@ -1,8 +1,9 @@
 'use client';
 
 import { useEffect, type ReactNode } from 'react';
-import { FREEMIUM_LIMITS } from '@/lib/limits';
+
 import { usePremiumUsageStore } from '@/features/ai-improvements/premiumUsageStore';
+import { FREEMIUM_LIMITS } from '@/lib/limits';
 
 type Props = {
   usedToday: number;

@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server';
 
+import { improvePromptWithAI } from '@/features/ai-improvements/client';
+import { isPremiumModel } from '@/features/ai-improvements/models';
+import { AI_IMPROVEMENT_SOURCE_MAX_LENGTH } from '@/features/prompts/schemas';
 import { getSupabaseServerClient } from '@/lib/authUtils';
 import { FREEMIUM_LIMITS } from '@/lib/limits';
 import { getProfile } from '@/lib/supabaseServer';
@@ -7,9 +10,6 @@ import {
   AiImproveRequestSchema,
   validateRequest
 } from '@/lib/validation/apiSchemas';
-import { improvePromptWithAI } from '@/features/ai-improvements/client';
-import { isPremiumModel } from '@/features/ai-improvements/models';
-import { AI_IMPROVEMENT_SOURCE_MAX_LENGTH } from '@/features/prompts/schemas';
 
 export async function POST(request: Request) {
   try {

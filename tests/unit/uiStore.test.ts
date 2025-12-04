@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+
 import { useUiStore } from '@/store/uiStore';
 
 describe('uiStore', () => {

@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, ReactNode } from 'react';
 import clsx from 'clsx';
+import { useState, ReactNode } from 'react';
 
 export interface WizardStep {
     id: string;

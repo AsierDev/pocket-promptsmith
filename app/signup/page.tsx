@@ -1,12 +1,14 @@
 'use client';
 
-import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { useState } from 'react';
-import { toast } from 'sonner';
-import { signUp, signInWithGoogle } from '@/features/auth/actions';
 import Link from 'next/link';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+import { z } from 'zod';
+
+import { signUp, signInWithGoogle } from '@/features/auth/actions';
+
 
 const signupSchema = z
   .object({

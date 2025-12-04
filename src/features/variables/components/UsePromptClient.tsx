@@ -1,16 +1,17 @@
 'use client';
 
+import type { Route } from 'next';
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { extractVariables, replaceVariables } from '@/features/variables/extractVariables';
-import type { PromptRow } from '@/types/supabase';
+import { toast } from 'sonner';
+
 import { Button } from '@/components/common/Button';
 import { trackPromptUsage } from '@/features/prompts/actions';
-import { toast } from 'sonner';
 import { FavoriteToggle } from '@/features/prompts/components/FavoriteToggle';
+import { extractVariables, replaceVariables } from '@/features/variables/extractVariables';
 import { hasIncompleteVariables } from '@/features/variables/utils';
-import type { Route } from 'next';
+import type { PromptRow } from '@/types/supabase';
 
 interface Props {
   prompt: PromptRow;

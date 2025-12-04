@@ -1,7 +1,8 @@
-import { FormField } from '@/components/common/FormField';
-import { Button } from '@/components/common/Button';
-import { PROMPT_CATEGORIES } from '@/features/prompts/schemas';
 import type { UseFormRegister, FieldErrors } from 'react-hook-form';
+
+import { Button } from '@/components/common/Button';
+import { FormField } from '@/components/common/FormField';
+import { PROMPT_CATEGORIES } from '@/features/prompts/schemas';
 import type { PromptFormValues } from '@/features/prompts/schemas';
 
 interface WizardStep1Props {

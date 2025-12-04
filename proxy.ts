@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+
 import { createSupabaseMiddlewareClient } from '@/lib/authUtils';
 
 const PROTECTED_PREFIXES = ['/prompts'];

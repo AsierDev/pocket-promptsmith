@@ -1,6 +1,3 @@
-import { FormField } from '@/components/common/FormField';
-import { Button } from '@/components/common/Button';
-import { TagInput } from '@/features/prompts/components/TagInput';
 import { Controller } from 'react-hook-form';
 import type {
   Control,
@@ -8,6 +5,10 @@ import type {
   UseFormSetValue,
   FieldErrors
 } from 'react-hook-form';
+
+import { Button } from '@/components/common/Button';
+import { FormField } from '@/components/common/FormField';
+import { TagInput } from '@/features/prompts/components/TagInput';
 import type { PromptFormValues } from '@/features/prompts/schemas';
 
 interface WizardStep3Props {

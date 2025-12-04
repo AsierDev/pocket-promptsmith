@@ -1,7 +1,7 @@
-import { env } from "@/lib/env";
-import type { PromptRow } from "@/types/supabase";
 import { getModelsForImprovement } from "@/features/ai-improvements/models";
 import { extractVariables } from "@/features/variables/extractVariables";
+import { env } from "@/lib/env";
+import type { PromptRow } from "@/types/supabase";
 
 export const normalizeVariableName = (variable: string) =>
   variable.trim().replace(/[{}]/g, "").replace(/\s+/g, "_");

@@ -1,6 +1,7 @@
 'use client';
 
 import { useOptimistic, useTransition } from 'react';
+
 import { toggleFavoriteAction } from '@/features/prompts/actions';
 
 interface FavoriteToggleProps {

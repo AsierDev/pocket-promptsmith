@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+
 import { hasIncompleteVariables } from '@/features/variables/utils';
 
 describe('use prompt drawer helpers', () => {

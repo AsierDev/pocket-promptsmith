@@ -1,7 +1,8 @@
 'use client';
 
-import { Button } from '@/components/common/Button';
 import { toast } from 'sonner';
+
+import { Button } from '@/components/common/Button';
 
 interface CopyProposalButtonProps {
   text: string;

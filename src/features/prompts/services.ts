@@ -1,11 +1,11 @@
 import { getSupabaseServerClient } from '@/lib/authUtils';
-import type { PromptRow } from '@/types/supabase';
 import {
   getCachedData,
   setCachedData,
   generateCacheKey,
   CACHE_TTL
 } from '@/lib/cacheUtils';
+import type { PromptRow } from '@/types/supabase';
 
 export type PromptFilters = {
   q?: string;

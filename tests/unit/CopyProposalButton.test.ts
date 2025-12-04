@@ -1,6 +1,7 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { CopyProposalButton } from '@/components/common/CopyProposalButton';
 import { toast } from 'sonner';
+import { describe, expect, it, vi, beforeEach } from 'vitest';
+
+import { CopyProposalButton } from '@/components/common/CopyProposalButton';
 
 const mockWriteText = vi.fn().mockResolvedValue(undefined);
 Object.assign(navigator, {

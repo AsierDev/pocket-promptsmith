@@ -2,12 +2,13 @@
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { getSupabaseServerClient } from '@/lib/authUtils';
-import { getProfile } from '@/lib/supabaseServer';
+
 import { promptFormSchema } from '@/features/prompts/schemas';
-import { hasReachedPromptLimit } from '@/lib/limits';
 import { incrementUseCount, toggleFavorite } from '@/features/prompts/services';
+import { getSupabaseServerClient } from '@/lib/authUtils';
 import { clearCacheEntry, clearAllCache } from '@/lib/cacheUtils';
+import { hasReachedPromptLimit } from '@/lib/limits';
+import { getProfile } from '@/lib/supabaseServer';
 
 const parseTags = (raw: FormDataEntryValue | null): string[] => {
   if (!raw) return [];

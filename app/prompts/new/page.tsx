@@ -1,6 +1,6 @@
 import { PromptFormWizard } from '@/features/prompts/components/PromptFormWizard';
-import { getProfile } from '@/lib/supabaseServer';
 import { hasReachedPromptLimit } from '@/lib/limits';
+import { getProfile } from '@/lib/supabaseServer';
 
 export default async function NewPromptPage({
   searchParams

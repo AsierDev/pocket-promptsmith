@@ -1,9 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { createBrowserClient } from '@supabase/ssr';
-import type { Database } from '@/types/supabase';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+
+import type { Database } from '@/types/supabase';
+
 
 /**
  * Hook to hydrate Supabase session from localStorage on PWA startup

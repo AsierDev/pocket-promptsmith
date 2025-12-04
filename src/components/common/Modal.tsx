@@ -1,7 +1,8 @@
 'use client';
 
-import { DialogHTMLAttributes, PropsWithChildren, useEffect, useId } from 'react';
 import clsx from 'clsx';
+import { DialogHTMLAttributes, PropsWithChildren, useEffect, useId } from 'react';
+
 import { Button } from '@/components/common/Button';
 
 type ModalProps = PropsWithChildren<{

@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+
 import { getNextFeedbackState, type FeedbackChoice } from '@/features/prompts/components/PromptDiffModal';
 
 describe('prompt diff modal helpers', () => {

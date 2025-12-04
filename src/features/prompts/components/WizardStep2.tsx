@@ -1,19 +1,20 @@
-import { FormField } from '@/components/common/FormField';
+import clsx from 'clsx';
+import { useState } from 'react';
+import type {
+  UseFormRegister,
+  UseFormSetValue,
+  FieldErrors
+} from 'react-hook-form';
+
 import { Button } from '@/components/common/Button';
+import { FormField } from '@/components/common/FormField';
 import { PromptAIHelperPanel } from '@/features/prompts/components/PromptAIHelperPanel';
 import {
   PROMPT_CONTENT_MAX_LENGTH,
   AI_IMPROVEMENT_SOURCE_MAX_LENGTH,
   PROMPT_CATEGORIES
 } from '@/features/prompts/schemas';
-import type {
-  UseFormRegister,
-  UseFormSetValue,
-  FieldErrors
-} from 'react-hook-form';
 import type { PromptFormValues } from '@/features/prompts/schemas';
-import clsx from 'clsx';
-import { useState } from 'react';
 import { useCharacterLimitValidation } from '@/hooks/useCharacterLimitValidation';
 
 interface WizardStep2Props {

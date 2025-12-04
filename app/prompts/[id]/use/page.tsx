@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+
 import { fetchPromptById } from '@/features/prompts/services';
 import { UsePromptClient } from '@/features/variables/components/UsePromptClient';
 

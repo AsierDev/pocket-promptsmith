@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+
 import { resolveAiRequestOptions } from '@/features/ai-improvements/client';
 
 vi.mock('@/lib/env', () => ({

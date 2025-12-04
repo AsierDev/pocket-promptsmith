@@ -1,6 +1,6 @@
+import { PromptsContent } from '@/components/shared/PromptsContent';
 import { PROMPT_CATEGORIES } from '@/features/prompts/schemas';
 import type { PromptFilters } from '@/features/prompts/services';
-import { PromptsContent } from '@/components/shared/PromptsContent';
 
 const isPromptCategory = (value: string): value is (typeof PROMPT_CATEGORIES)[number] => {
     return PROMPT_CATEGORIES.includes(value as (typeof PROMPT_CATEGORIES)[number]);

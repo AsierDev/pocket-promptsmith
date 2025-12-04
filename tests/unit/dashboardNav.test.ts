@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+
 import { resolveLibrarySection } from '@/features/prompts/components/DashboardNav';
 
 describe('dashboard navigation helpers', () => {

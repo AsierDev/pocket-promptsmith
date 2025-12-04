@@ -2,9 +2,10 @@
 
 import { useRouter } from 'next/navigation';
 import { useMemo, useState, useTransition } from 'react';
-import { PROMPT_CATEGORIES } from '@/features/prompts/schemas';
-import { TagInput } from '@/features/prompts/components/TagInput';
+
 import { Button } from '@/components/common/Button';
+import { TagInput } from '@/features/prompts/components/TagInput';
+import { PROMPT_CATEGORIES } from '@/features/prompts/schemas';
 
 interface PromptFiltersProps {
   initialFilters: {

@@ -1,10 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { FREEMIUM_LIMITS, getPromptUsageCopy } from '@/lib/limits';
+
 import { Button } from '@/components/common/Button';
 import { Modal } from '@/components/common/Modal';
 import { usePremiumUsageStore } from '@/features/ai-improvements/premiumUsageStore';
+import { FREEMIUM_LIMITS, getPromptUsageCopy } from '@/lib/limits';
 
 interface Props {
   promptCount: number;

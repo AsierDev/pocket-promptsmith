@@ -1,18 +1,19 @@
 'use client';
 
+import clsx from 'clsx';
 import { useEffect, useRef, useState, useTransition } from 'react';
 import { toast } from 'sonner';
+
 import { Button } from '@/components/common/Button';
 import { CopyProposalButton } from '@/components/common/CopyProposalButton';
+import { isPremiumModel } from '@/features/ai-improvements/models';
+import { usePremiumUsageStore } from '@/features/ai-improvements/premiumUsageStore';
+import { logImprovement } from '@/features/prompts/actions';
+import { PromptDiffModal } from '@/features/prompts/components/PromptDiffModal';
 import {
   AI_IMPROVEMENT_SOURCE_MAX_LENGTH,
   type PromptFormValues
 } from '@/features/prompts/schemas';
-import { PromptDiffModal } from '@/features/prompts/components/PromptDiffModal';
-import { logImprovement } from '@/features/prompts/actions';
-import clsx from 'clsx';
-import { isPremiumModel } from '@/features/ai-improvements/models';
-import { usePremiumUsageStore } from '@/features/ai-improvements/premiumUsageStore';
 
 interface PromptAIHelperPanelProps {
   promptId?: string;

@@ -1,5 +1,6 @@
-import { getSupabaseServerClient } from '@/lib/authUtils';
 import { NextResponse } from 'next/server';
+
+import { getSupabaseServerClient } from '@/lib/authUtils';
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);

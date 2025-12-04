@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+
 import { extractVariables, replaceVariables } from '@/features/variables/extractVariables';
 
 describe('extractVariables', () => {

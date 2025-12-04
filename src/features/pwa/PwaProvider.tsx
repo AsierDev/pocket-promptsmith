@@ -1,9 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+
 import { Button } from '@/components/common/Button';
-import { useUiStore } from '@/store/uiStore';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { useUiStore } from '@/store/uiStore';
 
 export const PwaProvider = () => {
   const [deferredPrompt, setDeferredPrompt] = useState<Event | null>(null);

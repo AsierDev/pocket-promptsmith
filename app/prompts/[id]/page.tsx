@@ -1,9 +1,10 @@
-import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { fetchPromptById } from '@/features/prompts/services';
-import { getProfile } from '@/lib/supabaseServer';
+import { notFound } from 'next/navigation';
+
 import { DeletePromptButton } from '@/features/prompts/components/DeletePromptButton';
 import { PromptFormWizard } from '@/features/prompts/components/PromptFormWizard';
+import { fetchPromptById } from '@/features/prompts/services';
+import { getProfile } from '@/lib/supabaseServer';
 
 export default async function PromptDetailPage({
   params

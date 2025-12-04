@@ -1,6 +1,7 @@
 import { createServerClient } from '@supabase/ssr';
-import type { Database } from '@/types/supabase';
+
 import { env } from '@/lib/env';
+import type { Database } from '@/types/supabase';
 
 export const getSupabaseServerClient = async () => {
   // Dynamic import to avoid client-side bundling issues

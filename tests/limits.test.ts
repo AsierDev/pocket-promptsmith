@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+
 import { FREEMIUM_LIMITS, hasReachedPromptLimit, hasReachedImproveLimit } from '@/lib/limits';
 
 describe('freemium limits helpers', () => {

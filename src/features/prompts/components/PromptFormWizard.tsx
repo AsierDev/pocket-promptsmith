@@ -1,16 +1,12 @@
 'use client';
 
+import { zodResolver } from '@hookform/resolvers/zod';
+import type { Route } from 'next';
+import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
 import { useForm, Controller, useWatch } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import type { Route } from 'next';
-import {
-  promptFormSchema,
-  PROMPT_CATEGORIES,
-  PromptFormValues
-} from '@/features/prompts/schemas';
+
 import {
   createPromptAction,
   updatePromptAction
@@ -22,6 +18,11 @@ import {
 import { WizardStep1 } from '@/features/prompts/components/WizardStep1';
 import { WizardStep2 } from '@/features/prompts/components/WizardStep2';
 import { WizardStep3 } from '@/features/prompts/components/WizardStep3';
+import {
+  promptFormSchema,
+  PROMPT_CATEGORIES,
+  PromptFormValues
+} from '@/features/prompts/schemas';
 
 interface PromptFormWizardProps {
   defaultValues?: Partial<PromptFormValues> & { id?: string };

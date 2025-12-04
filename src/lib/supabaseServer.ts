@@ -1,7 +1,8 @@
 import type { PostgrestError, SupabaseClient } from '@supabase/supabase-js';
-import type { Database, ProfileRow } from '@/types/supabase';
+
 import { getSupabaseServerClient, getSession } from '@/lib/authUtils';
 import { shouldResetDaily } from '@/lib/dateUtils';
+import type { Database, ProfileRow } from '@/types/supabase';
 
 const isNotFoundError = (error: PostgrestError | null) =>
   error?.code === 'PGRST116';

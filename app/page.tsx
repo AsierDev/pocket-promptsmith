@@ -1,5 +1,6 @@
-import Link from 'next/link';
 import Image from 'next/image';
+import Link from 'next/link';
+
 import { getSession } from '@/lib/authUtils';
 
 export const dynamic = 'force-dynamic';

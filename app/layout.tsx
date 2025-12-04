@@ -1,9 +1,11 @@
 import type { Metadata, Viewport } from 'next';
-import './globals.css';
-import { AppProviders } from '@/components/common/Providers';
-import { PwaProvider } from '@/features/pwa/PwaProvider';
-import { SessionHydration } from '@/components/SessionHydration';
 import { Suspense } from 'react';
+
+import './globals.css';
+
+import { AppProviders } from '@/components/common/Providers';
+import { SessionHydration } from '@/components/SessionHydration';
+import { PwaProvider } from '@/features/pwa/PwaProvider';
 
 export const metadata: Metadata = {
   title: {

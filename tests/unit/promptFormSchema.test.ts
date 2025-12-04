@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+
 import {
   promptFormSchema,
   PROMPT_CONTENT_MAX_LENGTH

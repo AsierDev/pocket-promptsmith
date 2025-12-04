@@ -1,11 +1,13 @@
 'use client';
 
-import { useState, useTransition } from 'react';
-import { deletePromptAction } from '@/features/prompts/actions';
-import { Modal } from '@/components/common/Modal';
-import { Button } from '@/components/common/Button';
 import { useRouter } from 'next/navigation';
+import { useState, useTransition } from 'react';
 import { toast } from 'sonner';
+
+import { Button } from '@/components/common/Button';
+import { Modal } from '@/components/common/Modal';
+import { deletePromptAction } from '@/features/prompts/actions';
+
 
 interface Props {
   promptId: string;
