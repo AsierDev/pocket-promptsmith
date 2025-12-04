@@ -567,8 +567,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - **Issues**: [GitHub Issues](https://github.com/AsierDev/pocket-promptsmith/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/AsierDev/pocket-promptsmith/discussions)
-- **Email**: support@example.com
-
 ---
 
 <div align="center">
