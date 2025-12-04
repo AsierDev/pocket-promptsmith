@@ -16,7 +16,7 @@ const developmentCsp = [
 
 const productionCsp = [
   "default-src 'self'",
-  "script-src 'self'",
+  "script-src 'self' 'unsafe-inline'", // Next.js requires unsafe-inline for hydration
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: https:",
   "font-src 'self' data:",
