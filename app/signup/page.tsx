@@ -63,6 +63,7 @@ export default function SignupPage() {
           
           // Set a cookie flag to signal proxy.ts that we have a localStorage session
           // This prevents redirect to login on next app startup
+          // eslint-disable-next-line react-hooks/immutability
           document.cookie = 'pps_has_session=true; path=/; max-age=2592000; SameSite=Lax'; // 30 days
         } catch (storageError) {
           console.error(
