@@ -54,9 +54,14 @@ export default function LoginPage() {
           localStorage.setItem('pps_last_active_timestamp', now.toString());
           
           // Set a cookie flag to signal proxy.ts that we have a localStorage session
-          // This prevents redirect to login on next app startup
-          // eslint-disable-next-line react-hooks/immutability
-          document.cookie = 'pps_has_session=true; path=/; max-age=2592000; SameSite=Lax'; // 30 days
+          // Align cookie expiry with session expiry
+          const maxAgeSeconds = Math.floor((sessionData.expiresAt - now) / 1000);
+          if (maxAgeSeconds > 0) {
+            // eslint-disable-next-line react-hooks/immutability
+            document.cookie = `pps_has_session=true; path=/; max-age=${maxAgeSeconds}; SameSite=Lax`;
+          } else {
+            console.warn('Session expiry is in the past, skipping cookie creation');
+          }
         } catch (storageError) {
           console.error(
             'Failed to store session in localStorage:',
