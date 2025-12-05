@@ -4,6 +4,7 @@ import { Suspense } from 'react';
 import './globals.css';
 
 import { AppProviders } from '@/components/common/Providers';
+import { PwaDetector } from '@/components/PwaDetector';
 import { SessionHydration } from '@/components/SessionHydration';
 import { PwaProvider } from '@/features/pwa/PwaProvider';
 
@@ -31,6 +32,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Suspense fallback={null}>
           <AppProviders>
             <PwaProvider />
+            <PwaDetector />
             <SessionHydration>
               {children}
             </SessionHydration>
