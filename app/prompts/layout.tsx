@@ -1,13 +1,9 @@
-import { redirect } from 'next/navigation';
-
 import { LogoutButton } from '@/components/auth/LogoutButton';
 import { ThemeToggle } from '@/components/common/ThemeToggle';
 import { WizardLayoutWrapper } from '@/components/layout/WizardLayoutWrapper';
 import { BottomNav } from '@/components/navigation/BottomNav';
 import { TopTabs } from '@/components/navigation/TopTabs';
 import { PremiumUsageProvider } from '@/features/ai-improvements/PremiumUsageProvider';
-import { signOut } from '@/features/auth/actions';
-import { getSession } from '@/lib/authUtils';
 import { FREEMIUM_LIMITS } from '@/lib/limits';
 import { getProfile } from '@/lib/supabaseServer';
 
@@ -16,14 +12,10 @@ export default async function PromptsLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await getSession();
-
-  if (!session) {
-    redirect('/login');
-  }
-
+  // Note: Authentication is handled by proxy.ts for all /prompts/* routes
+  // Do NOT add session check here - it causes race condition with PWA localStorage hydration
   const profile = await getProfile();
-  const userEmail = profile?.email ?? session.user?.email ?? '';
+  const userEmail = profile?.email ?? '';
   const userInitial = userEmail ? userEmail.charAt(0).toUpperCase() : 'U';
 
   return (
