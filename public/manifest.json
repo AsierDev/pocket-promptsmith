@@ -2,7 +2,7 @@
   "name": "Pocket Promptsmith",
   "short_name": "Promptsmith",
   "description": "Biblioteca personal de prompts reutilizables con IA y variables.",
-  "start_url": "/prompts",
+  "start_url": "/pwa-start",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#0F172A",
