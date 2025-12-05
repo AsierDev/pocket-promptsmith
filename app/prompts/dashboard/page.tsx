@@ -9,15 +9,15 @@ export const dynamic = 'force-dynamic';
 
 export default async function DashboardPage() {
     const profile = await getProfile();
-    const { prompts } = await fetchPrompts({ sort: 'recent' });
+    const { prompts, count } = await fetchPrompts({ sort: 'recent' });
     const recentPrompts = prompts.slice(0, 4);
 
-    const totalPrompts = prompts.length;
+    const totalPrompts = count;
     const favoriteCount = prompts.filter(p => p.is_favorite).length;
     const usedToday = profile?.prompt_quota_used ?? 0;
 
     return (
-        <div className="space-y-6">
+        <div className="page-transition space-y-6">
             {/* Welcome Section */}
             <div className="rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-card-subtle dark:border-slate-700 dark:bg-slate-900/90">
                 <h1 className="text-2xl font-bold text-slate-900 dark:text-white">

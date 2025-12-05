@@ -2,11 +2,11 @@ import { redirect } from 'next/navigation';
 
 import { LogoutButton } from '@/components/auth/LogoutButton';
 import { ThemeToggle } from '@/components/common/ThemeToggle';
+import { WizardLayoutWrapper } from '@/components/layout/WizardLayoutWrapper';
 import { BottomNav } from '@/components/navigation/BottomNav';
 import { TopTabs } from '@/components/navigation/TopTabs';
 import { PremiumUsageProvider } from '@/features/ai-improvements/PremiumUsageProvider';
 import { signOut } from '@/features/auth/actions';
-import { LimitsBanner } from '@/features/limits/LimitsBanner';
 import { getSession } from '@/lib/authUtils';
 import { FREEMIUM_LIMITS } from '@/lib/limits';
 import { getProfile } from '@/lib/supabaseServer';
@@ -58,10 +58,9 @@ export default async function PromptsLayout({
           </div>
         </header>
 
-        <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
-          <LimitsBanner promptCount={profile?.prompt_quota_used ?? 0} />
-          <div className="mt-6">{children}</div>
-        </main>
+        <WizardLayoutWrapper promptCount={profile?.prompt_quota_used ?? 0}>
+          {children}
+        </WizardLayoutWrapper>
 
         <BottomNav />
       </div>

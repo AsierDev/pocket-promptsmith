@@ -82,15 +82,16 @@ export function BottomNav() {
             key={item.href}
             href={item.href}
             className={clsx(
-              'flex flex-1 flex-col items-center gap-1 py-2 text-xs font-medium transition-colors',
+              'flex flex-1 flex-col items-center gap-1 py-2 text-xs font-medium transition-all duration-200',
               item.isActive
                 ? 'text-primary'
-                : 'text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300'
+                : 'text-slate-400 hover:text-slate-700 dark:text-slate-500 dark:hover:text-white'
             )}
           >
             <div
               className={clsx(
-                item.isActive && 'scale-110 transition-transform'
+                'transition-transform duration-200',
+                item.isActive && 'scale-110'
               )}
             >
               {item.icon}

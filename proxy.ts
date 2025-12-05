@@ -83,12 +83,22 @@ export async function proxy(request: NextRequest) {
   const session = user ? { user } : null;
 
   if (!session && requiresSession) {
-    const loginUrl = new URL('/login', request.url);
-    const redirectTo = `${pathname}${request.nextUrl.search ?? ''}`;
-    if (redirectTo !== '/login') {
-      loginUrl.searchParams.set('redirectTo', redirectTo);
+    // Before redirecting to login, check if there might be a saved session in localStorage
+    // that will be hydrated by SessionHydration component
+    // This prevents the flash of login page on PWA startup when session exists in localStorage
+    const hasPotentialSession = request.cookies.get('pps_has_session')?.value === 'true';
+    
+    if (!hasPotentialSession) {
+      const loginUrl = new URL('/login', request.url);
+      const redirectTo = `${pathname}${request.nextUrl.search ?? ''}`;
+      if (redirectTo !== '/login') {
+        loginUrl.searchParams.set('redirectTo', redirectTo);
+      }
+      return NextResponse.redirect(loginUrl);
     }
-    return NextResponse.redirect(loginUrl);
+    
+    // If we have a potential localStorage session, let the request through
+    // SessionHydration will handle redirecting if the session is invalid
   }
 
   if (session && redirectAuthenticated) {

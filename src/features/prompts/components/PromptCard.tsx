@@ -81,7 +81,7 @@ export const PromptCard = memo(({ prompt }: PromptCardProps) => {
   const tags = prompt.tags?.slice(0, 2) ?? [];
 
   return (
-    <article className="group relative flex min-h-[160px] flex-col gap-3 rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-card-subtle transition hover:border-primary/50 hover:shadow-card dark:border-slate-800 dark:bg-slate-900/90 sm:flex-row sm:gap-4">
+    <article className="group relative flex min-h-[160px] flex-col gap-3 rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-card-subtle transition-all duration-200 hover:-translate-y-1 hover:border-primary/50 hover:shadow-card dark:border-slate-800 dark:bg-slate-900/90 sm:flex-row sm:gap-4">
       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl sm:h-12 sm:w-12" aria-hidden>
         <span
           className={`flex h-full w-full items-center justify-center rounded-xl text-lg ${category.bg} ${category.iconColor} dark:bg-opacity-20`}
@@ -127,7 +127,7 @@ export const PromptCard = memo(({ prompt }: PromptCardProps) => {
         <div className="flex items-center gap-2">
           <Link
             href={`/prompts/${prompt.id}`}
-            className="group/edit inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
+            className="group/edit inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition-all duration-200 hover:scale-110 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
             aria-label={`Editar ${prompt.title}`}
           >
             <svg
@@ -147,7 +147,7 @@ export const PromptCard = memo(({ prompt }: PromptCardProps) => {
           </Link>
           <Link
             href={`/prompts/${prompt.id}/use`}
-            className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-violet-600"
+            className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:scale-105 hover:bg-violet-600 hover:shadow-md"
           >
             Usar
           </Link>

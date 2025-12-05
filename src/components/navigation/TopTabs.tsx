@@ -32,15 +32,15 @@ export function TopTabs() {
                     key={tab.href}
                     href={tab.href}
                     className={clsx(
-                        'relative px-4 py-2 text-sm font-semibold transition-colors',
+                        'relative px-4 py-2 text-sm font-semibold transition-all duration-200',
                         tab.isActive
                             ? 'text-primary'
-                            : 'text-slate-600 hover:text-slate-900'
+                            : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
                     )}
                 >
                     {tab.label}
                     {tab.isActive && (
-                        <span className="absolute inset-x-0 bottom-0 h-0.5 bg-primary" />
+                        <span className="absolute inset-x-0 bottom-0 h-0.5 bg-primary animate-in slide-in-from-left duration-200" />
                     )}
                 </Link>
             ))}

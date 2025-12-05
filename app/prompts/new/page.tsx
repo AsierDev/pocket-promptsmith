@@ -13,7 +13,7 @@ export default async function NewPromptPage({
   const focusAiPanel = params?.ai === '1';
 
   return (
-    <div className="space-y-6">
+    <div className="page-transition space-y-6">
       <div className="rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-sm">
         <div>
           <p className="text-xs uppercase tracking-wide text-slate-400">Mis prompts / Nuevo</p>

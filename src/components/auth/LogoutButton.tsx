@@ -21,6 +21,9 @@ export const LogoutButton = ({ className = '' }: LogoutButtonProps) => {
     try {
       // Clear client-side session storage first
       clearSessionFromLocalStorage();
+      
+      // Clear the session flag cookie
+      document.cookie = 'pps_has_session=; path=/; max-age=0';
 
       // Then call server action
       await signOut();

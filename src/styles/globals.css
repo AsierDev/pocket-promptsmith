@@ -14,6 +14,61 @@
   /* Line height tokens for comfortable reading */
   --line-height-relaxed: 1.5;
   --line-height-comfortable: 1.6;
+
+  /* Animation durations */
+  --duration-fast: 150ms;
+  --duration-normal: 200ms;
+  --duration-slow: 300ms;
+
+  /* Animation easings */
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 body {
@@ -25,4 +80,26 @@ body {
 
 a {
   color: inherit;
+}
+
+/* Smooth transitions for all interactive elements */
+button,
+a,
+input,
+textarea,
+select {
+  transition: all var(--duration-normal) var(--ease-smooth);
+}
+
+/* Page transition animations */
+.page-transition {
+  animation: fadeIn var(--duration-slow) var(--ease-smooth);
+}
+
+.slide-up-transition {
+  animation: slideUp var(--duration-slow) var(--ease-smooth);
+}
+
+.scale-in-transition {
+  animation: scaleIn var(--duration-normal) var(--ease-smooth);
 }

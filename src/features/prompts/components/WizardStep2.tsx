@@ -169,23 +169,25 @@ export function WizardStep2({
 
         {/* Right: AI Helper Panel (desktop always visible) */}
         <div className="hidden lg:block">
-          <PromptAIHelperPanel
-            mode={mode}
-            promptId={promptId}
-            content={contentValue ?? ''}
-            category={categoryValue}
-            onApply={onApplyImprovement}
-            autoFocus={autoFocusAiPanel}
-            aiImprovementSource={aiImprovementSource ?? ''}
-            onChangeAiImprovementSource={(value) =>
-              setValue('ai_improvement_source', value, {
-                shouldDirty: true,
-                shouldValidate: true
-              })
-            }
-            aiImprovementLimit={AI_IMPROVEMENT_SOURCE_MAX_LENGTH}
-            aiImprovementError={errors.ai_improvement_source?.message}
-          />
+          <div className="sticky top-24 max-h-[calc(100vh-200px)] overflow-y-auto">
+            <PromptAIHelperPanel
+              mode={mode}
+              promptId={promptId}
+              content={contentValue ?? ''}
+              category={categoryValue}
+              onApply={onApplyImprovement}
+              autoFocus={autoFocusAiPanel}
+              aiImprovementSource={aiImprovementSource ?? ''}
+              onChangeAiImprovementSource={(value) =>
+                setValue('ai_improvement_source', value, {
+                  shouldDirty: true,
+                  shouldValidate: true
+                })
+              }
+              aiImprovementLimit={AI_IMPROVEMENT_SOURCE_MAX_LENGTH}
+              aiImprovementError={errors.ai_improvement_source?.message}
+            />
+          </div>
         </div>
       </div>
 

@@ -33,7 +33,7 @@ export const PromptsContent = async ({
   const shouldShowFilterEmpty = prompts.length === 0 && !isFavoritesView && hasAppliedFilters;
 
   return (
-    <div className="space-y-6">
+    <div className="page-transition space-y-6">
       <PromptFiltersComponent initialFilters={filters} suggestedTags={suggestedTags} />
       {showLibraryAnchor && <div id="library-results-anchor" className="scroll-mt-24" />}
       {shouldShowLibraryEmpty && <PromptEmptyState variant="library" />}
